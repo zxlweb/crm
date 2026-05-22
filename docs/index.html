@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM 项目文档 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="./index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="./README.html" style="color:var(--accent);font-weight:600">README</a><h2>api</h2><a href="./api/00-api-design.html">00-api-design</a><a href="./api/README.html">README</a><h2>architecture</h2><a href="./architecture/00-main-architecture.html">00-main-architecture</a><a href="./architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="./architecture/02-rbac-design.html">02-rbac-design</a><a href="./architecture/README.html">README</a><h2>architecture/adr</h2><a href="./architecture/adr/0000-template.html">0000-template</a><a href="./architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="./architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="./architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="./architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="./backend-arch/00-database-schema.html">00-database-schema</a><a href="./backend-arch/01-layering.html">01-layering</a><a href="./backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="./frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="./frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="./meeting-notes/README.html">README</a><a href="./meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="./prd/00-crm-overview.html">00-crm-overview</a><a href="./prd/README.html">README</a><h2>qa</h2><a href="./qa/README.html">README</a><a href="./qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="./reviews/README.html">README</a><a href="./reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="./tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="./tasks/README.html">README</a><h2>templates</h2><a href="./templates/code-review-template.html">code-review-template</a><a href="./templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="./" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>CRM 项目文档</h1>
+<p><strong>版本</strong>：v0.3<br><strong>更新</strong>：2026-05-21</p>
+<blockquote>
+<p><strong>浏览器入口</strong>：<a href="./index.html">index.html</a>（推荐）<br><strong>构建 HTML</strong>：在项目根目录执行 <code>make docs-html</code></p>
+</blockquote>
+<p>本目录是 EnterpriseFlow CRM 的<strong>单一文档入口</strong>。</p>
+<hr>
+<h2>快速导航</h2>
+<table>
+<thead>
+<tr>
+<th>我要…</th>
+<th>Markdown</th>
+<th>HTML 预览</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文档首页</td>
+<td><a href="./README.md">README.md</a></td>
+<td><a href="./index.html">index.html</a></td>
+</tr>
+<tr>
+<td>产品范围与角色</td>
+<td><a href="./prd/00-crm-overview.md">prd/00-crm-overview.md</a></td>
+<td><a href="./prd/00-crm-overview.html">prd/00-crm-overview.html</a></td>
+</tr>
+<tr>
+<td>MVP 任务进度</td>
+<td><a href="./tasks/00-mvp-task-breakdown.md">tasks/00-mvp-task-breakdown.md</a></td>
+<td><a href="./tasks/00-mvp-task-breakdown.html">tasks/00-mvp-task-breakdown.html</a></td>
+</tr>
+<tr>
+<td>阶段 / 会议笔记</td>
+<td><a href="./meeting-notes/README.md">meeting-notes/README.md</a></td>
+<td><a href="./meeting-notes/README.html">meeting-notes/README.html</a></td>
+</tr>
+<tr>
+<td>QA 测试报告</td>
+<td><a href="./qa/README.md">qa/README.md</a></td>
+<td><a href="./qa/README.html">qa/README.html</a></td>
+</tr>
+<tr>
+<td>Code Review</td>
+<td><a href="./reviews/README.md">reviews/README.md</a></td>
+<td><a href="./reviews/README.html">reviews/README.html</a></td>
+</tr>
+<tr>
+<td>API 契约</td>
+<td><a href="./api/00-api-design.md">api/00-api-design.md</a></td>
+<td><a href="./api/00-api-design.html">api/00-api-design.html</a></td>
+</tr>
+<tr>
+<td>系统架构</td>
+<td><a href="./architecture/00-main-architecture.md">architecture/00-main-architecture.md</a></td>
+<td><a href="./architecture/00-main-architecture.html">architecture/00-main-architecture.html</a></td>
+</tr>
+<tr>
+<td>架构决策 ADR</td>
+<td><a href="./architecture/adr/README.md">architecture/adr/README.md</a></td>
+<td><a href="./architecture/adr/README.html">architecture/adr/README.html</a></td>
+</tr>
+<tr>
+<td>数据库 Schema</td>
+<td><a href="./backend-arch/00-database-schema.md">backend-arch/00-database-schema.md</a></td>
+<td><a href="./backend-arch/00-database-schema.html">backend-arch/00-database-schema.html</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>目录结构</h2>
+<pre><code>docs/
+├── README.md / index.html      # 文档入口
+├── prd/                        # 产品需求 → prd/README.md
+├── api/                        # API 契约 → api/README.md
+├── architecture/               # 系统架构 → architecture/README.md
+│   └── adr/                    # 架构决策记录
+├── backend-arch/               # 后端约定 → backend-arch/README.md
+├── frontend-arch/              # 前端约定 → frontend-arch/README.md
+├── tasks/                      # 任务进度（仅勾选）→ tasks/README.md
+├── meeting-notes/              # 阶段/会议笔记 → meeting-notes/README.md
+├── qa/                         # QA 测试报告 → qa/README.md
+├── reviews/                    # Code Review 记录 → reviews/README.md
+└── templates/                  # 文档空模板
+</code></pre>
+<hr>
+<h2>文档类型与职责</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>目录</th>
+<th>回答的问题</th>
+<th>何时更新</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>PRD</strong></td>
+<td><code>prd/</code></td>
+<td>做什么、验收标准</td>
+<td>新模块开发前</td>
+</tr>
+<tr>
+<td><strong>API</strong></td>
+<td><code>api/</code></td>
+<td>接口契约</td>
+<td>与 PRD 同步，编码前</td>
+</tr>
+<tr>
+<td><strong>Architecture</strong></td>
+<td><code>architecture/</code></td>
+<td>系统如何组织</td>
+<td>架构变更时</td>
+</tr>
+<tr>
+<td><strong>ADR</strong></td>
+<td><code>architecture/adr/</code></td>
+<td>为什么这样选</td>
+<td>有取舍的决策后 1–2 天</td>
+</tr>
+<tr>
+<td><strong>Tasks</strong></td>
+<td><code>tasks/</code></td>
+<td>进度勾选</td>
+<td>每个 Phase 开始/结束</td>
+</tr>
+<tr>
+<td><strong>Meeting Notes</strong></td>
+<td><code>meeting-notes/</code></td>
+<td>验收、阻塞、联调记录</td>
+<td>Phase/会议结束后</td>
+</tr>
+<tr>
+<td><strong>QA</strong></td>
+<td><code>qa/</code></td>
+<td>测了什么、通没通</td>
+<td>阶段/模块测试完成后</td>
+</tr>
+<tr>
+<td><strong>Reviews</strong></td>
+<td><code>reviews/</code></td>
+<td>Review 过没过</td>
+<td>Code Review 结束后</td>
+</tr>
+<tr>
+<td><strong>Backend Arch</strong></td>
+<td><code>backend-arch/</code></td>
+<td>Schema、分层</td>
+<td>脚手架/规范变更</td>
+</tr>
+<tr>
+<td><strong>Frontend Arch</strong></td>
+<td><code>frontend-arch/</code></td>
+<td>目录、状态管理</td>
+<td>前端规范变更</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>MD + HTML 双格式规范</h2>
+<p>与 <code>.cursorrules</code> 一致：</p>
+<ol>
+<li><strong>源码</strong>：<code>.md</code> 文件纳入 Git，供 Cursor / 协作编辑  </li>
+<li><strong>预览</strong>：同名 <code>.html</code>，由构建脚本生成，勿手改  </li>
+<li><strong>更新流程</strong>：改 <code>.md</code> → 运行 <code>make docs-html</code> → 提交 <code>.md</code> + <code>.html</code></li>
+</ol>
+<pre><code class="language-bash"># 首次
+cd scripts/doc-tools &amp;&amp; npm install
+cd ../.. &amp;&amp; make docs-html
+
+# 打开浏览器
+open docs/index.html
+</code></pre>
+<p>HTML 特性：侧边栏导航、代码高亮、Mermaid 渲染、明暗主题切换。</p>
+<hr>
+<h2>推荐工作流</h2>
+<pre><code class="language-mermaid">flowchart LR
+  PRD[PRD] --&gt; API[API 设计]
+  API --&gt; Code[编码实现]
+  Code --&gt; ADR[ADR 如有决策]
+  Code --&gt; QA[qa/ 测试报告]
+  Code --&gt; Review[reviews/ Review]
+  Code --&gt; Tasks[tasks/ 更新勾选]
+  MD[更新 .md] --&gt; HTML[make docs-html]
+</code></pre>
+<ol>
+<li>Product → PRD  </li>
+<li>Architect → 架构 / ADR  </li>
+<li>Dev → 按 API 实现 + 自动化测试  </li>
+<li>QA → <code>docs/qa/{phase|模块}-qa.md</code>  </li>
+<li>Review → <code>docs/reviews/{phase|模块}-review.md</code>  </li>
+<li>全员 → 勾选 <code>tasks/</code>，笔记写 <code>meeting-notes/</code> 并链到 QA/Review  </li>
+<li><code>make docs-html</code></li>
+</ol>
+<hr>
+<h2>当前进度</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Phase 0 基础架构</td>
+<td>✅ 已完成</td>
+<td><a href="./tasks/00-mvp-task-breakdown.md">tasks/00-mvp-task-breakdown.md</a></td>
+</tr>
+<tr>
+<td>Phase 1 认证权限</td>
+<td>🔲 进行中</td>
+<td>登录 / Refresh / 多租户切换</td>
+</tr>
+<tr>
+<td>Phase 2–4</td>
+<td>🔲 未开始</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>代码入口</h2>
+<table>
+<thead>
+<tr>
+<th>端</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Backend</td>
+<td><a href="../backend/README.md">../backend/README.md</a></td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td><a href="../frontend/README.md">../frontend/README.md</a></td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ./</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

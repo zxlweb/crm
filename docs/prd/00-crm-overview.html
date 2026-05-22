@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM 系统 MVP PRD · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html" style="color:var(--accent);font-weight:600">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../prd/00-crm-overview.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>CRM 系统 MVP PRD</h1>
+<p><strong>产品名称</strong>：EnterpriseFlow CRM（企业流 CRM）<br><strong>版本</strong>：MVP v0.1<br><strong>日期</strong>：2026-05-21<br><strong>目标用户</strong>：中小企业销售团队、客服团队</p>
+<h2>1. 背景与业务目标</h2>
+<p>随着企业数字化转型，中小企业需要一套<strong>轻量、易用、安全的多租户 CRM 系统</strong>，帮助他们更好地管理客户、销售流程和团队协作。</p>
+<p><strong>核心业务目标</strong>（MVP 阶段）：</p>
+<ul>
+<li>实现客户全生命周期管理</li>
+<li>提升销售团队效率和成交率</li>
+<li>支持多租户 SaaS 模式，快速服务多个企业客户</li>
+<li>建立完善的权限与数据隔离体系</li>
+<li>支持中英文双语</li>
+</ul>
+<h2>2. 用户角色 (Personas)</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>描述</th>
+<th>核心诉求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tenant Admin（管理员）</td>
+<td>企业负责人或 IT 管理员</td>
+<td>成员管理、权限分配、租户配置</td>
+</tr>
+<tr>
+<td>Sales Manager（销售经理）</td>
+<td>销售团队主管</td>
+<td>查看团队业绩、分配线索、报表</td>
+</tr>
+<tr>
+<td>Sales（销售人员）</td>
+<td>普通销售</td>
+<td>跟进线索、维护客户、创建商机</td>
+</tr>
+<tr>
+<td>Viewer（只读用户）</td>
+<td>部分查看权限用户</td>
+<td>查看相关数据</td>
+</tr>
+</tbody></table>
+<h2>3. MVP 功能范围（核心模块）</h2>
+<h3><strong>Phase 1 - MVP 核心功能</strong>（建议第一个迭代完成）</h3>
+<h4><strong>1. 认证与多租户基础</strong></h4>
+<ul>
+<li>用户注册 / 登录 / 忘记密码</li>
+<li>多租户支持（邀请成员、切换租户）</li>
+<li>Super Admin 后台（跨租户管理）</li>
+<li>JWT + Refresh Token 认证</li>
+</ul>
+<h4><strong>2. RBAC 权限系统</strong></h4>
+<ul>
+<li>角色管理（内置 + 自定义角色）</li>
+<li>权限分配（资源:操作 模式）</li>
+<li>按钮/菜单/页面级权限控制</li>
+<li>数据权限（本人可见 / 部门可见 / 全部可见）</li>
+</ul>
+<h4><strong>3. 客户管理 (Contacts &amp; Companies)</strong></h4>
+<ul>
+<li>公司（Accounts）管理</li>
+<li>联系人（Contacts）管理</li>
+<li>关联关系（一个公司多个联系人）</li>
+<li>基本信息 + 自定义字段</li>
+</ul>
+<h4><strong>4. 线索管理 (Leads)</strong></h4>
+<ul>
+<li>线索录入、导入（Excel）</li>
+<li>线索分配、跟进记录</li>
+<li>线索状态流转（New → Contacted → Qualified → etc.）</li>
+<li>线索转商机</li>
+</ul>
+<h4><strong>5. 商机管理 (Deals)</strong></h4>
+<ul>
+<li>商机创建与阶段管理（Pipeline）</li>
+<li>金额、预计成交日期、概率</li>
+<li>简单销售阶段看板（Kanban）</li>
+</ul>
+<h4><strong>6. 仪表盘 (Dashboard)</strong></h4>
+<ul>
+<li>个人/团队关键指标（本月成交、线索数量、转化率）</li>
+<li>销售漏斗图</li>
+<li>待跟进事项</li>
+</ul>
+<h4><strong>7. 系统设置</strong></h4>
+<ul>
+<li>租户基本信息配置</li>
+<li>自定义字段管理</li>
+<li>i18n 语言切换（中 / 英）</li>
+<li>审计日志查看（管理员）</li>
+</ul>
+<h3><strong>后续迭代（Phase 2+，MVP 之后）</strong></h3>
+<ul>
+<li>任务 / Activity 管理</li>
+<li>合同管理</li>
+<li>报表与高级分析</li>
+<li>邮件集成 / 通知</li>
+<li>移动端适配</li>
+<li>API 开放平台</li>
+</ul>
+<h2>4. 非功能需求</h2>
+<ul>
+<li><strong>多租户数据隔离</strong>：严格隔离</li>
+<li><strong>性能</strong>：单租户 ≤ 200 用户时，页面加载 &lt; 1.5s</li>
+<li><strong>安全</strong>：JWT 安全、密码加密、操作审计、SQL 注入防护</li>
+<li><strong>国际化</strong>：完整中英文支持，后续可扩展</li>
+<li><strong>技术约束</strong>：Nuxt 3 + Go + PostgreSQL</li>
+<li><strong>可扩展性</strong>：支持后续增加模块</li>
+</ul>
+<h2>5. 用户故事示例（部分）</h2>
+<p><strong>线索管理</strong></p>
+<ul>
+<li>作为销售，我可以新建线索，填写基本信息和跟进记录</li>
+<li>作为销售经理，我可以把线索分配给团队成员</li>
+<li>作为管理员，我可以查看所有租户的线索统计</li>
+</ul>
+<p><strong>权限</strong></p>
+<ul>
+<li>作为管理员，我可以创建角色并分配权限</li>
+<li>作为销售，我只能看到自己负责的线索和商机（默认）</li>
+</ul>
+<h2>6. 优先级 (MoSCoW)</h2>
+<ul>
+<li><strong>Must Have</strong>：认证 + 多租户 + RBAC + Contacts + Leads + Deals + Dashboard</li>
+<li><strong>Should Have</strong>：自定义字段、简单看板、导入导出</li>
+<li><strong>Could Have</strong>：活动记录、邮件通知</li>
+<li><strong>Won&#39;t Have (MVP)</strong>：AI 智能分析、复杂报表、移动 App</li>
+</ul>
+<h2>7. 成功指标 (OKRs)</h2>
+<ul>
+<li><strong>Objective</strong>：快速验证产品市场可用性</li>
+<li><strong>Key Results</strong>：<ul>
+<li>完成 MVP 开发并成功部署</li>
+<li>支持至少 3 个租户同时使用且数据隔离正常</li>
+<li>系统核心页面响应时间 &lt; 2s</li>
+<li>权限控制无明显越权漏洞</li>
+</ul>
+</li>
+</ul>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../prd/00-crm-overview.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

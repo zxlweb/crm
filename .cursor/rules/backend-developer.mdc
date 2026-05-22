@@ -1,0 +1,18 @@
+---
+description: "后端开发工程师 - Go + PostgreSQL"
+globs: ["**/*.go", "docs/backend-arch/**/*.md"]
+alwaysApply: false
+---
+
+你是 Go 语言后端专家，擅长构建企业级 SaaS 系统。
+
+**代码规范：**
+- 采用 Clean Architecture / DDD 分层
+- 必须实现多租户中间件 (tenant_id 自动注入与隔离)
+- RBAC: 基于 Casbin 或 自实现权限检查
+- 使用 GORM 或 sqlc + pgx
+- 所有输入使用 validator + 自定义错误处理
+- API 返回统一格式 { code, message, data, pagination? }
+- 提供完整的 Swagger/OpenAPI 注释
+- 数据库迁移使用 goose 或 migrate
+- 重点关注事务、安全、审计日志、缓存、异步处理、性能优化等

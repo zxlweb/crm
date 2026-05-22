@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>00-database-schema · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html" style="color:var(--accent);font-weight:600">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../backend-arch/00-database-schema.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h4><strong>核心设计原则</strong></h4>
+<ul>
+<li>所有业务表都包含 <code>tenant_id</code></li>
+<li>软删除（<code>deleted_at</code>）</li>
+<li>审计字段（<code>created_by</code>, <code>updated_by</code>）</li>
+<li>主键使用 <code>UUID</code></li>
+<li>时间字段使用 <code>timestamptz</code></li>
+</ul>
+<h4><strong>SQL 表结构（核心表）</strong></h4>
+<pre><code class="language-sql">-- 1. 租户表
+CREATE TABLE tenants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    domain VARCHAR(100) UNIQUE,
+    logo_url TEXT,
+    config JSONB DEFAULT &#39;{}&#39;,           -- 租户个性化配置
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. 用户表（全局）
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    name VARCHAR(100),
+    avatar_url TEXT,
+    is_super_admin BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
+
+-- 3. 用户-租户关联表（支持用户属于多个租户）
+CREATE TABLE user_tenants (
+    user_id UUID REFERENCES users(id),
+    tenant_id UUID REFERENCES tenants(id),
+    PRIMARY KEY (user_id, tenant_id)
+);
+
+-- 4. 角色表
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_system BOOLEAN DEFAULT false,     -- 系统内置角色不可删除
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. 权限资源表
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    resource VARCHAR(100) NOT NULL,      -- 如 &quot;leads&quot;, &quot;deals&quot;
+    action VARCHAR(50) NOT NULL,         -- 如 &quot;create&quot;, &quot;view&quot;, &quot;delete&quot;
+    description TEXT,
+    UNIQUE(resource, action)
+);
+
+-- 6. 角色-权限关联
+CREATE TABLE role_permissions (
+    role_id UUID REFERENCES roles(id),
+    permission_id UUID REFERENCES permissions(id),
+    PRIMARY KEY (role_id, permission_id)
+);
+
+-- 7. 用户-角色关联（租户内）
+CREATE TABLE user_roles (
+    user_id UUID REFERENCES users(id),
+    role_id UUID REFERENCES roles(id),
+    tenant_id UUID REFERENCES tenants(id),
+    PRIMARY KEY (user_id, role_id, tenant_id)
+);
+
+-- 8. 审计日志表（重要）
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    user_id UUID,
+    action VARCHAR(100),
+    resource_type VARCHAR(100),
+    resource_id UUID,
+    old_value JSONB,
+    new_value JSONB,
+    ip_address INET,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 示例业务表（Leads）
+CREATE TABLE leads (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    owner_id UUID REFERENCES users(id),
+    title VARCHAR(255) NOT NULL,
+    status VARCHAR(50),
+    source VARCHAR(50),
+    amount DECIMAL(15,2),
+    expected_close_date DATE,
+    created_by UUID,
+    updated_by UUID,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
+
+-- 索引建议
+CREATE INDEX idx_leads_tenant ON leads(tenant_id);
+CREATE INDEX idx_leads_owner ON leads(owner_id);
+</code></pre>
+<h4><strong>GORM Model 示例</strong>（Go）</h4>
+<p>我后续可以给你完整 Model 文件，这里先给一个示例：</p>
+<pre><code class="language-go">type Tenant struct {
+    ID        uuid.UUID `gorm:&quot;type:uuid;primaryKey;default:gen_random_uuid()&quot;`
+    Name      string
+    Domain    string
+    Config    datatypes.JSON
+    IsActive  bool
+    CreatedAt time.Time
+    UpdatedAt time.Time
+}
+
+type Lead struct {
+    ID              uuid.UUID `gorm:&quot;type:uuid;primaryKey&quot;`
+    TenantID        uuid.UUID `gorm:&quot;index&quot;`
+    OwnerID         *uuid.UUID
+    Title           string
+    // ...
+    CreatedAt       time.Time
+    UpdatedAt       time.Time
+    DeletedAt       gorm.DeletedAt `gorm:&quot;index&quot;`
+}
+</code></pre>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../backend-arch/00-database-schema.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

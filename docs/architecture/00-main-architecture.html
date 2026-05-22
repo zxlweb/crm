@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM 系统架构文档 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html" style="color:var(--accent);font-weight:600">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../architecture/00-main-architecture.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>CRM 系统架构文档</h1>
+<p><strong>版本</strong>：v0.2（MVP 架构）<br><strong>日期</strong>：2026-05-21<br><strong>技术栈</strong>：Nuxt 3 + Go + PostgreSQL</p>
+<blockquote>
+<p>浏览器阅读：<a href="./00-main-architecture.html">00-main-architecture.html</a> · 决策记录：<a href="./adr/README.md">adr/</a></p>
+</blockquote>
+<h2>1. 系统上下文图 (C4 Context)</h2>
+<p><strong>系统名称</strong>：Enterprise CRM (SaaS 多租户)</p>
+<p><strong>外部用户/系统</strong>：</p>
+<ul>
+<li>企业管理员（Tenant Admin）</li>
+<li>销售/客服/经理等普通用户</li>
+<li>系统管理员（Super Admin）</li>
+<li>外部邮件/SMS/支付/第三方登录系统</li>
+<li>外部数据导入/导出（Excel、API）</li>
+</ul>
+<p><strong>主要交互</strong>：</p>
+<ul>
+<li>用户通过浏览器访问 Nuxt 3 前端</li>
+<li>前端通过 RESTful API + JWT 调用 Go Backend</li>
+<li>Backend 访问 PostgreSQL（多租户隔离）</li>
+</ul>
+<h2>2. 多租户实现策略（核心决策）</h2>
+<p><strong>推荐方案</strong>：<strong>共享数据库 + tenant_id 隔离</strong>（Row-level Isolation）</p>
+<p><strong>理由</strong>：</p>
+<ul>
+<li>开发与运维成本最低，适合初期到中型规模</li>
+<li>PostgreSQL Row Level Security (RLS) 可进一步加强隔离</li>
+<li>易于后续扩展到 Schema 隔离或独立数据库</li>
+</ul>
+<p><strong>实现方式</strong>：</p>
+<ul>
+<li>所有业务表必须包含 <code>tenant_id</code> 字段（UUID 或 BIGINT）</li>
+<li>Backend 中间件自动从 JWT 中提取 <code>tenant_id</code>，并注入到所有查询</li>
+<li>使用 GORM Scope 或 sqlc 封装 tenant-aware 查询</li>
+<li>关键表（Tenant、User、Role 等）全局共享，其他业务表严格隔离</li>
+</ul>
+<h2>3. RBAC 权限模型设计</h2>
+<p><strong>模型</strong>：<strong>RBAC + ABAC 混合</strong>（推荐）</p>
+<ul>
+<li><strong>核心实体</strong>：<ul>
+<li>Tenant（租户）</li>
+<li>User（用户，可属于多个租户）</li>
+<li>Role（角色，支持租户级 + 全局）</li>
+<li>Permission（资源:操作，例如 <code>leads:create</code>, <code>reports:export</code>）</li>
+<li>UserRole、RolePermission 关联表</li>
+</ul>
+</li>
+</ul>
+<p><strong>实现推荐</strong>：</p>
+<ul>
+<li><strong>首选</strong>：集成 <a href="https://casbin.org/">Casbin</a>（支持 RBAC + ABAC + 多租户）</li>
+<li>备选：自实现 + PostgreSQL 表查询 + 缓存（Redis）</li>
+<li>数据权限：部分表增加 <code>owner_id</code> 或 <code>department_id</code> 做进一步过滤</li>
+</ul>
+<p><strong>前端实现</strong>：</p>
+<ul>
+<li><code>usePermission()</code> composable</li>
+<li><code>&lt;Permission :required=&quot;[&#39;deals:delete&#39;]&quot;&gt;</code> 组件或指令</li>
+</ul>
+<h2>4. 整体分层架构</h2>
+<h3>Backend (Go)</h3>
+<pre><code>cmd/
+  └─ api/                  # 入口
+internal/
+  ├── domain/              # 领域模型（Tenant, User, Lead, Deal...）
+  ├── application/         # 用例层（Service）
+  ├── infrastructure/      # 持久化、外部服务
+  ├── interfaces/          # API Handlers + DTO
+  ├── middleware/          # Tenant, Auth, RBAC, Logging
+  └── config/
+</code></pre>
+<ul>
+<li>Web 框架：<strong>Gin</strong></li>
+<li>ORM：<strong>GORM</strong>（MVP 阶段快速开发）或 <strong>sqlc + pgx</strong>（生产推荐）</li>
+<li>迁移工具：<strong>goose</strong></li>
+<li>验证：<strong>validator.v10</strong></li>
+<li>API 文档：<strong>Swagger</strong></li>
+</ul>
+<h3>Frontend (Nuxt 3)</h3>
+<pre><code>layers/                  # 可选分层
+src/
+  ├── app/               # Nuxt App Router
+  ├── components/        # base、ui、feature
+  ├── composables/       # useTenant, usePermission, useApi 等
+  ├── features/          # 按业务模块（leads、deals、contacts...）
+  ├── server/            # Nitro 服务端 API（可选）
+  ├── stores/            # Pinia
+  └── utils/
+</code></pre>
+<ul>
+<li>状态管理：<strong>Pinia</strong></li>
+<li>API 请求：<strong>useFetch / $fetch</strong> + Zod 解析响应</li>
+<li>表单：<strong>Zod</strong> + Nuxt UI / vee-validate</li>
+<li>UI：<strong>Tailwind CSS + Nuxt UI</strong>（或 Headless UI）</li>
+</ul>
+<h2>5. 认证授权方案</h2>
+<ul>
+<li><strong>认证</strong>：JWT + Refresh Token（HttpOnly Cookie）</li>
+<li><strong>流程</strong>：<ol>
+<li>登录时返回 access_token + refresh_token</li>
+<li>中间件解析 token → 加载 User + Tenant + Roles</li>
+<li>支持多租户切换（用户可在有权限的租户间切换）</li>
+</ol>
+</li>
+<li><strong>Super Admin</strong> 特殊通道（独立权限）</li>
+</ul>
+<h2>6. 数据库核心表设计原则</h2>
+<p><strong>必须包含的字段</strong>（每张业务表）：</p>
+<ul>
+<li><code>id</code>, <code>tenant_id</code>, <code>created_at</code>, <code>updated_at</code>, <code>created_by</code>, <code>updated_by</code></li>
+<li>软删除：<code>deleted_at</code></li>
+</ul>
+<p><strong>核心共享表</strong>：</p>
+<ul>
+<li><code>tenants</code></li>
+<li><code>users</code></li>
+<li><code>user_tenants</code>（用户-租户关联）</li>
+<li><code>roles</code></li>
+<li><code>permissions</code></li>
+<li><code>role_permissions</code></li>
+<li><code>audit_logs</code>（审计）</li>
+</ul>
+<h2>7. 前端架构分层建议</h2>
+<ul>
+<li><strong>composables/</strong>：全局可复用（useTenant, useRBAC, useI18n）</li>
+<li><strong>features/</strong>：业务模块组织（推荐）</li>
+<li><strong>i18n</strong>：使用 <code>nuxt/i18n</code>，支持 <code>zh-CN</code> 和 <code>en</code>，动态加载</li>
+<li><strong>类型安全</strong>：所有 API Response 定义 Zod Schema，前端自动推断类型</li>
+</ul>
+<h2>8. 关键架构决策 (ADR)</h2>
+<p>详细决策记录见 <strong><a href="./adr/README.md">architecture/adr/</a></strong>（不可改写历史，仅可 Superseded）。</p>
+<table>
+<thead>
+<tr>
+<th>ADR</th>
+<th>决策</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="./adr/0001-shared-db-multi-tenancy.md">0001</a></td>
+<td>共享数据库 + tenant_id 多租户</td>
+<td>Accepted</td>
+</tr>
+<tr>
+<td><a href="./adr/0002-casbin-rbac.md">0002</a></td>
+<td>Casbin RBAC + resource:action</td>
+<td>Accepted</td>
+</tr>
+<tr>
+<td><a href="./adr/0003-goose-migrations.md">0003</a></td>
+<td>Goose 数据库迁移</td>
+<td>Accepted</td>
+</tr>
+</tbody></table>
+<p><em>技术栈（Gin、Nuxt 3、Pinia）见 <code>.cursorrules</code>，后续若需独立 ADR 按 <code>0000-template.md</code> 补充。</em></p>
+<h2>9. 潜在风险与缓解</h2>
+<ul>
+<li><strong>风险</strong>：多租户数据泄露 → <strong>缓解</strong>：中间件强制过滤 + RLS + 单元测试</li>
+<li><strong>风险</strong>：RBAC 权限爆炸 → <strong>缓解</strong>：设计权限资源树 + 管理后台</li>
+<li><strong>风险</strong>：i18n 文案不一致 → <strong>缓解</strong>：建立文案审核流程 + 自动化检查</li>
+<li><strong>风险</strong>：性能（高并发租户）→ <strong>缓解</strong>：缓存（Redis）、读写分离、索引优化</li>
+</ul>
+<hr>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../architecture/00-main-architecture.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

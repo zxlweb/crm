@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API 设计文档（MVP） · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html" style="color:var(--accent);font-weight:600">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../api/00-api-design.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>API 设计文档（MVP）</h1>
+<p><strong>版本</strong>：v0.1<br><strong>日期</strong>：2026-05-21<br><strong>Base URL</strong>：<code>http://localhost:8080</code></p>
+<blockquote>
+<p>HTML：<a href="./00-api-design.html">00-api-design.html</a></p>
+</blockquote>
+<hr>
+<h2>统一响应格式</h2>
+<p>所有接口返回：</p>
+<pre><code class="language-json">{
+  &quot;code&quot;: 200,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {},
+  &quot;pagination&quot;: { &quot;page&quot;: 1, &quot;page_size&quot;: 20, &quot;total&quot;: 100 }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>HTTP</th>
+<th>code</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>200</td>
+<td>200</td>
+<td>成功</td>
+</tr>
+<tr>
+<td>201</td>
+<td>201</td>
+<td>创建成功</td>
+</tr>
+<tr>
+<td>400</td>
+<td>400</td>
+<td>参数错误</td>
+</tr>
+<tr>
+<td>401</td>
+<td>401</td>
+<td>未认证</td>
+</tr>
+<tr>
+<td>403</td>
+<td>403</td>
+<td>无权限</td>
+</tr>
+<tr>
+<td>404</td>
+<td>404</td>
+<td>资源不存在</td>
+</tr>
+<tr>
+<td>500</td>
+<td>500</td>
+<td>服务器错误</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>通用请求头</h2>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Authorization</code></td>
+<td>受保护接口</td>
+<td><code>Bearer &lt;access_token&gt;</code></td>
+</tr>
+<tr>
+<td><code>X-Tenant-ID</code></td>
+<td>受保护业务接口</td>
+<td>当前租户 UUID</td>
+</tr>
+<tr>
+<td><code>Content-Type</code></td>
+<td>POST/PUT/PATCH</td>
+<td><code>application/json</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>认证与租户</h2>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>接口</th>
+<th>描述</th>
+<th>认证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/health</code></td>
+<td>健康检查</td>
+<td>否</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/login</code></td>
+<td>登录</td>
+<td>否</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/refresh</code></td>
+<td>刷新 Token</td>
+<td>否</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/auth/tenants</code></td>
+<td>可访问租户列表</td>
+<td>是</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/switch-tenant</code></td>
+<td>切换租户</td>
+<td>是</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/auth/me</code></td>
+<td>当前用户 + 权限</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<h3>POST /api/auth/login（Phase 1 实现中）</h3>
+<p><strong>请求</strong></p>
+<pre><code class="language-json">{ &quot;email&quot;: &quot;user@example.com&quot;, &quot;password&quot;: &quot;secret123&quot; }
+</code></pre>
+<p><strong>响应 data</strong></p>
+<pre><code class="language-json">{
+  &quot;access_token&quot;: &quot;...&quot;,
+  &quot;refresh_token&quot;: &quot;...&quot;,
+  &quot;expires_in&quot;: 3600,
+  &quot;tenants&quot;: [{ &quot;id&quot;: &quot;uuid&quot;, &quot;name&quot;: &quot;Acme&quot;, &quot;domain&quot;: &quot;acme&quot; }]
+}
+</code></pre>
+<hr>
+<h2>RBAC 权限</h2>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>接口</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/rbac/permissions</code></td>
+<td>权限资源字典</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/rbac/roles</code></td>
+<td>角色列表</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/rbac/roles</code></td>
+<td>创建角色</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/rbac/roles/:id</code></td>
+<td>更新角色</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/rbac/roles/:id/permissions</code></td>
+<td>分配权限</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/rbac/users/:id/roles</code></td>
+<td>用户角色</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/rbac/check</code></td>
+<td>权限检查（前端辅助）</td>
+</tr>
+</tbody></table>
+<p>权限标识：<code>resource:action</code>（如 <code>leads:view</code>）。</p>
+<hr>
+<h2>客户与线索（Phase 2+）</h2>
+<h3>Accounts（公司）</h3>
+<ul>
+<li><code>GET /api/accounts</code> — 分页 + 搜索</li>
+<li><code>POST /api/accounts</code></li>
+<li><code>GET /api/accounts/:id</code></li>
+<li><code>PUT /api/accounts/:id</code></li>
+<li><code>DELETE /api/accounts/:id</code></li>
+</ul>
+<h3>Contacts（联系人）</h3>
+<ul>
+<li><code>GET /api/contacts</code></li>
+<li><code>POST /api/contacts</code></li>
+<li><code>GET /api/contacts/:id</code></li>
+<li><code>GET /api/accounts/:id/contacts</code></li>
+</ul>
+<h3>Leads（线索）</h3>
+<ul>
+<li><code>GET /api/leads</code> — 状态、负责人过滤</li>
+<li><code>POST /api/leads</code></li>
+<li><code>PUT /api/leads/:id</code></li>
+<li><code>POST /api/leads/:id/convert</code></li>
+<li><code>POST /api/leads/import</code></li>
+</ul>
+<h3>Deals（商机，Phase 3）</h3>
+<ul>
+<li><code>GET /api/deals</code></li>
+<li><code>POST /api/deals</code></li>
+<li><code>GET /api/deals/pipeline</code></li>
+<li><code>PUT /api/deals/:id/stage</code></li>
+</ul>
+<hr>
+<h2>仪表盘（Phase 3）</h2>
+<ul>
+<li><code>GET /api/dashboard/summary</code></li>
+<li><code>GET /api/dashboard/funnel</code></li>
+<li><code>GET /api/dashboard/todo</code></li>
+</ul>
+<hr>
+<h2>设计原则</h2>
+<ul>
+<li>业务接口由中间件注入租户，<strong>前端不传 <code>tenant_id</code>  body 字段</strong></li>
+<li>分页：<code>page</code>、<code>page_size</code> Query 参数</li>
+<li>过滤：Query 参数，命名与资源字段一致</li>
+<li>写操作记录 <code>audit_logs</code>（Phase 1.6+）</li>
+</ul>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../api/00-api-design.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>后端架构文档 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html" style="color:var(--accent);font-weight:600">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../backend-arch/README.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>后端架构文档</h1>
+<p>Go 后端实现约定，与 <code>backend/</code> 代码目录对应。</p>
+<h2>文件索引</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="./00-database-schema.md">00-database-schema.md</a></td>
+<td>核心表结构、索引、GORM 示例</td>
+</tr>
+</tbody></table>
+<h2>代码分层（Clean Architecture）</h2>
+<pre><code>backend/
+├── cmd/api/              # HTTP 入口
+├── cmd/migrate/          # Goose 迁移 CLI
+├── migrations/           # SQL 迁移（权威 Schema）
+├── internal/domain/      # 实体模型
+├── internal/infrastructure/persistence/  # DB、Casbin
+├── internal/interfaces/http/             # Handlers
+├── internal/interfaces/middleware/       # Auth / Tenant / RBAC
+└── internal/pkg/           # response、tenant、rbac
+</code></pre>
+<h2>关键约定</h2>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>约定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多租户</td>
+<td>业务表含 <code>tenant_id</code>；查询用 <code>DBFromContext</code> + <code>TenantScope</code></td>
+</tr>
+<tr>
+<td>迁移</td>
+<td>生产用 <code>make migrate-up</code>；<code>AUTO_MIGRATE=true</code> 仅本地</td>
+</tr>
+<tr>
+<td>RBAC</td>
+<td><code>resource:action</code>；启动时 <code>SyncCasbinPolicies</code></td>
+</tr>
+<tr>
+<td>API 响应</td>
+<td><code>internal/pkg/response</code> 统一结构</td>
+</tr>
+</tbody></table>
+<h2>相关 ADR</h2>
+<ul>
+<li><a href="../architecture/adr/0001-shared-db-multi-tenancy.md">0001 多租户</a></li>
+<li><a href="../architecture/adr/0002-casbin-rbac.md">0002 Casbin</a></li>
+<li><a href="../architecture/adr/0003-goose-migrations.md">0003 Goose</a></li>
+</ul>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../backend-arch/README.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Archives (source tree is canonical)
+cm.zip
+
+# Node / Nuxt
+node_modules/
+.nuxt/
+.output/
+dist/
+
+# Go
+backend/bin/
+backend/tmp/
+
+# IDE / logs
+*.log
+.idea/
+.vscode/
+
+# E2E artifacts
+test-results/
+playwright-report/
+blob-report/
+
+# Coverage
+coverage/
+
+# Python
+__pycache__/
+*.pyc

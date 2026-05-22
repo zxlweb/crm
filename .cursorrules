@@ -1,0 +1,72 @@
+---
+description: "CRM 项目全局规则 - 技术栈 + 开发工作流 + 文档输出规范"
+alwaysApply: true
+---
+
+你正在开发一个企业级 B2B CRM 系统。
+
+**技术栈要求（必须严格遵守）：**
+- Frontend: Nuxt 3 (Vue 3 + Composition API), TypeScript, Tailwind CSS, Zod, Pinia, Nuxt I18n
+- Backend: Go (最新版本), PostgreSQL, Gin / Fiber / Echo (推荐 Gin), GORM 或 sqlc + pgx，Casbin 作为权限引擎
+- 核心特性: 多租户 (Tenant)，RBAC 权限系统，i18n (支持中文/英文)
+
+**代码规范：**
+- 使用 TypeScript 严格模式 (strict: true)
+- 所有表单/接口使用 Zod 验证
+- 命名规范: kebab-case (文件名), PascalCase (组件), camelCase (变量/函数)
+- 多租户: 所有业务表必须包含 tenant_id 字段
+- RBAC: 基于角色 + 权限资源 (resource:action) 模式
+- i18n: 使用 nuxt/i18n，key 统一使用英文
+
+**文档体系（入口：`docs/README.md` / `docs/index.html`）：**
+
+| 类型 | 目录 | 索引文件 | 命名规范 |
+|------|------|----------|----------|
+| PRD | `docs/prd/` | `prd/README.md` | `00-*-overview.md`、`{模块}-prd.md` |
+| API | `docs/api/` | `api/README.md` | `00-api-design.md`、`{模块}-api.md` |
+| 架构 | `docs/architecture/` | `architecture/README.md` | `NN-{主题}.md` |
+| ADR | `docs/architecture/adr/` | `adr/README.md` | `NNNN-{标题}.md`（用 `0000-template.md`） |
+| 任务 | `docs/tasks/` | `tasks/README.md` | `00-mvp-task-breakdown.md`（仅勾选） |
+| 会议/阶段笔记 | `docs/meeting-notes/` | `meeting-notes/README.md` | `phase-N-notes.md`、`YYYY-MM-DD-*.md` |
+| QA 报告 | `docs/qa/` | `qa/README.md` | `phase-N-qa.md` 或 `{模块}-qa.md` |
+| Code Review | `docs/reviews/` | `reviews/README.md` | `phase-N-review.md` 或 `{模块}-review.md` |
+| 模板 | `docs/templates/` | — | `qa-test-template.md`、`code-review-template.md` |
+| 后端 | `docs/backend-arch/` | `backend-arch/README.md` | `NN-{主题}.md` |
+| 前端 | `docs/frontend-arch/` | `frontend-arch/README.md` | `NN-{主题}.md` |
+
+**文档协作规则：**
+- 新模块：**PRD → API → 编码**；有架构取舍则补 **ADR**（Accepted 后不可改正文）
+- 任务进度：**只改** `docs/tasks/00-mvp-task-breakdown.md`；阶段笔记写 `docs/meeting-notes/`
+- QA / Review：**从 templates 复制** → 分别写入 `docs/qa/`、`docs/reviews/`（勿放在 tasks/）
+- 子目录新增文档时，**同步更新该目录 README.md 索引表**
+
+**文档输出规范（MD + HTML 双格式）：**
+- `.md` = 源码（Git / Cursor 编辑）；`.html` = 预览（**禁止手改**，由脚本生成）
+- 更新任意 `docs/**/*.md` 后必须执行：`make docs-html`
+- HTML 与 md **同目录同名**，含：侧边导航、代码高亮、Mermaid、明暗主题
+- 浏览器入口：`docs/index.html`
+
+
+# === 项目核心开发工作流（必须严格遵守）===
+
+**采用「架构先行 + 分模块迭代」开发模式**：
+
+### 1. 文档与代码关系规则
+- **重要架构、基础设计**必须**先行或同步**完成（多租户、RBAC、数据库 Schema 等）
+- **每个新模块开发前**：先写或完善该模块的**详细 PRD** + **API 设计**
+- **Feature 编码完成后**必须补充以下文档：
+  - 该模块详细 PRD（如果未完善）
+  - API 文档（放在 docs/api/）
+  - 核心流程图（Mermaid）
+  - 重要决策记录（ADR → `docs/architecture/adr/`，使用 `0000-template.md`）
+  - 执行 `make docs-html` 同步 HTML 预览
+- **禁止**：代码大规模开发完成后再补文档（避免文档债务）
+
+### 2. 迭代开发节奏
+1. Product Manager → 模块详细 PRD
+2. Software Architect / Frontend Architect → 必要设计补充
+3. Backend Developer + Frontend Developer → 实现
+4. QA Tester → Review + 测试点
+5. 文档更新 & Lessons Learned
+
+**所有 AI 角色在响应时必须遵守以上工作流。**

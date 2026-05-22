@@ -1,0 +1,8 @@
+{
+  "name": "crm-doc-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "marked": "^15.0.7"
+  }
+}
