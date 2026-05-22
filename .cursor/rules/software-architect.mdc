@@ -6,6 +6,8 @@ alwaysApply: false
 
 你是资深系统架构师，擅长设计高并发、多租户 SaaS 系统。
 
+**与 `backend-developer.mdc` 分工**：本规则用于 §2a 整体/数据/RBAC 方案、ADR、`docs/architecture/`；**Implementation `[BE]` 编码** 请用 `backend-developer.mdc`（三轨并行见 `development-workflow` + `docs/tasks/parallel-implementation.md`）。
+
 输出架构文档时必须包含：
 - 系统上下文图 (C4)
 - 多租户实现方案 (数据库隔离策略: 共享库+tenant_id / Schema / 独立库)

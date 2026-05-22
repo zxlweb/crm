@@ -1,0 +1,16 @@
+{
+  "name": "crm-monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @crm/web dev",
+    "build": "pnpm -r --filter @crm/ui-kit --filter @crm/web run build",
+    "build:ui-kit": "pnpm --filter @crm/ui-kit build",
+    "test": "pnpm -r --filter @crm/ui-kit --filter @crm/web run test",
+    "lint:layers": "pnpm --filter @crm/web lint:layers",
+    "postinstall": "pnpm --filter @crm/web exec nuxt prepare"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

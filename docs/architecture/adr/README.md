@@ -38,6 +38,7 @@ docs/architecture/adr/
 | [0001](./0001-shared-db-multi-tenancy.md) | 共享数据库 + tenant_id 多租户 | Accepted | 2026-05-21 |
 | [0002](./0002-casbin-rbac.md) | Casbin RBAC + resource:action | Accepted | 2026-05-21 |
 | [0003](./0003-goose-migrations.md) | Goose 作为数据库迁移工具 | Accepted | 2026-05-21 |
+| [0004](./0004-rule-insights-and-ai-preview.md) | Phase 2 规则洞察与 AI Preview 分离 | Accepted | 2026-05-22 |
 
 ## 何时写 ADR
 

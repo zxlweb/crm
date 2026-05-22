@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>00-mvp-task-breakdown · CRM Docs</title>
+  <title>MVP 任务拆分清单 · CRM Docs</title>
   <style>
 :root {
   --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
@@ -54,15 +54,98 @@ article a { color: var(--accent); }
 </head>
 <body>
   <div class="layout">
-    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html" style="color:var(--accent);font-weight:600">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html" style="color:var(--accent);font-weight:600">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
     <main>
       <div class="toolbar">
         <button type="button" id="theme-toggle">🌓 切换主题</button>
-        <a href="../tasks/00-mvp-task-breakdown.md" target="_blank">查看 Markdown 源码</a>
+        <a href="../tasks\00-mvp-task-breakdown.md" target="_blank">查看 Markdown 源码</a>
       </div>
-      <article class="markdown-body"><h3><strong>任务拆分清单</strong></h3>
-<h4><strong>MVP 总体开发阶段</strong></h4>
-<p><strong>Phase 0: 基础架构（已完成 · v2.1 收尾，无 CI）</strong></p>
+      <article class="markdown-body"><h1>MVP 任务拆分清单</h1>
+<blockquote>
+<p><em><em>Card</em> / Chart</em> 与业务同迭代交付**：每个 Phase 同时交付后端 API + 业务页面 + ui-kit 组件 + 页面嵌入，避免「模块做完再补图」。组件场景见 <a href="../frontend-arch/05-component-scenarios.md">05-component-scenarios.md</a>；双包与 ui-kit 见 <a href="../frontend-arch/02-ui-kit-modules.md">02-ui-kit-modules.md</a>。</p>
+</blockquote>
+<blockquote>
+<p><strong>三轨并行（3 个 AI 对话框）</strong>：Implementation 阶段可按 <code>[BE]</code> / <code>[FE]</code> / <code>[QA]</code> 分轨领任务，见 <a href="./parallel-implementation.md">parallel-implementation.md</a>。开工前需 API 契约 + 前端切面；各轨只改约定目录，用 <code>⬜</code> / <code>🟡</code> / <code>✅</code> 标记状态。</p>
+</blockquote>
+<hr>
+<h2>Chart / Card 同步原则</h2>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>同迭代交付</strong></td>
+<td>模块 MVP 验收必须包含该 Phase 承诺的图表（见各 Phase「图表 Done」）</td>
+</tr>
+<tr>
+<td><strong>先 API 后图</strong></td>
+<td>图表数据来自模块统计 API；开发期可短期 mock，禁止长期占坑</td>
+</tr>
+<tr>
+<td><strong>组件先行 ≤ 3 天</strong></td>
+<td>缺 ui-kit 组件时，在模块开工当周完成组件 + Story，再嵌页面</td>
+</tr>
+<tr>
+<td><strong>权限一致</strong></td>
+<td>图表查询与列表页相同：<code>tenant_id</code>、数据范围（本人/部门/全部）</td>
+</tr>
+<tr>
+<td><strong>主题一致</strong></td>
+<td><code>useUiKitTheme()</code> / <code>ChartShell</code>，V1/V2 随设计系统</td>
+</tr>
+</tbody></table>
+<h3>单模块图表 Done（验收勾选）</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 统计 API 有文档（路径、维度、筛选、权限）</li>
+<li><input disabled="" type="checkbox"> <code>@crm/ui-kit</code> 组件已实现（或复用）+ Vitest/Story 最小覆盖</li>
+<li><input disabled="" type="checkbox"> <code>apps/web</code> 对应 feature 页嵌入图表，空态/加载/错误态齐全</li>
+<li><input disabled="" type="checkbox"> 经理/个人视图数据范围正确（手动或 E2E 抽一条）</li>
+</ul>
+<h3>推荐双周节奏（示例）</h3>
+<pre><code>Week 1  Mon–Tue  API 契约 + 列表/表单页
+        Wed–Thu  补齐 ui-kit 组件 + Story
+        Fri      统计 API + 联调
+Week 2  Mon–Tue  图表嵌入 + 空态/权限
+        Wed      单测 + 本清单勾选
+        Thu–Fri  QA + 修复
+</code></pre>
+<p><strong>禁止</strong>：Phase 3 做完 Dashboard 表格后，把图表整体推到后续「纯 UI Phase」。</p>
+<h3>文件落点</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>图表组件</td>
+<td><code>packages/ui-kit/src/components/ui/chart/chart-*.vue</code></td>
+</tr>
+<tr>
+<td>图表工具</td>
+<td><code>packages/ui-kit/src/chart/utils/</code></td>
+</tr>
+<tr>
+<td>统计 API 封装</td>
+<td><code>apps/web/composables/use-*-stats.ts</code></td>
+</tr>
+<tr>
+<td>业务嵌入</td>
+<td><code>apps/web/components/feature/&lt;module&gt;/</code>、对应 <code>pages/</code></td>
+</tr>
+<tr>
+<td>展示/回归</td>
+<td><code>/charts</code> 新组件区块；Storybook（Phase 4 起）</td>
+</tr>
+</tbody></table>
+<p>交付后：在本文件勾选业务与图表项，并在 <a href="../frontend-arch/05-component-scenarios.md">05-component-scenarios.md</a> 总览表将 ui-kit 状态改为 ✅。</p>
+<hr>
+<h2>Phase 0：基础架构（已完成 · v2.1 收尾，无 CI）</h2>
+<p><strong>业务</strong></p>
 <ul>
 <li><input checked="" disabled="" type="checkbox"> 完善数据库核心 Schema + 迁移脚本（00001–00003，含 dev seed）</li>
 <li><input checked="" disabled="" type="checkbox"> Backend 项目初始化（Gin + GORM + Casbin）</li>
@@ -72,31 +155,408 @@ article a { color: var(--accent); }
 <li><input checked="" disabled="" type="checkbox"> 自动化测试：Backend <code>make test</code>、Frontend Vitest、E2E 冒烟（<code>e2e/</code>）</li>
 <li><input checked="" disabled="" type="checkbox"> QA + Code Review 留档 → <a href="../qa/phase-0-qa.md">qa/phase-0-qa.md</a> · <a href="../reviews/phase-0-review.md">reviews/phase-0-review.md</a> · <a href="../meeting-notes/phase-0-notes.md">meeting-notes/phase-0-notes.md</a></li>
 </ul>
-<p><strong>Phase 1: 认证与权限系统（建议优先完成）</strong></p>
+<p><strong>图表 / 设计系统（基线，已完成）</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> 用户注册 / 登录 / Refresh Token</li>
-<li><input disabled="" type="checkbox"> 多租户登录与切换</li>
-<li><input disabled="" type="checkbox"> Super Admin 管理后台入口</li>
-<li><input disabled="" type="checkbox"> RBAC 完整实现（角色、权限、分配）</li>
-<li><input disabled="" type="checkbox"> 前端权限控制组件（usePermission、Permission 组件）</li>
-<li><input disabled="" type="checkbox"> 审计日志基础记录</li>
+<li><input checked="" disabled="" type="checkbox"> 双包组件模型（<code>02-ui-kit-modules</code>：ui-kit + web）</li>
+<li><input checked="" disabled="" type="checkbox"> <code>ChartLine</code> / <code>ChartBar</code> / <code>ChartFunnel</code> / <code>ChartShell</code> + <code>/charts</code> 展示页</li>
+<li><input checked="" disabled="" type="checkbox"> pnpm monorepo：<code>packages/ui-kit</code> + <code>apps/web</code></li>
+<li><input checked="" disabled="" type="checkbox"> 主题 bridge（<code>00-ui-kit-theme.ts</code> + <code>useUiKitTheme</code>）+ ui-kit <code>vite build</code></li>
 </ul>
-<p><strong>Phase 2: 客户与线索模块</strong></p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>图表交付</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>设计系统</td>
+<td>上述 Chart* + <code>CardMetric</code> / <code>CardShell</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>主题</td>
+<td><code>bridgeUiKitThemeFromApp</code>、<code>/charts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>业务嵌入</td>
+<td>无要求</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Phase 1：认证与权限（有条件关闭 · 见 <a href="../qa/phase-1-qa.md">phase-1-qa.md</a>）</h2>
+<p><strong>业务</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> 公司 (Accounts) CRUD + 搜索</li>
+<li><input checked="" disabled="" type="checkbox"> 用户登录 / Refresh Token</li>
+<li><input checked="" disabled="" type="checkbox"> 用户注册（API + <code>/login</code> UI；E2E：<code>e2e/tests/phase1-auth.spec.ts</code>）</li>
+<li><input checked="" disabled="" type="checkbox"> 多租户登录与切换</li>
+<li><input checked="" disabled="" type="checkbox"> Super Admin 管理后台入口</li>
+<li><input checked="" disabled="" type="checkbox"> RBAC 完整实现（角色、权限、分配；Casbin 新租户 Enforce ⬜ 见 QA Bug #3）</li>
+<li><input checked="" disabled="" type="checkbox"> 前端权限控制组件（usePermission、PermissionGuard）</li>
+<li><input checked="" disabled="" type="checkbox"> 审计日志基础记录</li>
+</ul>
+<p><strong>QA / E2E</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> <a href="../qa/phase-1-qa.md">phase-1-qa.md</a> 留档（2026-05-22，注册链路补测）</li>
+<li><input disabled="" type="checkbox"> Casbin 新租户管理员全路由 Enforce 集成测</li>
+<li><input disabled="" type="checkbox"> Code Review → <a href="../reviews/phase-1-review.md">reviews/phase-1-review.md</a>（可选）</li>
+</ul>
+<p><strong>图表（与 Phase 1 同步）</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Admin 概览：租户活跃趋势 <code>ChartLine</code>（<code>/admin</code>，<code>GET /api/super-admin/stats/tenant-activity</code>）</li>
+<li><input checked="" disabled="" type="checkbox"> 删除遗留目录 <code>frontend/</code>（已移除，仅用 <code>apps/web</code>）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>业务</th>
+<th>同步图表</th>
+<th>页面</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>登录/租户</td>
+<td>注册、审计</td>
+<td>无统计图</td>
+<td><code>/login</code>（表单内切换注册）</td>
+</tr>
+<tr>
+<td>Super Admin</td>
+<td>后台框架</td>
+<td><code>ChartLine</code> 租户趋势</td>
+<td><code>/admin</code></td>
+</tr>
+<tr>
+<td>RBAC</td>
+<td>权限组件</td>
+<td>无</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p><strong>Phase 1 图表 Done</strong>：Admin 首页 1 张 <code>ChartLine</code>（租户趋势）接真实或约定 API 契约。</p>
+<hr>
+<h2>Phase 2：客户与线索 + 关系经营 / AI Preview</h2>
+<p><strong>PRD</strong>：<a href="../prd/phase-2-relationship-crm-prd.md">phase-2-relationship-crm-prd.md</a>（含 §15 老板演示、§4.6 情绪旅程）· <strong>MVP 总览</strong>：<a href="../prd/00-crm-overview.md">00-crm-overview.md</a></p>
+<h3>Phase 2 并行任务（Implementation）</h3>
+<blockquote>
+<p>三轨同时推进时：各对话框首条消息声明 <code>【BE】</code> / <code>【FE】</code> / <code>【QA】</code>，只领本轨 <code>⬜</code> 行，完成后改 <code>✅</code>。细则见 <a href="./parallel-implementation.md">parallel-implementation.md</a>。<br><strong>2.13</strong>：<code>[BE]</code> 由架构师领（扩写 <code>docs/api/</code>，输入 PRD §15.3）；<code>[FE]</code> 可用 fixtures 与 2.3 并行，勿等真 LLM。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>[BE]</th>
+<th>[FE]</th>
+<th>[QA]</th>
+<th>依赖</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.1</td>
+<td>Accounts API + 迁移 + <code>lifecycle_stage</code> — ⬜</td>
+<td><code>/accounts</code> 列表/表单 + <code>use-accounts</code> — ⬜</td>
+<td>Accounts 集成测 — ⬜</td>
+<td>契约</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Contacts API + 关联 — ⬜</td>
+<td><code>/contacts</code> + <code>use-contacts</code> — ⬜</td>
+<td>Contacts 集成测 — ⬜</td>
+<td>2.1 契约可参考</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Leads CRUD + 状态 API — ⬜</td>
+<td>Leads 页 + 报表 Tab + 详情 Tab 骨架 — ⬜</td>
+<td>Leads API 集成测 — ⬜</td>
+<td>契约</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>Leads 统计 API（来源） — ⬜</td>
+<td><code>ChartDonut</code> + 嵌入 — ⬜</td>
+<td>统计 API + 权限集成测 — ⬜</td>
+<td>2.3</td>
+</tr>
+<tr>
+<td>2.5</td>
+<td>Leads 趋势 API — ⬜</td>
+<td><code>ChartLine</code> 嵌入 — ⬜</td>
+<td>同上 — ⬜</td>
+<td>2.4</td>
+</tr>
+<tr>
+<td>2.6</td>
+<td>Leads 转化 API — ⬜</td>
+<td><code>ChartFunnel</code> 嵌入 — ⬜</td>
+<td>同上 — ⬜</td>
+<td>2.5</td>
+</tr>
+<tr>
+<td>2.7</td>
+<td>导入、分配 API — ⬜</td>
+<td>导入/分配 UI — ⬜</td>
+<td>导入 E2E（可选）— ⬜</td>
+<td>2.3</td>
+</tr>
+<tr>
+<td>2.8</td>
+<td>Activity API + <code>event_type</code>/<code>direction</code> — ⬜</td>
+<td>ActivityTimeline + 摘要 + 可选 <code>ChartBar</code> — ⬜</td>
+<td>Activity 集成测 — ⬜</td>
+<td>2.3</td>
+</tr>
+<tr>
+<td>2.9</td>
+<td><code>insights/evaluate</code> + engagement 字段 — ⬜</td>
+<td>洞察侧栏 + <code>LifecycleBadge</code> — ⬜</td>
+<td>规则引擎单测 + 洞察集成测 — ⬜</td>
+<td>2.8</td>
+</tr>
+<tr>
+<td>2.10</td>
+<td>segments 模板 API + 列表筛选 — ⬜</td>
+<td>分群下拉 + URL 筛选 — ⬜</td>
+<td>分群 count + 权限 — ⬜</td>
+<td>2.3</td>
+</tr>
+<tr>
+<td>2.11</td>
+<td>Activity <code>sentiment</code> 迁移 + 关键词规则 — ⬜</td>
+<td>Activity 情绪表单项 — ⬜</td>
+<td>情绪字段 + 时间线 E2E — ⬜</td>
+<td>2.8</td>
+</tr>
+<tr>
+<td>2.12</td>
+<td><code>emotion-journey</code> 聚合 API — ⬜</td>
+<td><code>EmotionJourneyMap</code> Tab — ⬜</td>
+<td>地图空态/触点联动 E2E — ⬜</td>
+<td>2.11</td>
+</tr>
+<tr>
+<td>2.13</td>
+<td><strong>架构师</strong>：<code>docs/api/phase-2-crm-ai.md</code> + ADR-0004 — ✅</td>
+<td><code>AiRelationPanel</code> + Copilot Mock + Preview 角标 + fixtures — ⬜</td>
+<td>§15.2 演示路径 E2E — ⬜</td>
+<td>2.3 路由；契约已评审</td>
+</tr>
+<tr>
+<td>2.E2E</td>
+<td>—</td>
+<td>Leads/详情 <code>data-testid</code> + Preview 路径 — ⬜</td>
+<td>CRUD + 权限 + Activity/洞察/Preview 冒烟 — ⬜</td>
+<td>2.3 FE；2.13 演示</td>
+</tr>
+</tbody></table>
+<p><strong>业务</strong>（勾选可与上表同步，或作汇总验收）</p>
+<ul>
+<li><input disabled="" type="checkbox"> 公司 (Accounts) CRUD + 搜索 + 生命周期阶段</li>
 <li><input disabled="" type="checkbox"> 联系人 (Contacts) CRUD + 关联公司</li>
 <li><input disabled="" type="checkbox"> 线索 (Leads) CRUD + 状态流转</li>
 <li><input disabled="" type="checkbox"> 线索导入（Excel）</li>
 <li><input disabled="" type="checkbox"> 线索分配功能</li>
-<li><input disabled="" type="checkbox"> 跟进记录（Activity）基础</li>
+<li><input disabled="" type="checkbox"> 跟进记录（Activity）基础 + 时间线 + 情绪标注</li>
+<li><input disabled="" type="checkbox"> 规则洞察（≥2 条 INS）+ 预置分群（≥5）</li>
+<li><input disabled="" type="checkbox"> 情绪旅程地图 Tab</li>
+<li><input disabled="" type="checkbox"> <strong>AI Preview</strong>：详情 AI 侧栏 + Copilot Mock + 演示角标（§15）</li>
 </ul>
-<p><strong>Phase 3: 商机与仪表盘</strong></p>
+<p><strong>图表（缺组件则本迭代内补齐）</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Leads 统计 API（来源、趋势、状态、转化）</li>
+<li><input disabled="" type="checkbox"> <strong><code>ChartDonut</code></strong> 组件 + Story（线索来源占比）</li>
+<li><input disabled="" type="checkbox"> Leads 报表区：<code>ChartLine</code> + <code>ChartDonut</code> + <code>ChartFunnel</code> + <code>ChartBar</code>（状态）</li>
+<li><input disabled="" type="checkbox"> Activity 摘要：<code>ChartBar</code> 跟进类型 TOP（可选，与 Activity 同迭代）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>业务</th>
+<th>ui-kit</th>
+<th>嵌入页面</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.1</td>
+<td>Accounts CRUD</td>
+<td>—</td>
+<td><code>/accounts</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Contacts CRUD</td>
+<td>—</td>
+<td><code>/contacts</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Leads CRUD + 状态</td>
+<td><code>ChartBar</code></td>
+<td>Leads 报表 Tab</td>
+<td>状态分布</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>Leads 统计 API</td>
+<td><strong><code>ChartDonut</code></strong>（新增）</td>
+<td>Leads 报表</td>
+<td>来源占比</td>
+</tr>
+<tr>
+<td>2.5</td>
+<td>Leads 趋势 API</td>
+<td><code>ChartLine</code></td>
+<td>同上</td>
+<td>日/周新增</td>
+</tr>
+<tr>
+<td>2.6</td>
+<td>Leads 转化 API</td>
+<td><code>ChartFunnel</code></td>
+<td>同上</td>
+<td>线索→合格→商机</td>
+</tr>
+<tr>
+<td>2.7</td>
+<td>导入、分配</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2.8</td>
+<td>Activity 基础</td>
+<td><code>ChartBar</code>（可选）</td>
+<td>Activity 摘要 / 时间线</td>
+<td>跟进 TOP</td>
+</tr>
+<tr>
+<td>2.9</td>
+<td>规则洞察</td>
+<td>—</td>
+<td>详情洞察侧栏</td>
+<td>INS 命中</td>
+</tr>
+<tr>
+<td>2.10</td>
+<td>分群模板</td>
+<td>—</td>
+<td>列表分群筛选</td>
+<td>高潜/流失等</td>
+</tr>
+<tr>
+<td>2.11</td>
+<td>情绪字段</td>
+<td>—</td>
+<td>Activity 表单</td>
+<td>sentiment</td>
+</tr>
+<tr>
+<td>2.12</td>
+<td>情绪旅程 API</td>
+<td><code>ChartLine</code>（曲线）</td>
+<td>情绪旅程 Tab</td>
+<td>情绪×时间</td>
+</tr>
+<tr>
+<td>2.13</td>
+<td>AI 契约（架构师）</td>
+<td>—</td>
+<td><code>AiRelationPanel</code> 等</td>
+<td>Preview 演示</td>
+</tr>
+</tbody></table>
+<p><strong>本阶段新增组件</strong>：<code>ChartDonut</code>（2.4）；feature：<code>EmotionJourneyMap</code>、<code>AiRelationPanel</code>、<code>ActivityTimeline</code>（2.8–2.13）。<br><strong>Phase 2 图表 Done</strong>：Leads 报表区至少 <strong>折线 + 环形 + 漏斗</strong> 三张接 API。<br><strong>Phase 2 演示 Done</strong>：§15.2 三分钟路径 E2E 或彩排清单通过；Preview 数据不进生产表。</p>
+<hr>
+<h2>Phase 3：商机与仪表盘</h2>
+<p><strong>业务</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> 商机 (Deals) CRUD + Pipeline 看板</li>
 <li><input disabled="" type="checkbox"> 销售阶段管理</li>
-<li><input disabled="" type="checkbox"> 仪表盘（关键指标 + 漏斗图）</li>
+<li><input disabled="" type="checkbox"> 仪表盘页面（个人 / 经理视图）</li>
 </ul>
-<p><strong>Phase 4: 系统设置与收尾</strong></p>
+<p><strong>图表（Dashboard 为必验收）</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Deals 管道 <code>ChartFunnel</code> + 阶段金额 <code>ChartBar</code>（<code>/deals</code>）</li>
+<li><input disabled="" type="checkbox"> 赢单率 <code>ChartLine</code>（Deals 或 Dashboard）</li>
+<li><input disabled="" type="checkbox"> <strong><code>ChartSparkline</code></strong> 组件（KPI 卡内趋势）</li>
+<li><input disabled="" type="checkbox"> <strong><code>ChartGauge</code></strong> 组件（配额完成率）</li>
+<li><input disabled="" type="checkbox"> Dashboard：Sparkline×KPI + Line + Funnel + Gauge + Bar（经理排行）</li>
+<li><input disabled="" type="checkbox"> Dashboard 汇总 API + 数据权限（本人 / 部门 / 全部）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>业务</th>
+<th>ui-kit</th>
+<th>嵌入页面</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.1</td>
+<td>Deals + Pipeline</td>
+<td><code>ChartFunnel</code></td>
+<td><code>/deals</code></td>
+<td>阶段管道</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>阶段/金额 API</td>
+<td><code>ChartBar</code></td>
+<td>Deals 分析</td>
+<td>金额、排行</td>
+</tr>
+<tr>
+<td>3.3</td>
+<td>赢单率 API</td>
+<td><code>ChartLine</code></td>
+<td>Deals / Dashboard</td>
+<td>win rate</td>
+</tr>
+<tr>
+<td>3.4</td>
+<td>Dashboard 页面</td>
+<td><strong><code>CardMetric</code></strong></td>
+<td><code>/</code> 或 <code>/dashboard</code></td>
+<td>KPI 行</td>
+</tr>
+<tr>
+<td>3.5</td>
+<td>配额 API</td>
+<td><strong><code>ChartGauge</code></strong>（新增）</td>
+<td>Dashboard</td>
+<td>目标 %</td>
+</tr>
+<tr>
+<td>3.6</td>
+<td>Dashboard 汇总 API</td>
+<td>Line+Funnel+Bar+Gauge</td>
+<td>Dashboard</td>
+<td>见 <a href="../frontend-arch/05-component-scenarios.md">05</a> Part B</td>
+</tr>
+<tr>
+<td>3.7</td>
+<td>经理视图</td>
+<td><code>ChartBar</code></td>
+<td>Dashboard</td>
+<td>业绩排行</td>
+</tr>
+</tbody></table>
+<p><strong>本阶段新增组件</strong>：<code>ChartSparkline</code>、<code>ChartGauge</code>（与 3.4、3.5 同迭代）。<br><strong>Phase 3 图表 Done</strong>：Dashboard <strong>不得</strong>仅有数字 KPI；至少 4 类图接 API。</p>
+<hr>
+<h2>Phase 4：系统设置与收尾</h2>
+<p><strong>业务</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> 租户配置管理</li>
 <li><input disabled="" type="checkbox"> 自定义字段支持</li>
@@ -106,9 +566,103 @@ article a { color: var(--accent); }
 <li><input checked="" disabled="" type="checkbox"> 权限与多租户集成测试（Phase 0 <code>scope_test</code> + QA）</li>
 <li><input disabled="" type="checkbox"> 部署文档</li>
 </ul>
-<h4><strong>MVP 迭代开发阶段</strong></h4>
+<p><strong>图表</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> 审计：操作类型 <code>ChartDonut</code> / <code>ChartBar</code>（设置或审计页）</li>
+<li><input disabled="" type="checkbox"> <strong><code>ChartRadar</code></strong> 组件（租户健康度）</li>
+<li><input disabled="" type="checkbox"> Admin：<code>ChartLine</code> + <code>ChartDonut</code>（套餐）+ <code>ChartRadar</code> + <code>ChartBar</code>（租户 TOP）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>业务</th>
+<th>ui-kit</th>
+<th>嵌入页面</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4.1</td>
+<td>租户配置、自定义字段</td>
+<td>—</td>
+<td><code>/settings</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>4.2</td>
+<td>审计日志 API</td>
+<td><code>ChartBar</code> / <code>ChartDonut</code></td>
+<td>设置/审计</td>
+<td>操作占比</td>
+</tr>
+<tr>
+<td>4.3</td>
+<td>Admin 租户统计</td>
+<td><strong><code>ChartRadar</code></strong>（新增）</td>
+<td><code>/admin</code></td>
+<td>健康度</td>
+</tr>
+<tr>
+<td>4.4</td>
+<td>Admin 套餐分布</td>
+<td><code>ChartDonut</code></td>
+<td><code>/admin</code></td>
+<td>套餐占比</td>
+</tr>
+<tr>
+<td>4.5</td>
+<td>i18n、Swagger、部署</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p><strong>本阶段新增组件</strong>：<code>ChartRadar</code>（与 4.3 同周）。</p>
+<p><strong>图表工程（可与 Phase 4 并行）</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Storybook：全 Chart 组件 V1/V2 Story</li>
+<li><input disabled="" type="checkbox"> VTU：本阶段新增 Chart 关键 props</li>
+<li><input disabled="" type="checkbox"> UI 视觉回归 CI（Chromatic 或等价）</li>
+<li><input disabled="" type="checkbox"> Playwright：Dashboard / Leads 报表视觉基线</li>
+</ul>
+<hr>
+<h2>Phase 5+（MVP 之后）</h2>
+<p><strong>业务 / 组件（按报表迭代）</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>ChartHeatmap</code> / <code>ChartScatter</code> / <code>ChartSankey</code>（报表中心）</li>
+<li><input disabled="" type="checkbox"> <code>ChartTreemap</code>（客户 ARR 分层）</li>
+<li><input disabled="" type="checkbox"> <code>ChartWaterfall</code>（Pipeline 金额变动）</li>
+</ul>
+<p>组件选型详见 <a href="../frontend-arch/05-component-scenarios.md">05-component-scenarios.md</a> Part B。</p>
+<hr>
+<h2>修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-22</td>
+<td>并入原 <code>frontend-arch/06-chart-module-dev-sync</code>（同步原则、Phase 矩阵、双周节奏）</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>Phase 1 收尾：注册、审计日志、Admin 租户趋势 API + ChartLine</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>Phase 2：关系经营任务 2.9–2.12、AI Preview 2.13（对齐 phase-2-relationship-crm-prd v0.3）</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>Phase 2 Architect：phase-2-crm-ai.md、03-phase-2-crm-schema、ADR-0004、phase-2-notes</td>
+</tr>
+</tbody></table>
 </article>
-      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../tasks/00-mvp-task-breakdown.md</p>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../tasks\00-mvp-task-breakdown.md</p>
     </main>
   </div>
   <script>

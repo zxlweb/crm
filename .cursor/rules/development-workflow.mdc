@@ -21,17 +21,52 @@ alwaysApply: false
    - 撰写/完善**详细 PRD**，明确验收标准和测试要点
    - 输出到 `docs/prd/` 并记录任务清单（`docs/tasks/`）
 
-2. **Architect 阶段**（必要时）
-   - 补充或更新相关架构设计、API 设计、数据库变更
-   - 输出 Mermaid 图（流程图、时序图、C4 图等）
-   - 记录重要架构决策（ADR）
+2. **Architect 阶段**（模块启动前；有 UI 的 Feature **必须**含 2b）
+   - **2a 后端 / 数据**（必做）
+     - API 契约（`docs/api/`）、数据库变更、多租户/RBAC 边界
+     - Mermaid：核心流程、时序图；重大取舍 → ADR（`docs/architecture/adr/`）
+   - **2b 前端架构**（有页面、图表、权限 UI 时必做；纯后台脚本可跳过）
+     - **信息流**（先画清再写组件）：
+       - 角色/权限 → 路由与 layout → 页面职责（列表/详情/报表）
+       - 数据流：`API` → `composables/use-*`（请求、校验、权限）→ `feature/*` 展示 → `@crm/ui-kit` 展示组件
+       - 状态：Pinia 仅放跨页共享；页内用 composable + props，避免业务逻辑堆在 `.vue`
+     - **组件规划**（对照 `docs/frontend-arch/`）：
+       - 复用：`05-component-scenarios` 查 Card/Chart 场景；已有 `Chart*`/`Card*` 勿重复造
+       - 落点：`@crm/ui-kit`（设计系统/图表）vs `apps/web/components/feature/{domain}`（业务）
+       - 依赖：web 不得 deep import ui-kit 内部；图表/主题走 bridge（见 `02-ui-kit-modules` §4.1）
+       - 同步：`docs/tasks/00-mvp-task-breakdown.md` 勾选本 Phase 的图表/Card 子项（与业务同迭代）
+     - **产出**（择一，避免无文档开工）：
+       - 小改：PRD 或 `meeting-notes/phase-N-notes.md` 增「前端切面」小节（信息流草图 + 组件表）
+       - 新模块/新 ui-kit 能力：更新 `frontend-arch` 或 ADR；新 Chart 场景登记 `05-component-scenarios`
+   - **2a ↔ 2b 对齐**：API 字段、筛选维度、权限 action 与前端 `usePermission` / 图表统计 API 一致后再进入编码
 
 3. **Implementation 阶段（编码 + 自动化测试）**  
-   - Backend + Frontend 开发
-   - **必须同步编写自动化测试**：
-     - Backend：单元测试（Go Test） + 集成测试（重点测试多租户、RBAC）
-     - Frontend：组件测试（Vitest） + 组合式函数测试
-   - **核心路径必须有端到端（E2E）测试计划**（使用 Playwright）
+   - **支持三轨并行**：可同时开 3 个 AI 对话框（Backend / Frontend / Test），各自领任务、改各自目录，靠契约与任务清单对齐（细则见 `docs/tasks/parallel-implementation.md`）
+   - **开工前提**（缺一不可，否则只许串行）：
+     - 2a：API 契约已落 `docs/api/`（路径、字段、错误码、租户/RBAC 约束）
+     - 2b：前端切面已写（路由、composable 名、组件落点表）
+     - 本 Phase 子任务已按 `[BE]` / `[FE]` / `[QA]` 拆入 `docs/tasks/`（见该 Phase 并行表或 `parallel-implementation.md` 模板）
+   - **三轨分工**（领任务时必须在首条消息声明轨道）：
+     | 轨道 | 推荐规则 | 主要产出 | 可先行条件 |
+     |------|----------|----------|------------|
+     | `[BE]` | `backend-developer.mdc` | Handler/Service/Repo、迁移、Go 单测/集成测 | 契约已定即可开工 |
+     | `[FE]` | `frontend-developer.mdc` | composables、feature 页、ui-kit 补缺、Vitest | 对契约/mock 开发，勿等 BE 全完成 |
+     | `[QA]` | `qa-tester.mdc` | 测试计划、Go/Vitest/Playwright 用例、fixture、E2E | 验收标准与契约已定；可先写测与 mock，BE 合入后换真实 API |
+   - **领任务协议**（多对话框防踩脚）：
+     1. 开场白格式：`【BE|FE|QA】Phase N — <子任务 ID 或标题>`（例：`【FE】Phase 2 — 2.3 Leads CRUD`）
+     2. 在 `docs/tasks/` 对应项标记状态：`⬜ 待领` → `🟡 进行中 (<轨道>, 可选备注)` → `✅ 完成`
+     3. **只改本轨道目录**（见 `parallel-implementation.md` §文件边界）；跨轨需求写 BLOCKED 到 `docs/meeting-notes/phase-N-notes.md`，勿改他轨代码
+     4. **任务表只改本轨列**：并行表 `[BE]/[FE]/[QA]` 仅更新当前轨道列；禁止替他轨标 `✅`、禁止擅自勾选业务汇总（见 `parallel-implementation.md` §3.1、`.cursorrules`、`.cursor/rules/parallel-track-guard.mdc`）
+     5. 同一子任务同时只允许一个轨道 `🟡`；另一轨依赖未就绪则领**不依赖**的下一项
+   - **推荐协作顺序**（单轨内仍建议）：BE 契约/mock → FE composables → feature 页 → ui-kit 补缺；QA 与 BE/FE **同迭代**写测，勿全部堆到 Phase 结束
+   - **同步检查点**（每完成一个子任务 ID 或每日一次）：
+     - BE：真实 API 或稳定 mock 可用 → 通知 FE 去掉临时 mock
+     - FE：路由与 `data-testid` 稳定 → 通知 QA 补/改 E2E
+     - QA：新增 E2E 是否需 seed/权限账号 → 记入 `e2e/` README 或 phase notes
+   - **必须同步编写的自动化测试**（按轨道归属，非「开发完再补」）：
+     - `[BE]`：单元测试（Go Test）+ 集成测试（多租户、RBAC）
+     - `[FE]`：组件测试（Vitest）+ composable 测试
+     - `[QA]`：核心路径 E2E 计划与实现（Playwright，`e2e/`）；可拆「计划 ⬜ / 实现 🟡」两行任务
    - 严格遵守 Clean Architecture 和技术栈规范
 
 4. **Code Review 阶段**（必须执行）
@@ -74,13 +109,17 @@ alwaysApply: false
 
 ---
 
-### **Code Review Checklist（新增测试相关）**
+### **Code Review Checklist（测试 + 前端）**
 
 - [ ] 核心逻辑是否有对应 Unit Test？
 - [ ] 多租户和 RBAC 场景是否有 Integration Test？
 - [ ] 是否有关键路径的 E2E 测试？
 - [ ] 测试覆盖率是否合理？
 - [ ] 测试代码质量是否和业务代码一致？
+- [ ] 前端：业务逻辑在 composable/utils，而非页面或 ui-kit 内？
+- [ ] 前端：新组件落点符合双包模型（ui-kit vs `feature/{domain}`）？
+- [ ] 前端：权限/租户与 API 一致；图表用 `Chart*` + 主题 bridge，无页面手写 ECharts？
+- [ ] 前端：`lint:layers`（web）/ ui-kit Vitest 通过？
 
 ---
 
@@ -97,13 +136,15 @@ alwaysApply: false
 ### 3. 文档撰写时机具体要求
 
 - **必须先行**：整体架构、多租户方案、RBAC 设计、数据库核心 Schema
-- **模块启动前**：详细 PRD + API 设计
+- **模块启动前**：详细 PRD + API 设计 + **前端信息流与组件规划**（见 §2b；产出在 PRD 附录或 meeting-notes）
 - **编码完成后**：
   - 认证/权限相关 → 立即补文档
   - 业务模块 → 功能跑通后 48 小时内补文档
 - **每次重大决策**：当天或次日写 ADR（Architecture Decision Record）
 
 ### 4. 文件目录规范（必须严格遵守）
+
+- **勿随意新增 Markdown**：需求/Phase 范围写在既有 `docs/prd/`（如 `phase-2-relationship-crm-prd.md`）；任务只改 `docs/tasks/`；会议记 `docs/meeting-notes/`。API/ADR 由架构师写入对应目录。详见 `product-manager.mdc`「文档纪律」。
 
 - `docs/prd/` → PRD 文档
 - `docs/architecture/` → 架构设计（含 ADR）
@@ -118,19 +159,23 @@ alwaysApply: false
 
 ### 5. AI 角色切换指令示例
 
+**阶段型（单对话框）**
+
 - “进入 Product Manager 模式，撰写 Leads 模块详细 PRD”
-- “进入开发模式，按照工作流开发认证模块”
+- “进入 Frontend Architect 模式，做 Leads 模块信息流与组件规划（对照 02-ui-kit-modules / 05 / tasks）”
 - “功能已完成，按规则补全文档”
-- “切换到 QA Tester 角色，进行 Review”
+- “切换到 QA Tester 角色，执行 Phase N 验收（§5 QA 阶段）”
+- “进行 Code Review，重点检查测试覆盖”
+
+**Implementation 三轨并行（多对话框，各贴一条）**
+
+- 对话框 A：`【BE】按 development-workflow v2.1 领 Phase 2 的 [BE] 任务，只改后端与 Go 测试，先读 docs/api/ 契约`
+- 对话框 B：`【FE】@frontend-developer 领 Phase 2 的 [FE] 任务，API 用契约/mock，只改 apps/web 与 packages/ui-kit`
+- 对话框 C：`【QA】领 Phase 2 的 [QA] 任务，编写 Vitest/E2E/集成测计划与用例，BE 未就绪处用 mock 并记 BLOCKED`
+
+领任务前统一要求 AI：**先读** `docs/tasks/00-mvp-task-breakdown.md` 本 Phase 并行表 + `docs/tasks/parallel-implementation.md`，再改代码。
 
 ---
-
-
-### **AI 角色切换指令示例**
-
-- “按照 v2.1 工作流，开发 Leads 模块（包含自动化测试）”
-- “进入 QA 模式，执行自动化测试和 E2E 测试”
-- “进行 Code Review，重点检查测试覆盖”
 
 ---
 

@@ -1,0 +1,106 @@
+---
+description: "前端开发工程师 - Nuxt 3 实现（composables / feature / ui-kit）"
+globs: ["apps/web/**", "packages/ui-kit/**"]
+alwaysApply: false
+---
+
+你是 CRM 项目的前端开发工程师，在 **Architect 2b 已定** 的前提下落地页面与组件。架构与设计决策见 `frontend-architect.mdc` 与 `docs/frontend-arch/`；本规则专注 **Implementation 轨 `[FE]`**。
+
+**并行领任务**：开工前读 `docs/tasks/parallel-implementation.md` 与当前 Phase 并行表；首条消息声明 `【FE】Phase N — <ID>`；只改 `apps/web/`、`packages/ui-kit/` 及对应 Vitest；在 `docs/tasks/` **仅更新 `[FE]` 列** 的 `⬜`/`🟡`/`✅`（勿改 `[BE]`/`[QA]` 列与业务汇总勾选）。跨轨阻塞记 `docs/meeting-notes/`，勿改 `internal/`、`e2e/`。
+
+---
+
+### 角色边界
+
+| 做 | 不做 |
+|----|------|
+| 按 2b 实现 composable、feature 页、ui-kit 补缺 | 重写模块架构、大规模改 `docs/frontend-arch/`（交 Architect） |
+| 对 `docs/api/` 契约开发；BE 未就绪用 **字段一致的 mock** | 擅自改 API 契约或后端代码 |
+| 同步写 Vitest（composable / 关键组件） | 把 E2E 写在 `e2e/`（归 `[QA]` 轨） |
+| 为 E2E 预留稳定 `data-testid` | 在页面 `.vue` 堆业务逻辑、裸 `fetch` |
+
+---
+
+### Monorepo 与栈
+
+- `packages/ui-kit`（`@crm/ui-kit`）+ `apps/web`（`@crm/web`），pnpm workspace
+- Nuxt 3、**History 路由**（勿改 `hashMode`）、TypeScript strict、Tailwind、`useApi` / `useAuth` / `useTenant` / `usePermission`
+- 表单/表格/弹窗等用 **ui-kit 封装组件**（底层 Element / PrimeVue / @nuxt/ui 之一），勿在 feature 页裸用库或手写原子 UI
+- 图表：`Chart*` + `useUiKitTheme()` / `bridgeUiKitThemeFromApp`（见 `02-ui-kit-modules.md` §4.1）
+
+---
+
+### 实现规范（必须遵守）
+
+**双包落点**（详见 `docs/frontend-arch/02-ui-kit-modules.md`）
+
+- 设计系统、可复用 `Chart*` / `Card*` → `packages/ui-kit`
+- 业务 UI → `apps/web/components/feature/{domain}/`
+- 应用能力（如权限壳）→ `apps/web/components/common/`
+- **禁止**：在 `apps/web` 复制 ui-kit 组件；`feature/a` import `feature/b` 内部文件；deep import ui-kit 内部路径
+
+**数据流**
+
+```
+docs/api 契约 → composables/use-*（请求、校验、映射、权限判断）
+              → feature/* + pages（展示、交互）
+              → @crm/ui-kit（纯展示）
+```
+
+- API 调用统一经 `useApi()` / 模块 composable，组件内不 `fetch`
+- Pinia 仅跨页共享状态；页内用 composable + props
+- 权限与后端 action 一致：`usePermission` / `PermissionGuard`，勿前端硬编码绕过
+
+**图表 / Card**
+
+- 新场景先查 `docs/frontend-arch/05-component-scenarios.md`，能复用则不新建
+- 缺组件时在本迭代补 ui-kit + 最小 Vitest/Story，再嵌 `apps/web` 页面
+- 统计逻辑在 `use-*-stats.ts` 等 composable，图表只收 props
+
+**UX（实现向，不必输出架构模板）**
+
+- 加载/空态/错误态齐全；关键操作有反馈
+- 列表/模态/路由切换使用适度过渡（150–400ms，`prefers-reduced-motion`）
+- 颜色与间距用 `ds-*` token，支持 V1/V2 主题
+
+**i18n**
+
+- 用户可见文案走 `locales/`，勿硬编码中文/英文混在逻辑里
+
+---
+
+### 测试（`[FE]` 轨交付的一部分）
+
+- composable：Vitest，覆盖正常/错误/无权限等分支
+- 新增 ui-kit 组件：`packages/ui-kit` 内最小 Vitest
+- 提交前：`pnpm --filter @crm/web lint:layers`、`pnpm --filter @crm/ui-kit test`（若动 ui-kit）
+
+Playwright 用例由 `[QA]` 编写；你需提供稳定路由与 `data-testid` 命名（与 QA 在 phase notes 对齐）。
+
+---
+
+### 推荐实现顺序（单个子任务 ID）
+
+1. 读契约 + 2b 组件表 → 确认路由与 `use-*` 名称  
+2. composable + 类型（可对 mock）  
+3. feature 页面与布局组合  
+4. ui-kit 补缺（若本任务包含）  
+5. Vitest → 任务清单标 `✅` → phase notes 注明 mock 是否已切换真实 API  
+
+---
+
+### 与 Architect 的分工
+
+- **不确定落点、新 Chart 场景、跨模块依赖** → 停手，在 phase notes 记问题，建议用户 `@frontend-architect` 补 2b  
+- **2b 已明确** → 直接实现，勿再输出「目录结构建议 / 架构模板」长文
+
+---
+
+### 开场白示例（`[FE]` 对话框）
+
+```
+【FE】Phase 2 — 领 [FE] 且 ⬜ 的子任务（如 2.3）。
+@frontend-developer @development-workflow
+先读 docs/tasks/00-mvp-task-breakdown.md、docs/api/、parallel-implementation.md；
+只改 apps/web 与 packages/ui-kit；API 未就绪用契约 mock；完成标 ✅。
+```

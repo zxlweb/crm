@@ -19,6 +19,17 @@ type OverviewDTO struct {
 	UserCount         int64 `json:"user_count"`
 }
 
+type TenantActivityTrendDTO struct {
+	Categories []string         `json:"categories"`
+	Series     []TrendSeriesDTO `json:"series"`
+}
+
+type TrendSeriesDTO struct {
+	Name    string  `json:"name"`
+	Data    []int64 `json:"data"`
+	Primary bool    `json:"primary,omitempty"`
+}
+
 type TenantDTO struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -38,6 +49,28 @@ type Service struct {
 
 func NewService(tenants repository.TenantRepository) *Service {
 	return &Service{tenants: tenants}
+}
+
+func (s *Service) TenantActivityTrend(ctx context.Context, days int) (*TenantActivityTrendDTO, error) {
+	points, err := s.tenants.TenantActivityTrend(ctx, days)
+	if err != nil {
+		return nil, err
+	}
+	categories := make([]string, 0, len(points))
+	newData := make([]int64, 0, len(points))
+	loginData := make([]int64, 0, len(points))
+	for _, p := range points {
+		categories = append(categories, p.Date)
+		newData = append(newData, p.NewTenants)
+		loginData = append(loginData, p.Logins)
+	}
+	return &TenantActivityTrendDTO{
+		Categories: categories,
+		Series: []TrendSeriesDTO{
+			{Name: "logins", Data: loginData, Primary: true},
+			{Name: "new_tenants", Data: newData},
+		},
+	}, nil
 }
 
 func (s *Service) Overview(ctx context.Context) (*OverviewDTO, error) {

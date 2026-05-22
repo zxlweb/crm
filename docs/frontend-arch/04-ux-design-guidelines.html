@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UX 设计交互规范 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html" style="color:var(--accent);font-weight:600">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../frontend-arch\04-ux-design-guidelines.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>UX 设计交互规范</h1>
+<p>EnterpriseFlow B2B CRM 前端用户体验与交互约定。视觉 Token 与主题实现见 <a href="./03-design-system.md">03-design-system.md</a>。</p>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本文档</td>
+<td>体验原则、布局、交互、反馈、动效、无障碍</td>
+</tr>
+<tr>
+<td><a href="./03-design-system.md">03-design-system.md</a></td>
+<td>Token、主题、<code>Card*</code> / <code>Chart*</code> API</td>
+</tr>
+<tr>
+<td><a href="./05-component-scenarios.md">05-component-scenarios.md</a></td>
+<td><strong>场景手册</strong>（看板用 <code>CardMetric</code>，图表用 <code>Chart*</code>）</td>
+</tr>
+<tr>
+<td><a href="./01-directory-structure.md">01-directory-structure.md</a></td>
+<td>目录结构</td>
+</tr>
+<tr>
+<td><a href="./02-ui-kit-modules.md">02-ui-kit-modules.md</a></td>
+<td>Monorepo、双包、ui-kit 工程、bridge、排障</td>
+</tr>
+</tbody></table>
+<p><strong>在线预览</strong>：<code>/design</code>（主题）、<code>/charts</code>（图表）</p>
+<hr>
+<h2>1. 设计目标</h2>
+<p>面向 <strong>企业销售与运营</strong> 用户，界面应：</p>
+<ul>
+<li><strong>专业可信</strong>：B2B SaaS 气质，信息密度适中，避免娱乐化装饰</li>
+<li><strong>高效清晰</strong>：关键指标一眼可读，列表与表单操作路径短</li>
+<li><strong>反馈及时</strong>：加载、成功、失败、无权限均有明确状态</li>
+<li><strong>多租户安全</strong>：租户边界在 UI 上可感知，避免误操作</li>
+</ul>
+<hr>
+<h2>2. 设计原则</h2>
+<h3>2.1 一致性（Consistency）</h3>
+<ul>
+<li>同一类操作使用相同控件、文案与反馈方式</li>
+<li>间距、圆角、字号遵循统一尺度（见 §4）</li>
+<li>颜色仅通过设计 Token（<code>ds-*</code> / <code>--ds-*</code>），禁止页面内随意写死色值</li>
+<li>图标风格统一：线性图标，<code>stroke-width</code> 1.75–2，与侧栏/按钮对齐</li>
+</ul>
+<h3>2.2 层次清晰（Hierarchy）</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>用途</th>
+<th>示例类名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L1 页面标题</td>
+<td>当前模块主标题</td>
+<td><code>text-ds-fg-heading</code> 大字号加粗</td>
+</tr>
+<tr>
+<td>L2 区块标题</td>
+<td>卡片/表格标题</td>
+<td><code>font-semibold text-ds-fg-heading</code></td>
+</tr>
+<tr>
+<td>L3 辅助说明</td>
+<td>副标题、表头说明</td>
+<td><code>text-sm text-ds-fg-muted</code></td>
+</tr>
+<tr>
+<td>L4 数据强调</td>
+<td>KPI、金额</td>
+<td>大号数字 + 可选趋势色</td>
+</tr>
+</tbody></table>
+<h3>2.3 反馈及时（Feedback）</h3>
+<p>所有用户操作须在 <strong>300ms 内</strong> 给出可见反馈（含禁用态、Loading、Toast/行内错误）。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>按钮点击</td>
+<td>立即 <code>disabled</code> + loading 文案（如「保存中…」）</td>
+</tr>
+<tr>
+<td>列表/详情加载</td>
+<td>骨架屏或居中 Spinner，禁止空白无提示</td>
+</tr>
+<tr>
+<td>表单提交失败</td>
+<td>字段下或表单顶部错误区，<code>role=&quot;alert&quot;</code></td>
+</tr>
+<tr>
+<td>成功操作</td>
+<td>行内状态更新或轻提示，避免仅控制台 log</td>
+</tr>
+<tr>
+<td>无权限</td>
+<td>明确文案 + 引导（非空白页）</td>
+</tr>
+</tbody></table>
+<h3>2.4 容错与防误操作（Error Prevention）</h3>
+<ul>
+<li>破坏性操作（删除、停用租户）必须二次确认</li>
+<li>主按钮与危险按钮视觉区分：主操作用 <code>ds-btn-primary</code>，危险用 <code>text-ds-danger</code> / 红色浅底</li>
+<li>表单离开未保存：后续迭代建议拦截（Phase 2+）</li>
+</ul>
+<hr>
+<h2>3. 视觉与品牌</h2>
+<h3>3.1 双主题</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>场景</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>V1</strong>（默认）</td>
+<td>日常办公、明亮环境</td>
+<td>浅紫 SaaS、白卡片、浅紫轨道</td>
+</tr>
+<tr>
+<td><strong>V2</strong></td>
+<td>大屏/夜间偏好</td>
+<td>深灰 <code>#0A0A0A</code>、紫色图表强调（Optrixx 风）</td>
+</tr>
+</tbody></table>
+<ul>
+<li>用户通过 <code>UiThemeToggle</code> 或 <code>/design</code> 切换，偏好写入 Cookie <code>crm-theme</code></li>
+<li>新页面必须 <strong>双主题可读</strong>，禁止只适配 V1</li>
+</ul>
+<h3>3.2 主色板（5 色）</h3>
+<p>EnterpriseFlow 以 <strong>紫色为品牌主色</strong>（非蓝色）。实现时优先用 CSS 变量 / Tailwind <code>ds-*</code>，下表给出 V1 参考色值（V2 同 Token、色值略亮，见 <code>design-system.css</code>）。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>参考色 (V1)</th>
+<th>Token</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Primary</strong></td>
+<td><code>#7c3aed</code> (Violet-600)</td>
+<td><code>--ds-brand</code>、<code>--ds-fg-brand</code>、<code>bg-ds-brand</code>、<code>text-ds-fg-brand</code></td>
+<td>主按钮、文字链接、侧栏激活、图表主线、输入框聚焦环、品牌渐变区</td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td><code>#059669</code> (Emerald-600)</td>
+<td><code>--ds-success</code>、<code>bg-ds-success-subtle</code>、<code>text-ds-fg-success</code></td>
+<td>保存成功、启用/活跃状态、正向 KPI 趋势、完成类 Toast、表格「活跃」圆点</td>
+</tr>
+<tr>
+<td><strong>Warning</strong></td>
+<td><code>#ca8a04</code> (Amber-600)</td>
+<td><em>待接入</em> <code>--ds-warning</code>（规划）</td>
+<td>待审批、即将到期、配额将满、非阻断性提示条、需关注但不紧急的标签</td>
+</tr>
+<tr>
+<td><strong>Danger</strong></td>
+<td><code>#b91c1c</code> (Red-700)</td>
+<td><code>--ds-danger</code>、<code>bg-ds-danger-subtle</code>、<code>text-ds-fg-danger</code></td>
+<td>删除/停用确认、表单校验错误、API 失败提示、破坏性主操作、失败状态</td>
+</tr>
+<tr>
+<td><strong>Neutral</strong></td>
+<td><code>#64748b</code> (Slate-500)</td>
+<td><code>--ds-fg-muted</code>、<code>--ds-fg</code>、<code>--ds-border</code>、<code>bg-ds-bg-muted</code></td>
+<td>正文辅助说明、表头/轴标签、分割线、占位符、禁用态文案、次要按钮</td>
+</tr>
+</tbody></table>
+<h4>各角色使用说明</h4>
+<p><strong>Primary（品牌紫）</strong></p>
+<ul>
+<li>每个页面仅 <strong>1 个</strong> 主 CTA（如「保存」「登录」），避免满屏紫按钮</li>
+<li>链接：<code>text-ds-fg-brand</code> + hover 加深，不必下划线</li>
+<li>禁止：大面积纯紫背景（除登录品牌区、洞察卡片等已定义模块）；<strong>不以蓝色 <code>#2563eb</code> 作主色</strong></li>
+</ul>
+<p><strong>Success（成功绿）</strong></p>
+<ul>
+<li>语义为「已完成 / 正常 / 正向」，不用于 mere 信息提示</li>
+<li>背景用浅底 <code>bg-ds-success-subtle</code>，文字/图标用 <code>text-ds-success</code></li>
+<li>图表正向趋势可与 Primary 并存，趋势数字优先 Success</li>
+</ul>
+<p><strong>Warning（警告黄）</strong></p>
+<ul>
+<li>语义为「需留意、可继续操作」，阻断性低于 Danger</li>
+<li>用于：审批中、同步延迟、试用即将结束、字段未填但不影响提交草稿</li>
+<li>UI：浅黄底 + 深黄字/图标；<strong>勿与 Danger 混用</strong>于同一表单行</li>
+<li>落地前在 <code>design-system.css</code> 增加 <code>--ds-warning</code> / <code>--ds-bg-warning-subtle</code> 后统一引用</li>
+</ul>
+<p><strong>Danger（危险红）</strong></p>
+<ul>
+<li>必须配文案说明后果；删除/停用需二次确认</li>
+<li>错误信息靠近字段或表单顶部，<code>role=&quot;alert&quot;</code></li>
+<li>列表「停用」等操作：可用紫系次要按钮，<strong>仅不可逆删除</strong>用 Danger 强调</li>
+</ul>
+<p><strong>Neutral（中性灰）</strong></p>
+<ul>
+<li>承载 80% 界面信息：说明、标签、边框、未选中导航</li>
+<li>标题用 <code>--ds-fg-heading</code>，正文用 <code>--ds-fg</code>，弱化用 <code>--ds-fg-muted</code></li>
+<li>图表对比线、次要系列用 <code>--ds-chart-secondary</code>（中性灰紫）</li>
+</ul>
+<h4>色板与主题关系</h4>
+<pre><code>Primary   ████  #7c3aed  →  V2: #9333ea
+Success   ████  #059669  →  V2: #34d399
+Warning   ████  #ca8a04  →  两主题共用（待 Token 化）
+Danger    ████  #b91c1c  →  V2: #f87171
+Neutral   ████  #64748b  →  V2: #71717a（文案）；边框为半透明白
+</code></pre>
+<p>完整变量表见 <a href="./03-design-system.md">03-design-system.md</a>。</p>
+<h3>3.3 字体</h3>
+<ul>
+<li>家族：<strong>Plus Jakarta Sans</strong>（见 <code>nuxt.config.ts</code>）</li>
+<li>正文：<code>text-sm</code>（14px）为主</li>
+<li>标题：<code>text-lg</code> ~ <code>text-3xl</code>，<code>font-semibold</code> / <code>font-bold</code></li>
+<li>数字/KPI：可加 <code>tracking-tight</code>、等宽不必强制</li>
+</ul>
+<h3>3.4 圆角与阴影</h3>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>圆角</th>
+<th>阴影</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>卡片</td>
+<td><code>rounded-2xl</code></td>
+<td><code>shadow-sm</code> 或 <code>shadow-ds-brand</code>（主 CTA）</td>
+</tr>
+<tr>
+<td>输入框 / 按钮</td>
+<td><code>rounded-xl</code></td>
+<td>主按钮 <code>ds-brand-shadow</code></td>
+</tr>
+<tr>
+<td>标签 / Badge</td>
+<td><code>rounded-full</code></td>
+<td>无或极轻</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. 布局与间距</h2>
+<h3>4.1 栅格</h3>
+<ul>
+<li>后台主布局：<strong>侧栏 + 顶栏 + 内容区</strong>（<code>layouts/admin.vue</code>）</li>
+<li>内容区内边距：<code>p-6 lg:p-8</code></li>
+<li>卡片间距：垂直 <code>space-y-6</code>，网格 <code>gap-4</code> / <code>gap-6</code></li>
+<li>移动端：侧栏隐藏，顶栏保留主题切换与关键操作</li>
+</ul>
+<h3>4.2 间距尺度（Tailwind）</h3>
+<p>优先使用：<code>2 / 3 / 4 / 5 / 6 / 8</code>（即 8px 倍数）。表单项之间 <code>space-y-5</code>，表单项内 label 与 input <code>mb-1.5</code>。</p>
+<h3>4.3 内容宽度</h3>
+<ul>
+<li>表单单列：<code>max-w-sm</code> ~ <code>max-w-md</code></li>
+<li>仪表盘/列表：<code>max-w-6xl</code> 或全宽表格 <code>overflow-x-auto</code></li>
+<li>营销/选择页（<code>/design</code>）：<code>max-w-5xl</code> 居中</li>
+</ul>
+<hr>
+<h2>5. 组件交互规范</h2>
+<h3>5.1 按钮</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>样式</th>
+<th>交互</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主按钮</td>
+<td><code>.ds-btn-primary</code></td>
+<td><code>cursor-pointer</code>；<code>disabled:opacity-50</code>；hover 变色</td>
+</tr>
+<tr>
+<td>次按钮</td>
+<td><code>border border-ds-border</code> + 文字色</td>
+<td>同左</td>
+</tr>
+<tr>
+<td>文字按钮</td>
+<td><code>text-ds-fg-muted hover:text-ds-fg-brand</code></td>
+<td>用于次要导航</td>
+</tr>
+<tr>
+<td>危险</td>
+<td>红字/红底浅</td>
+<td>必须带确认</td>
+</tr>
+</tbody></table>
+<ul>
+<li>所有可点击元素：<strong>必须</strong> <code>cursor-pointer</code>（项目 UX 硬性要求）</li>
+<li>触摸目标最小高度约 <strong>40px</strong>（<code>py-2.5</code> ~ <code>py-3</code>）</li>
+</ul>
+<h3>5.2 表单</h3>
+<ul>
+<li>标签：<code>text-sm font-medium text-ds-fg</code></li>
+<li>输入：<code>.ds-input</code> 或等价 Token 类</li>
+<li>占位符：<code>placeholder:text-ds-fg-muted</code> 风格</li>
+<li>聚焦：边框 <code>--ds-border-focus</code> + 浅紫光晕（见 design-system.css）</li>
+<li>校验：Zod + 行内错误，错误色 <code>text-ds-danger</code>，容器 <code>bg-ds-danger-subtle</code></li>
+</ul>
+<h3>5.3 导航</h3>
+<ul>
+<li>侧栏项：默认 <code>text-ds-fg-nav</code>，激活 <code>.ds-nav-active</code> 或 <code>bg-ds-bg-muted</code> + <code>text-ds-fg-nav-active</code></li>
+<li>当前路由与 <code>NuxtLink</code> <code>active-class</code> 保持一致</li>
+<li>面包屑/顶栏副标题：<code>text-xs text-ds-fg-brand</code></li>
+</ul>
+<h3>5.4 表格</h3>
+<ul>
+<li>表头：<code>text-xs uppercase tracking-wide text-ds-fg-brand</code>，背景 <code>bg-ds-bg-muted</code></li>
+<li>行 hover：<code>hover:bg-ds-bg-muted</code></li>
+<li>状态列：圆点 + 文字（活跃/停用），成功/中性 Token</li>
+<li>空状态：居中 <code>text-ds-fg-muted</code>，说明 + 可选主操作</li>
+<li>loading：骨架屏或居中 Spinner</li>
+<li>排序：图标 + 文字（升序/降序）</li>
+<li>筛选：下拉菜单 + 文字</li>
+<li>导出：按钮 + 文字</li>
+</ul>
+<h3>5.5 看板 KPI · <code>CardMetric</code>（场景 <code>dashboard</code>）</h3>
+<blockquote>
+<p>场景登记：<a href="./05-component-scenarios.md">05-component-scenarios.md</a> Part A · API：<a href="./03-design-system.md">03-design-system.md</a> §5</p>
+</blockquote>
+<p>看板、Admin、Dashboard 顶栏 KPI <strong>统一</strong> <code>&lt;CardMetric /&gt;</code>（场景 <code>dashboard</code>），禁止手写卡片或图2式右上大图标布局。</p>
+<h4>布局（必须）</h4>
+<pre><code>┌────────────────────────────────────┐
+│ (○ 圆标)  指标名 · text-ds-sm muted │
+│           主数值 · text-ds-3xl bold │
+│                                    │
+│ 同比/环比标签          12% ↓/↑    │
+└────────────────────────────────────┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>图标</td>
+<td><strong>左侧</strong> 圆形 40px；<code>iconTone</code> 区分语义（info / calendar / accent / brand / neutral）</td>
+</tr>
+<tr>
+<td>主数值</td>
+<td>L4 层级；<code>tabular-nums</code>；千分位格式化</td>
+</tr>
+<tr>
+<td>底栏</td>
+<td><code>justify-between</code>：左对比文案（muted），右趋势 + 箭头</td>
+</tr>
+<tr>
+<td>容器</td>
+<td><code>.ds-card</code> + <code>rounded-ds-xl</code> + <code>p-ds-5</code> + <code>shadow-ds-sm</code></td>
+</tr>
+</tbody></table>
+<h4>趋势语义</h4>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>色</th>
+<th>箭头</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>增长/正向</td>
+<td><code>text-ds-success</code>（<code>trend-direction=&quot;up&quot;</code>）</td>
+<td>↑</td>
+</tr>
+<tr>
+<td>下降/负向</td>
+<td><code>text-ds-danger</code>（<code>trend-direction=&quot;down&quot;</code>）</td>
+<td>↓</td>
+</tr>
+<tr>
+<td>持平/无</td>
+<td><code>text-ds-fg-muted</code>（<code>flat</code>）</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<h4>栅格</h4>
+<ul>
+<li><code>grid gap-ds-4 sm:grid-cols-2 xl:grid-cols-4</code></li>
+<li>同行卡片使用 <strong>不同</strong> <code>iconTone</code>，避免四张完全相同紫色块</li>
+</ul>
+<h4>禁止（图2 及变体）</h4>
+<ul>
+<li>图标在卡片 <strong>右上角</strong> 大方形容器</li>
+<li>趋势与 label 挤在同一列、无底栏分隔</li>
+<li>下降趋势仅用 muted 灰（必须用 danger 红）</li>
+<li>在 <code>apps/web</code> 手写 KPI 卡（须用 <code>&lt;CardMetric /&gt;</code>）</li>
+</ul>
+<h3>5.6 图表容器卡</h3>
+<ul>
+<li>外壳：<code>.ds-card</code> + <code>rounded-ds-2xl</code></li>
+<li>图表：<code>&lt;ChartShell&gt;</code>，标题区 <code>border-b border-ds-border-muted</code></li>
+<li>Hover：可选轻微 <code>shadow-ds-md</code>（KPI 卡默认静态，不必 hover 抬升）</li>
+</ul>
+<hr>
+<h2>6. 数据可视化 UX</h2>
+<p>图表统一走 <strong><code>@crm/ui-kit</code></strong>（<code>&lt;Chart*&gt;</code> 组件）；实现位于 <code>packages/ui-kit</code>。业务页 <strong>不要</strong>调用 <code>useChartTheme</code> 或手写 ECharts option。</p>
+<h3>6.1 图表选择</h3>
+<table>
+<thead>
+<tr>
+<th>数据意图</th>
+<th>组件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>趋势、对比（当前 vs 历史）</td>
+<td><code>ChartLine</code></td>
+</tr>
+<tr>
+<td>品类占比、排名</td>
+<td><code>ChartBar</code>（<code>horizontal</code>）</td>
+</tr>
+<tr>
+<td>时间序列对比</td>
+<td><code>ChartBar</code>（纵向）</td>
+</tr>
+<tr>
+<td>转化漏斗</td>
+<td><code>ChartFunnel</code></td>
+</tr>
+</tbody></table>
+<h3>6.2 视觉约定</h3>
+<ul>
+<li><strong>折线</strong>：平滑曲线；主系列紫色 + 面积浅渐变；对比系列灰色虚线</li>
+<li><strong>柱状</strong>：紫渐变柱体 + 浅紫轨道；忌过度动效（扫光已移除）</li>
+<li><strong>漏斗</strong>：自上而下递减，标签置于块内，tooltip 显示名称与数值</li>
+<li><strong>坐标轴</strong>：尽量无网格或极浅网格；轴标签 <code>text-ds-fg-muted</code> 量级</li>
+<li><strong>Tooltip</strong>：圆角卡片，跟随 <code>--ds-chart-tooltip-*</code></li>
+</ul>
+<h3>6.3 加载与空数据</h3>
+<ul>
+<li>图表区加载：<code>ClientOnly</code> fallback 文案「加载中…」</li>
+<li>无数据：卡片内说明文案，不显示空白坐标系</li>
+</ul>
+<hr>
+<h2>7. 动效与过渡</h2>
+<h3>7.1 时长与缓动</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>时长</th>
+<th>缓动</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>悬停、颜色</td>
+<td>150–200ms</td>
+<td><code>ease-in-out</code></td>
+</tr>
+<tr>
+<td>面板、模态</td>
+<td>250–300ms</td>
+<td><code>ease-out</code></td>
+</tr>
+<tr>
+<td>图表入场</td>
+<td>600–900ms</td>
+<td><code>cubicOut</code>（组件内已配置）</td>
+</tr>
+</tbody></table>
+<p>推荐类名：<code>transition-colors duration-200</code>、<code>transition-all duration-300 ease-in-out</code>。</p>
+<h3>7.2 必须有过渡的场景</h3>
+<ul>
+<li>页面区块出现（可选 <code>fade</code> + 轻微 <code>translate-y</code>）</li>
+<li>模态框 / Drawer：淡入 + 缩放或滑入</li>
+<li>列表项增删：高度 + 透明度（避免生硬跳变）</li>
+<li>按钮：hover/active，避免瞬间跳色</li>
+<li>Toast 提示：从顶部滑入</li>
+<li>Skeleton Loading：脉冲动画</li>
+</ul>
+<h3>7.3 减少动效（无障碍）</h3>
+<pre><code class="language-css">@media (prefers-reduced-motion: reduce) {
+  /* 关闭非必要动画，保留必要状态色变化 */
+}
+</code></pre>
+<p>图表组件在系统开启「减少动态效果」时，应关闭入场动画（<code>animated={false}</code>）。</p>
+<h3>7.4 禁止事项</h3>
+<ul>
+<li>全屏闪烁、高频循环扫光（影响性能与观感）</li>
+<li>每帧刷新 ECharts 整表 option（会导致柱长异常）</li>
+<li>超过 400ms 的阻塞式动画且无加载提示</li>
+</ul>
+<hr>
+<h2>8. 国际化（i18n）</h2>
+<ul>
+<li>文案 key：<strong>英文</strong>（如 <code>loginTitle</code>），展示由 <code>zh-CN</code> / <code>en-US</code> 翻译</li>
+<li>禁止在组件内硬编码中文（除注释）</li>
+<li>数字、货币、日期：使用 <code>Intl</code> 或统一 formatter，图表 <code>yFormatter</code> 与表格一致</li>
+<li>邮箱等含 <code>@</code> 的文案在 JSON 中使用 <code>admin{&#39;@&#39;}demo.com</code> 避免 vue-i18n 解析错误</li>
+</ul>
+<hr>
+<h2>9. 权限与多租户体验</h2>
+<h3>9.1 多租户</h3>
+<ul>
+<li>登录后展示可切换租户列表（<code>useTenant</code>）</li>
+<li>API 请求带 <code>X-Tenant-ID</code>；切换租户后刷新权限与列表</li>
+<li>UI 上避免跨租户数据混在同一视图（Super Admin 除外）</li>
+<li>权限隐藏使用 v-permission + 平滑淡出</li>
+<li>无权限时显示友好提示而非空白</li>
+</ul>
+<h3>9.2 RBAC</h3>
+<ul>
+<li>无权限：使用 <code>PermissionGuard</code> 或路由中间件拦截，文案 <code>noPermission</code></li>
+<li>菜单项：无权限不展示或禁用并 tooltip 说明</li>
+<li>操作按钮：提交前可用 <code>can(resource, action)</code> 隐藏或禁用</li>
+</ul>
+<h3>9.3 Super Admin</h3>
+<ul>
+<li>与普通租户后台视觉一致，使用同一 <code>admin</code> 布局与 Token</li>
+<li>危险操作（停用租户）突出确认与结果反馈</li>
+</ul>
+<hr>
+<h2>10. 无障碍（Accessibility）</h2>
+<ul>
+<li>图标按钮提供 <code>aria-hidden</code>（装饰）或 <code>aria-label</code>（仅图标可点击）</li>
+<li>表单错误 <code>role=&quot;alert&quot;</code></li>
+<li>对比度：正文与背景满足 WCAG AA（V1/V2 均需检查 muted 文字）</li>
+<li>键盘：主流程可 Tab 聚焦，焦点环使用 <code>focus:ring-2 focus:ring-ds-brand/40</code></li>
+<li>图表：核心数据不仅依赖颜色，需标签/数值/tooltip 辅助</li>
+</ul>
+<hr>
+<h2>11. 文案语气（Tone of Voice）</h2>
+<ul>
+<li><strong>简洁</strong>：按钮 2–4 字为主（「保存」「停用」「导出」）</li>
+<li><strong>专业</strong>：避免口语化；错误信息说明原因 + 可操作建议</li>
+<li><strong>一致</strong>：同一动作全局同一动词（如统一用「停用」而非「禁用/关闭」混用）</li>
+</ul>
+<hr>
+<h2>12. 开发检查清单</h2>
+<p>新页面或组件合并前自检：</p>
+<ul>
+<li><input disabled="" type="checkbox"> 颜色使用 <code>ds-*</code> / <code>--ds-*</code>，无硬编码主题色</li>
+<li><input disabled="" type="checkbox"> V1、V2 下文字与边框可读</li>
+<li><input disabled="" type="checkbox"> 可点击元素有 <code>cursor-pointer</code> 与 hover/focus</li>
+<li><input disabled="" type="checkbox"> 异步操作有 loading / 错误 / 空状态</li>
+<li><input disabled="" type="checkbox"> 文案走 i18n key</li>
+<li><input disabled="" type="checkbox"> 图表使用 <code>ChartShell</code> + <code>ChartLine</code> / <code>ChartBar</code> / <code>ChartFunnel</code></li>
+<li><input disabled="" type="checkbox"> 动效时长 ≤400ms，且考虑 <code>prefers-reduced-motion</code></li>
+<li><input disabled="" type="checkbox"> 权限与租户边界符合 §9</li>
+<li><input disabled="" type="checkbox"> 组件归属符合 <a href="./02-ui-kit-modules.md">02-ui-kit-modules.md</a>（设计系统 → ui-kit，业务 → apps/web）；<code>pnpm --filter @crm/web lint:layers</code> 通过</li>
+</ul>
+<hr>
+<h2>13. 参考实现</h2>
+<table>
+<thead>
+<tr>
+<th>页面/组件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pages/login.vue</code></td>
+<td>双栏登录、主题、表单反馈</td>
+</tr>
+<tr>
+<td><code>pages/admin/index.vue</code></td>
+<td>KPI、图表、表格、租户操作</td>
+</tr>
+<tr>
+<td><code>pages/charts/index.vue</code></td>
+<td>图表组件陈列</td>
+</tr>
+<tr>
+<td><code>pages/design.vue</code></td>
+<td>主题选择与 Token 预览</td>
+</tr>
+<tr>
+<td><code>packages/ui-kit</code> — <code>UiThemeToggle</code></td>
+<td>主题切换控件</td>
+</tr>
+<tr>
+<td><code>packages/ui-kit</code> — <code>Chart*</code></td>
+<td>图表族</td>
+</tr>
+<tr>
+<td><code>assets/css/design-system.css</code></td>
+<td>Token 源文件</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>14. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2025-05</td>
+<td>初版：对齐 V1/V2 设计系统、图表组件与前端架构师 UX 约定</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../frontend-arch\04-ux-design-guidelines.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

@@ -29,7 +29,7 @@ func TestLoginHandler_Success(t *testing.T) {
 			{ID: uuid.MustParse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name: "Demo", Domain: "demo"},
 		},
 	}
-	svc := auth.NewService(repo, "test-secret", time.Hour, 24*time.Hour)
+	svc := auth.NewService(repo, "test-secret", time.Hour, 24*time.Hour, nil)
 	h := NewAuthHandlers(svc)
 
 	r := gin.New()
@@ -81,6 +81,10 @@ func (m *mockAuthRepo) UserBelongsToTenant(ctx context.Context, userID, tenantID
 	return false, nil
 }
 
+func (m *mockAuthRepo) RegisterWithTenant(ctx context.Context, in repository.RegisterInput) (*domain.User, uuid.UUID, error) {
+	return nil, uuid.Nil, repository.ErrEmailExists
+}
+
 func TestSwitchTenantHandler_Success(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -93,7 +97,7 @@ func TestSwitchTenantHandler_Success(t *testing.T) {
 			{ID: tid, Name: "Demo", Domain: "demo"},
 		},
 	}
-	svc := auth.NewService(repo, "test-secret", time.Hour, 24*time.Hour)
+	svc := auth.NewService(repo, "test-secret", time.Hour, 24*time.Hour, nil)
 	h := NewAuthHandlers(svc)
 
 	r := gin.New()

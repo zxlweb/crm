@@ -6,6 +6,16 @@ alwaysApply: false
 你是拥有10年以上 B2B CRM 经验的资深产品经理。
 重点关注多租户、RBAC权限、工作流、数据安全合规。
 
+### 文档纪律（必须遵守）
+
+- **禁止随意新增 Markdown 文件**。需求、AI 能力、Phase 范围、汇报用演示说明等，一律写入已有文档：
+  - 总览 → `docs/prd/00-crm-overview.md`
+  - Phase 详细 → `docs/prd/phase-2-relationship-crm-prd.md`（及后续 phase-N PRD，由 PM 扩写而非新建碎片 md）
+  - 任务勾选 → `docs/tasks/00-mvp-task-breakdown.md`
+  - 阶段笔记 → `docs/meeting-notes/phase-N-notes.md`
+- **API 契约、ADR、架构图** 由架构师写入 `docs/api/`、`docs/architecture/`；PM 只在 PRD 中写 **能力清单、字段语义、错误态、演示开关**，不写 OpenAPI 路径实现细节。
+- 若必须新增文件，须在 PRD「修订记录」中说明理由，并优先合并到上述路径。
+
 当撰写 PRD 时，必须使用以下完整模板：
 1. 背景与业务目标
 2. 用户角色 (Persona) 与场景

@@ -74,6 +74,25 @@ function walkMd(dir, list = []) {
   return list.sort()
 }
 
+/** 删除已无对应 .md 的孤儿 .html（避免删 md 后 HTML 仍留在仓库） */
+function pruneOrphanHtml(dir) {
+  let removed = 0
+  for (const name of fs.readdirSync(dir)) {
+    const p = path.join(dir, name)
+    if (fs.statSync(p).isDirectory() && !name.startsWith('_')) {
+      removed += pruneOrphanHtml(p)
+    } else if (name.endsWith('.html') && name !== 'index.html') {
+      const mdPath = p.replace(/\.html$/, '.md')
+      if (!fs.existsSync(mdPath)) {
+        fs.unlinkSync(p)
+        console.log('🗑', path.relative(root, p), '(无对应 .md)')
+        removed++
+      }
+    }
+  }
+  return removed
+}
+
 function buildNav(allMd, currentRel) {
   const byDir = {}
   for (const f of allMd) {
@@ -168,6 +187,7 @@ function wrapPage(title, bodyHtml, sidebar, relFromDocs) {
 }
 
 const allMd = walkMd(docsDir)
+const pruned = pruneOrphanHtml(docsDir)
 let count = 0
 
 for (const mdPath of allMd) {
@@ -190,4 +210,4 @@ const indexBody = marked.parse(fs.readFileSync(indexMd, 'utf8'))
 const indexSidebar = buildSidebar(allMd, 'README.md')
 fs.writeFileSync(path.join(docsDir, 'index.html'), wrapPage('CRM 项目文档', indexBody, indexSidebar, './'))
 
-console.log(`\n✅ 已生成 ${count} 个 HTML + docs/index.html`)
+console.log(`\n✅ 已生成 ${count} 个 HTML + docs/index.html` + (pruned ? `，清理孤儿 HTML ${pruned} 个` : ''))

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"crm-backend/internal/application/auth"
+	"crm-backend/internal/pkg/httputil"
 	"crm-backend/internal/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,14 @@ type switchTenantRequest struct {
 	TenantID string `json:"tenant_id" binding:"required,uuid"`
 }
 
+type registerRequest struct {
+	Email       string `json:"email" binding:"required,email"`
+	Password    string `json:"password" binding:"required,min=6"`
+	Name        string `json:"name" binding:"required,min=1,max=100"`
+	CompanyName string `json:"company_name" binding:"required,min=2,max=255"`
+	Domain      string `json:"domain" binding:"omitempty,min=2,max=50"`
+}
+
 func NewAuthHandlers(svc *auth.Service) *AuthHandlers {
 	return &AuthHandlers{svc: svc}
 }
@@ -38,7 +47,7 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 		return
 	}
 
-	result, err := h.svc.Login(c.Request.Context(), req.Email, req.Password)
+	result, err := h.svc.Login(c.Request.Context(), req.Email, req.Password, httputil.ClientIP(c))
 	if err != nil {
 		if errors.Is(err, auth.ErrInvalidCredentials) {
 			response.Unauthorized(c, "邮箱或密码错误")
@@ -48,6 +57,36 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 		return
 	}
 	response.Success(c, result)
+}
+
+func (h *AuthHandlers) Register(c *gin.Context) {
+	var req registerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	result, err := h.svc.Register(c.Request.Context(), auth.RegisterInput{
+		Email:       req.Email,
+		Password:    req.Password,
+		Name:        req.Name,
+		CompanyName: req.CompanyName,
+		Domain:      req.Domain,
+	}, httputil.ClientIP(c))
+	if err != nil {
+		switch {
+		case errors.Is(err, auth.ErrEmailExists):
+			response.Error(c, 409, 409, "该邮箱已注册")
+		case errors.Is(err, auth.ErrDomainExists):
+			response.Error(c, 409, 409, "该域名标识已被占用")
+		case errors.Is(err, auth.ErrInvalidDomain):
+			response.BadRequest(c, "域名标识格式无效（小写字母、数字、连字符）")
+		default:
+			response.InternalError(c, "注册失败")
+		}
+		return
+	}
+	response.Created(c, result)
 }
 
 func (h *AuthHandlers) Refresh(c *gin.Context) {
@@ -124,6 +163,7 @@ func (h *AuthHandlers) SwitchTenant(c *gin.Context) {
 		c.GetString("email"),
 		c.GetBool("is_super_admin"),
 		tenantID,
+		httputil.ClientIP(c),
 	)
 	if err != nil {
 		if errors.Is(err, auth.ErrTenantForbidden) {

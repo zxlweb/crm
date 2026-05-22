@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 2 阶段笔记 — 关系经营 / AI Preview · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html" style="color:var(--accent);font-weight:600">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../meeting-notes\phase-2-notes.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 2 阶段笔记 — 关系经营 / AI Preview</h1>
+<p><strong>日期</strong>：2026-05-22<br><strong>状态</strong>：Architect 阶段完成 → <strong>可开启三轨 Implementation</strong></p>
+<hr>
+<h2>1. 架构产出（2a）</h2>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API 契约 v1.0</td>
+<td><a href="../api/phase-2-crm-ai.md">docs/api/phase-2-crm-ai.md</a></td>
+</tr>
+<tr>
+<td>数据模型 / 迁移纲要</td>
+<td><a href="../architecture/03-phase-2-crm-schema.md">docs/architecture/03-phase-2-crm-schema.md</a></td>
+</tr>
+<tr>
+<td>ADR-0004 规则洞察 + AI Preview</td>
+<td><a href="../architecture/adr/0004-rule-insights-and-ai-preview.md">docs/architecture/adr/0004-rule-insights-and-ai-preview.md</a></td>
+</tr>
+</tbody></table>
+<p><strong>评审结论</strong>：契约已覆盖 PRD §15.3 能力清单；BE 按 §15 实现顺序领 <code>2.1</code>；FE/QA 可对契约开发。</p>
+<hr>
+<h2>2. 前端切面（2b）</h2>
+<h3>2.1 路由（Nuxt <code>apps/web/pages/</code>）</h3>
+<table>
+<thead>
+<tr>
+<th>路由</th>
+<th>页面</th>
+<th>layout</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/accounts</code></td>
+<td>列表 + <code>segment</code> Query</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>/accounts/[id]</code></td>
+<td>Tab：概览 / 时间线 / 情绪旅程 / 洞察</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>/contacts</code></td>
+<td>列表</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>/contacts/[id]</code></td>
+<td>同 accounts 详情结构</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>/leads</code></td>
+<td>列表 + <strong>报表 Tab</strong></td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>/leads/[id]</code></td>
+<td>详情 + <strong>右侧 AI 侧栏</strong>（宽屏）</td>
+<td><code>admin</code></td>
+</tr>
+</tbody></table>
+<p>权限：<code>usePermission()</code> — <code>accounts:view</code> 等；AI 侧栏另判 <code>tenant.config.ai_enabled</code>（<code>use-tenant</code> 扩展读 config）。</p>
+<h3>2.2 Composables</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>use-accounts</code></td>
+<td>CRUD + 列表筛选</td>
+</tr>
+<tr>
+<td><code>use-contacts</code></td>
+<td>CRUD + <code>account_id</code></td>
+</tr>
+<tr>
+<td><code>use-leads</code></td>
+<td>CRUD + convert + assign + import</td>
+</tr>
+<tr>
+<td><code>use-activities</code></td>
+<td>时间线 CRUD + summary</td>
+</tr>
+<tr>
+<td><code>use-insights</code></td>
+<td><code>POST .../insights/evaluate</code> + adopt 预填</td>
+</tr>
+<tr>
+<td><code>use-emotion-journey</code></td>
+<td><code>GET .../emotion-journey</code></td>
+</tr>
+<tr>
+<td><code>use-lead-stats</code></td>
+<td>四个 stats 端点 → Chart 数据</td>
+</tr>
+<tr>
+<td><code>use-segments</code></td>
+<td>分群列表 + count</td>
+</tr>
+<tr>
+<td><code>use-ai-preview</code></td>
+<td><code>ai_enabled</code> / fixtures / <code>?preview=1</code></td>
+</tr>
+<tr>
+<td><code>use-ai-copilot</code></td>
+<td>Copilot 适配层（501 → fixture）</td>
+</tr>
+</tbody></table>
+<h3>2.3 组件落点</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ActivityTimeline</code></td>
+<td><code>components/feature/crm/activity-timeline.vue</code></td>
+</tr>
+<tr>
+<td><code>InsightCard</code>, <code>LifecycleBadge</code></td>
+<td><code>components/feature/crm/</code></td>
+</tr>
+<tr>
+<td><code>EmotionJourneyMap</code></td>
+<td><code>components/feature/crm/emotion-journey-map.vue</code></td>
+</tr>
+<tr>
+<td><code>AiRelationPanel</code>, <code>AiCopilotDrawer</code>, <code>AiPreviewBadge</code></td>
+<td><code>components/feature/ai/</code></td>
+</tr>
+<tr>
+<td><code>ChartDonut</code>（新增）</td>
+<td><code>packages/ui-kit/.../chart-donut.vue</code></td>
+</tr>
+</tbody></table>
+<p>Fixtures：<code>apps/web/fixtures/ai-preview/*.json</code>（与契约 payload 同形）。</p>
+<h3>2.4 数据流</h3>
+<pre><code>API → use-* (auth + tenant + permission)
+        → feature/crm/* + feature/ai/*
+        → @crm/ui-kit Chart* / Card*
+insights/evaluate (rule) 与 insights/preview (preview) 分区渲染，禁止混排无角标 Mock
+</code></pre>
+<h3>2.5 <code>data-testid</code>（QA 约定）</h3>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>testid</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Leads 新建</td>
+<td><code>lead-create-btn</code></td>
+</tr>
+<tr>
+<td>详情情绪 Tab</td>
+<td><code>tab-emotion-journey</code></td>
+</tr>
+<tr>
+<td>AI 侧栏</td>
+<td><code>ai-relation-panel</code></td>
+</tr>
+<tr>
+<td>Preview 角标</td>
+<td><code>ai-preview-badge</code></td>
+</tr>
+<tr>
+<td>采纳建议</td>
+<td><code>insight-adopt-btn</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 三轨领任务指引</h2>
+<p>复制到各对话框首条消息：</p>
+<ul>
+<li><strong>BE</strong>：<code>【BE】Phase 2 — 2.1 Accounts API</code>，读 <code>docs/api/phase-2-crm-ai.md</code> §4 + <code>03-phase-2-crm-schema.md</code>，只改 <code>backend/</code></li>
+<li><strong>FE</strong>：<code>【FE】Phase 2 — 2.3 Leads 页骨架</code>，契约/mock，只改 <code>apps/web/</code>、<code>packages/ui-kit/</code></li>
+<li><strong>QA</strong>：<code>【QA】Phase 2 — 2.3 Leads 集成测计划</code>，读 PRD 验收标准，只改测试目录</li>
+</ul>
+<p><strong>同步检查点</strong>：2.1 契约 API 可用 → FE 换真实 API；2.3 路由 testid 稳定 → QA 补 E2E。</p>
+<hr>
+<h2>4. 阻塞 / 风险</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Casbin 新租户 Enforce</td>
+<td>Phase 1 QA 遗留，不阻塞 2.3，但 2.7 assign 前需验证</td>
+</tr>
+<tr>
+<td><code>ChartDonut</code></td>
+<td>ui-kit 未实现，2.4 当周补齐</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-22</td>
+<td>Architect 2a/2b 完成，开放 Implementation</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../meeting-notes\phase-2-notes.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

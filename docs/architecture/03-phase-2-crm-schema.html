@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 2 数据模型与迁移纲要 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html" style="color:var(--accent);font-weight:600">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../architecture\03-phase-2-crm-schema.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 2 数据模型与迁移纲要</h1>
+<p><strong>版本</strong>：v1.0<br><strong>日期</strong>：2026-05-22<br><strong>关联</strong>：<a href="../api/phase-2-crm-ai.md">phase-2-crm-ai.md</a> · <a href="../prd/phase-2-relationship-crm-prd.md">phase-2-relationship-crm-prd.md</a></p>
+<hr>
+<h2>1. ER 概览</h2>
+<pre><code class="language-mermaid">erDiagram
+  tenants ||--o{ accounts : has
+  tenants ||--o{ contacts : has
+  tenants ||--o{ leads : has
+  tenants ||--o{ activities : has
+  accounts ||--o{ contacts : contains
+  leads }o--o| accounts : converts_to
+  users ||--o{ leads : owns
+  activities }o--|| leads : subject
+  activities }o--|| contacts : subject
+  activities }o--|| accounts : subject
+  tenants ||--o{ segment_templates : has
+  tenants ||--o{ lifecycle_stage_history : has
+</code></pre>
+<hr>
+<h2>2. 新表</h2>
+<h3>2.1 <code>accounts</code></h3>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>类型</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID PK</td>
+<td></td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>UUID FK</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>owner_id</td>
+<td>UUID FK users</td>
+<td>NULL</td>
+</tr>
+<tr>
+<td>name</td>
+<td>VARCHAR(255)</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>industry</td>
+<td>VARCHAR(100)</td>
+<td></td>
+</tr>
+<tr>
+<td>website</td>
+<td>TEXT</td>
+<td></td>
+</tr>
+<tr>
+<td>lifecycle_stage</td>
+<td>VARCHAR(32)</td>
+<td>DEFAULT <code>acquire</code></td>
+</tr>
+<tr>
+<td>engagement_score</td>
+<td>SMALLINT</td>
+<td>DEFAULT 0</td>
+</tr>
+<tr>
+<td>last_activity_at</td>
+<td>TIMESTAMPTZ</td>
+<td></td>
+</tr>
+<tr>
+<td>tags</td>
+<td>TEXT[]</td>
+<td>DEFAULT <code>{}</code></td>
+</tr>
+<tr>
+<td>created_by / updated_by</td>
+<td>UUID</td>
+<td></td>
+</tr>
+<tr>
+<td>timestamps + deleted_at</td>
+<td></td>
+<td>软删</td>
+</tr>
+</tbody></table>
+<p>索引：<code>(tenant_id)</code>, <code>(tenant_id, owner_id)</code>, <code>(tenant_id, lifecycle_stage)</code></p>
+<h3>2.2 <code>contacts</code></h3>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>类型</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID PK</td>
+<td></td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>UUID FK</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>account_id</td>
+<td>UUID FK accounts</td>
+<td>NULL</td>
+</tr>
+<tr>
+<td>owner_id</td>
+<td>UUID FK</td>
+<td></td>
+</tr>
+<tr>
+<td>first_name / last_name</td>
+<td>VARCHAR(100)</td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>VARCHAR(255)</td>
+<td></td>
+</tr>
+<tr>
+<td>phone</td>
+<td>VARCHAR(50)</td>
+<td></td>
+</tr>
+<tr>
+<td>is_primary</td>
+<td>BOOLEAN</td>
+<td>DEFAULT false</td>
+</tr>
+<tr>
+<td>lifecycle_stage</td>
+<td>VARCHAR(32)</td>
+<td></td>
+</tr>
+<tr>
+<td>engagement_score</td>
+<td>SMALLINT</td>
+<td></td>
+</tr>
+<tr>
+<td>last_activity_at</td>
+<td>TIMESTAMPTZ</td>
+<td></td>
+</tr>
+<tr>
+<td>tags</td>
+<td>TEXT[]</td>
+<td></td>
+</tr>
+<tr>
+<td>timestamps + deleted_at</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>索引：<code>(tenant_id, account_id)</code>, <code>(tenant_id, email)</code></p>
+<h3>2.3 <code>activities</code></h3>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>类型</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID PK</td>
+<td></td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>UUID FK</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>subject_type</td>
+<td>VARCHAR(20)</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>subject_id</td>
+<td>UUID</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>event_type</td>
+<td>VARCHAR(32)</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>direction</td>
+<td>VARCHAR(16)</td>
+<td></td>
+</tr>
+<tr>
+<td>body</td>
+<td>TEXT</td>
+<td></td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB</td>
+<td>DEFAULT <code>{}</code></td>
+</tr>
+<tr>
+<td>sentiment</td>
+<td>VARCHAR(20)</td>
+<td></td>
+</tr>
+<tr>
+<td>sentiment_source</td>
+<td>VARCHAR(16)</td>
+<td></td>
+</tr>
+<tr>
+<td>occurred_at</td>
+<td>TIMESTAMPTZ</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>created_by</td>
+<td>UUID FK users</td>
+<td></td>
+</tr>
+<tr>
+<td>timestamps + deleted_at</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>索引：<code>(tenant_id, subject_type, subject_id, occurred_at DESC)</code></p>
+<h3>2.4 <code>segment_templates</code></h3>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID PK</td>
+<td></td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>UUID</td>
+<td>NULL = 系统预置复制到租户</td>
+</tr>
+<tr>
+<td>code</td>
+<td>VARCHAR(50)</td>
+<td>唯一 per tenant</td>
+</tr>
+<tr>
+<td>name_i18n_key</td>
+<td>VARCHAR(100)</td>
+<td></td>
+</tr>
+<tr>
+<td>filter_json</td>
+<td>JSONB</td>
+<td>筛选 DSL（见下）</td>
+</tr>
+<tr>
+<td>is_system</td>
+<td>BOOLEAN</td>
+<td>预置不可删</td>
+</tr>
+</tbody></table>
+<p><strong>filter_json 示例</strong>（<code>churn_risk</code>）：</p>
+<pre><code class="language-json">{ &quot;and&quot;: [{ &quot;field&quot;: &quot;days_since_last_activity&quot;, &quot;op&quot;: &quot;gt&quot;, &quot;value&quot;: 7 }] }
+</code></pre>
+<h3>2.5 <code>lifecycle_stage_history</code>（可选，建议 Phase 2 做）</h3>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>subject_type / subject_id</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>from_stage / to_stage</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>changed_by</td>
+<td>UUID</td>
+<td></td>
+</tr>
+<tr>
+<td>created_at</td>
+<td></td>
+<td>供 emotion-journey <code>lifecycle_bands</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. <code>leads</code> 表变更（迁移 <code>00006_phase2_crm.sql</code>）</h2>
+<pre><code class="language-sql">ALTER TABLE leads
+  ADD COLUMN IF NOT EXISTS lifecycle_stage VARCHAR(32) DEFAULT &#39;acquire&#39;,
+  ADD COLUMN IF NOT EXISTS engagement_score SMALLINT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS last_activity_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT &#39;{}&#39;,
+  ADD COLUMN IF NOT EXISTS relationship_health VARCHAR(16),
+  ADD COLUMN IF NOT EXISTS converted_account_id UUID REFERENCES accounts(id),
+  ADD COLUMN IF NOT EXISTS converted_contact_id UUID REFERENCES contacts(id);
+</code></pre>
+<hr>
+<h2>4. 计算字段策略</h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>更新时机</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>last_activity_at</code></td>
+<td>Activity INSERT/UPDATE（<code>occurred_at</code> 最大）</td>
+</tr>
+<tr>
+<td><code>engagement_score</code></td>
+<td>Activity 或 status/lifecycle 变更后 Service 重算（规则 § PRD 4.3.4）</td>
+</tr>
+<tr>
+<td><code>relationship_health</code></td>
+<td>由 <code>engagement_score</code> 分段：≥70 high，40–69 medium，&lt;40 low</td>
+</tr>
+</tbody></table>
+<p><strong>禁止</strong> FE 写入 <code>engagement_score</code> / <code>relationship_health</code>。</p>
+<hr>
+<h2>5. 租户 config 与种子</h2>
+<p><code>tenants.config</code> 已有 JSONB。Phase 2 种子：</p>
+<pre><code class="language-json">{
+  &quot;ai_enabled&quot;: false,
+  &quot;ai_preview_mode&quot;: &quot;off&quot;,
+  &quot;insight_thresholds&quot;: { &quot;days_silent&quot;: 7, &quot;high_value_amount&quot;: 100000 },
+  &quot;sentiment_keyword_rules&quot;: []
+}
+</code></pre>
+<p>演示租户 <code>preview</code>：<code>ai_enabled: true</code>, <code>ai_preview_mode: &quot;fixtures&quot;</code>。</p>
+<hr>
+<h2>6. 迁移文件规划</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>00006_phase2_crm.sql</code></td>
+<td>accounts, contacts, activities, segment_templates, leads ALTER, 新 permissions</td>
+</tr>
+<tr>
+<td><code>00007_seed_phase2_segments.sql</code></td>
+<td>5 个预置分群 per tenant（或注册时复制）</td>
+</tr>
+<tr>
+<td><code>00008_seed_preview_tenant.sql</code></td>
+<td><a href="mailto:demo@preview.crm">demo@preview.crm</a> + 样例 leads/activities（仅 dev）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 索引与性能</h2>
+<ul>
+<li>列表页：<code>(tenant_id, deleted_at, updated_at DESC)</code>  </li>
+<li>洞察求值：批量查询主体最近 Activity（LIMIT 50）  </li>
+<li>情绪旅程：单次查询 activities + lifecycle_history，避免 N+1</li>
+</ul>
+<p>目标：详情时间线 P95 &lt; 500ms（50 条内，PRD §7）。</p>
+<hr>
+<h2>8. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-22</td>
+<td>v1.0 首版</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../architecture\03-phase-2-crm-schema.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

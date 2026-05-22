@@ -44,6 +44,10 @@ func (m *mockUserRepo) UserBelongsToTenant(ctx context.Context, userID, tenantID
 	return false, nil
 }
 
+func (m *mockUserRepo) RegisterWithTenant(ctx context.Context, in repository.RegisterInput) (*domain.User, uuid.UUID, error) {
+	return nil, uuid.Nil, repository.ErrEmailExists
+}
+
 func TestService_LoginSuccess(t *testing.T) {
 	hash, _ := password.Hash("password123")
 	uid := uuid.MustParse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
@@ -60,9 +64,9 @@ func TestService_LoginSuccess(t *testing.T) {
 			{ID: tid, Name: "Demo Corp", Domain: "demo"},
 		},
 	}
-	svc := NewService(repo, "secret", time.Hour, 24*time.Hour)
+	svc := NewService(repo, "secret", time.Hour, 24*time.Hour, nil)
 
-	result, err := svc.Login(context.Background(), "admin@demo.com", "password123")
+	result, err := svc.Login(context.Background(), "admin@demo.com", "password123", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +83,7 @@ func TestService_Profile(t *testing.T) {
 	repo := &mockUserRepo{
 		user: &domain.User{ID: uid, Email: "admin@demo.com", IsSuperAdmin: true},
 	}
-	svc := NewService(repo, "secret", time.Hour, 24*time.Hour)
+	svc := NewService(repo, "secret", time.Hour, 24*time.Hour, nil)
 
 	profile, err := svc.Profile(context.Background(), uid)
 	if err != nil || !profile.IsSuperAdmin {
@@ -92,9 +96,9 @@ func TestService_LoginInvalidPassword(t *testing.T) {
 	repo := &mockUserRepo{
 		user: &domain.User{ID: uuid.New(), Email: "a@b.com", PasswordHash: hash},
 	}
-	svc := NewService(repo, "secret", time.Hour, 24*time.Hour)
+	svc := NewService(repo, "secret", time.Hour, 24*time.Hour, nil)
 
-	_, err := svc.Login(context.Background(), "a@b.com", "wrong")
+	_, err := svc.Login(context.Background(), "a@b.com", "wrong", "")
 	if err != ErrInvalidCredentials {
 		t.Fatalf("got %v", err)
 	}
@@ -107,9 +111,9 @@ func TestService_SwitchTenantSuccess(t *testing.T) {
 		user:    &domain.User{ID: uid, Email: "admin@demo.com", IsSuperAdmin: true},
 		tenants: []repository.TenantBrief{{ID: tid, Name: "Demo", Domain: "demo"}},
 	}
-	svc := NewService(repo, "secret", time.Hour, 24*time.Hour)
+	svc := NewService(repo, "secret", time.Hour, 24*time.Hour, nil)
 
-	result, err := svc.SwitchTenant(context.Background(), uid, "admin@demo.com", true, tid)
+	result, err := svc.SwitchTenant(context.Background(), uid, "admin@demo.com", true, tid, "")
 	if err != nil {
 		t.Fatal(err)
 	}

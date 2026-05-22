@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UI Kit 模块与组件模型 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html" style="color:var(--accent);font-weight:600">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../frontend-arch\02-ui-kit-modules.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>UI Kit 模块与组件模型</h1>
+<p><strong>版本</strong>：v2.1 · <code>@crm/ui-kit</code> + <code>@crm/web</code>（pnpm workspace）</p>
+<blockquote>
+<p>早期「<code>frontend/components</code> 五层（base / ui / common / layout / feature）」已废止。<br>设计系统 → <strong><code>packages/ui-kit</code></strong>；CRM 业务 UI → <strong><code>apps/web/components</code></strong>。</p>
+</blockquote>
+<hr>
+<h2>1. Monorepo 结构</h2>
+<pre><code>crm/
+├── pnpm-workspace.yaml
+├── package.json                 # pnpm dev / build / test
+├── apps/
+│   └── web/                     # @crm/web
+├── packages/
+│   └── ui-kit/                  # @crm/ui-kit（可发布）
+└── e2e/
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>包名</th>
+<th>路径</th>
+<th>职责</th>
+<th>发布</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@crm/web</code></td>
+<td><code>apps/web</code></td>
+<td>路由、feature、RBAC、多租户、i18n</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>@crm/ui-kit</code></td>
+<td><code>packages/ui-kit</code></td>
+<td>Token/CSS、Chart*、Card*、<code>UiThemeToggle</code></td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>旧目录 <code>frontend/</code> 已删除。根目录 <code>pnpm dev</code>（单实例），以终端 <strong>Local:</strong> URL 为准。</p>
+</blockquote>
+<pre><code class="language-mermaid">flowchart TB
+  subgraph app [&quot;@crm/web&quot;]
+    pages[pages/]
+    layouts[layouts/]
+    feature[components/feature/]
+    common[components/common/]
+    composables[composables/]
+  end
+  subgraph kit [&quot;@crm/ui-kit&quot;]
+    ui[components/ui/]
+    chart[chart/utils + useChartTheme]
+    tokens[tokens + styles]
+  end
+  pages --&gt; feature
+  pages --&gt; layouts
+  layouts --&gt; feature
+  feature --&gt; common
+  feature --&gt; ui
+  composables --&gt; tokens
+</code></pre>
+<hr>
+<h2>2. <code>@crm/ui-kit</code> 目录与组件</h2>
+<pre><code>packages/ui-kit/
+├── src/
+│   ├── index.ts
+│   ├── tokens/
+│   ├── theme/context.ts、bridge.ts
+│   ├── styles/design-system.css
+│   ├── chart/                   # types、use-chart-theme、utils/
+│   ├── components/ui/
+│   │   ├── theme-toggle.vue
+│   │   ├── card/                # CardMetric、CardShell
+│   │   └── chart/*.vue
+│   ├── nuxt/module.ts
+│   └── runtime/echarts.client.ts
+├── tailwind.preset.ts
+├── tests/
+└── package.json                 # exports → dist/
+</code></pre>
+<p>由 <code>@crm/ui-kit/nuxt</code> 注册，<strong>勿</strong>在 <code>apps/web/components</code> 重复实现。</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>标签</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>components/ui/theme-toggle.vue</code></td>
+<td><code>&lt;UiThemeToggle /&gt;</code></td>
+<td>主题切换（需应用 bridge）</td>
+</tr>
+<tr>
+<td><code>components/ui/card/*</code></td>
+<td><code>&lt;CardMetric /&gt;</code>、<code>&lt;CardShell /&gt;</code></td>
+<td>场景 <code>dashboard</code> / <code>content</code></td>
+</tr>
+<tr>
+<td><code>components/ui/chart/*</code></td>
+<td><code>&lt;ChartShell /&gt;</code>、<code>&lt;ChartLine /&gt;</code> 等</td>
+<td>图表族</td>
+</tr>
+<tr>
+<td><code>chart/</code></td>
+<td>—</td>
+<td><code>useChartTheme</code>、Vitest utils、对外 types</td>
+</tr>
+</tbody></table>
+<pre><code class="language-vue">&lt;ChartLine :categories=&quot;days&quot; :series=&quot;series&quot; loading-text=&quot;加载中…&quot; /&gt;
+</code></pre>
+<pre><code class="language-ts">import type { ChartSeries } from &#39;@crm/ui-kit&#39;
+</code></pre>
+<p><strong>禁止</strong>：业务页 <code>useChartTheme</code>、deep import <code>packages/ui-kit/src/...</code>。</p>
+<hr>
+<h2>3. <code>@crm/web</code> 应用组件</h2>
+<p>仅 <code>apps/web/components/</code>（<code>nuxt.config</code> → <code>components</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>前缀</th>
+<th>职责</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>common/</code></td>
+<td>无</td>
+<td>跨 feature，依赖应用 RBAC/租户</td>
+<td><code>PermissionGuard</code></td>
+</tr>
+<tr>
+<td><code>feature/{domain}/</code></td>
+<td><code>Admin</code>、<code>Login</code> 等</td>
+<td>单域 UI，<strong>禁止跨域互引</strong></td>
+<td>侧栏、KPI 区用 <code>&lt;CardMetric /&gt;</code></td>
+</tr>
+</tbody></table>
+<h3>与 <code>layouts/</code> 的分工</h3>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>layouts/*.vue</code></td>
+<td>Nuxt 路由级布局</td>
+</tr>
+<tr>
+<td><code>feature/*</code> 内壳层</td>
+<td>由 layout 组装，不单独维护 <code>components/layout/</code></td>
+</tr>
+</tbody></table>
+<p><strong>为何 <code>PermissionGuard</code> 不在 ui-kit</strong>：依赖 <code>usePermission()</code>，不可随设计系统发布。</p>
+<p>场景登记：<a href="./05-component-scenarios.md">05-component-scenarios.md</a>。</p>
+<hr>
+<h2>4. 依赖规则</h2>
+<table>
+<thead>
+<tr>
+<th>从</th>
+<th>允许</th>
+<th>禁止</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pages/</code></td>
+<td><code>feature/</code>、<code>layouts/</code>、<code>composables/</code>、<code>@crm/ui-kit</code></td>
+<td>deep import ui-kit 源码</td>
+</tr>
+<tr>
+<td><code>feature/{a}/</code></td>
+<td><code>common/</code>、<code>@crm/ui-kit</code></td>
+<td><code>feature/{b}/</code>、组件内裸 <code>fetch</code></td>
+</tr>
+<tr>
+<td><code>common/</code></td>
+<td><code>@crm/ui-kit</code>（按需）</td>
+<td><code>feature/*</code></td>
+</tr>
+<tr>
+<td><code>@crm/ui-kit</code></td>
+<td><code>vue</code>、<code>echarts</code>（peer）</td>
+<td><code>@crm/web</code>、业务 API、i18n key</td>
+</tr>
+</tbody></table>
+<p><strong>逻辑与展示分离</strong>：请求、权限、Zod → <code>apps/web/composables</code> / <code>utils</code>；ui-kit 只做展示与图表配置。</p>
+<h3>4.1 主题桥接（必须）</h3>
+<p>Monorepo 分包下，仅靠 <code>provide</code> / <code>inject</code> 常无法让 ui-kit 读到 <code>useTheme()</code>。使用 <strong>模块级 bridge</strong>：</p>
+<pre><code class="language-ts">// apps/web/plugins/00-ui-kit-theme.ts
+import { bridgeUiKitThemeFromApp } from &#39;@crm/ui-kit&#39;
+
+export default defineNuxtPlugin(() =&gt; {
+  bridgeUiKitThemeFromApp(useTheme())
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apps/web</code></td>
+<td>Cookie <code>crm-theme</code>、<code>applyThemeToDocument</code>、<code>useTheme()</code></td>
+</tr>
+<tr>
+<td>bridge</td>
+<td><code>bridgeUiKitThemeFromApp</code></td>
+</tr>
+<tr>
+<td>ui-kit</td>
+<td><code>useUiKitTheme()</code> → <code>UiThemeToggle</code>、<code>useChartTheme</code> / <code>Chart*</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>组件内用 <strong><code>useUiKitTheme()</code></strong>，勿 <code>inject</code> 失败就 <code>throw</code>（SSR 500）。</li>
+<li>Token 细节见 <a href="./03-design-system.md">03-design-system.md</a>；排障见 <a href="#10-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E6%8E%92%E9%9A%9C">§10</a>。</li>
+</ul>
+<pre><code class="language-mermaid">flowchart LR
+  subgraph app [&quot;apps/web&quot;]
+    UT[&quot;useTheme()&quot;]
+    PL[&quot;plugins/00-ui-kit-theme.ts&quot;]
+    UT --&gt; PL
+  end
+  subgraph uikit [&quot;@crm/ui-kit&quot;]
+    BR[&quot;bridgeUiKitThemeFromApp&quot;]
+    UUT[&quot;useUiKitTheme()&quot;]
+    TG[&quot;UiThemeToggle&quot;]
+    CH[&quot;useChartTheme / Chart*&quot;]
+    PL --&gt; BR
+    BR --&gt; UUT
+    UUT --&gt; TG
+    UUT --&gt; CH
+  end
+</code></pre>
+<hr>
+<h2>5. 命名与自动导入</h2>
+<table>
+<thead>
+<tr>
+<th>包</th>
+<th>配置</th>
+<th>前缀</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ui-kit</td>
+<td><code>packages/ui-kit/src/nuxt/module.ts</code></td>
+<td><code>Chart*</code>、<code>Ui*</code>、<code>Card*</code></td>
+</tr>
+<tr>
+<td>web</td>
+<td><code>apps/web/nuxt.config.ts</code> → <code>components</code></td>
+<td><code>Admin*</code>、<code>Login*</code>、<code>PermissionGuard</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>文件名：<code>kebab-case.vue</code></li>
+<li>文案：应用 <code>locales/</code>；ui-kit 用 props（<code>loading-text</code>、<code>format-label</code>）</li>
+</ul>
+<hr>
+<h2>6. Nuxt 集成</h2>
+<pre><code class="language-ts">// apps/web/nuxt.config.ts
+export default defineNuxtConfig({
+  modules: [&#39;@nuxtjs/tailwindcss&#39;, &#39;@pinia/nuxt&#39;, &#39;@nuxtjs/i18n&#39;, &#39;@crm/ui-kit/nuxt&#39;],
+  build: { transpile: [&#39;@crm/ui-kit&#39;] },
+})
+</code></pre>
+<hr>
+<h2>7. 约束、测试与构建</h2>
+<pre><code class="language-bash">pnpm --filter @crm/web lint:layers    # apps/web/components 架构测试
+pnpm --filter @crm/ui-kit test      # chart utils 单测
+pnpm --filter @crm/ui-kit build     # 改 src/ 后必做，产出 dist/
+pnpm --filter @crm/web build
+make e2e-test                       # 含 charts-theme.spec.ts
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>命令</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ui-kit chart utils</td>
+<td><code>pnpm --filter @crm/ui-kit test</code></td>
+<td>Vitest</td>
+</tr>
+<tr>
+<td>web</td>
+<td><code>pnpm --filter @crm/web test</code>、<code>lint:layers</code></td>
+<td>Vitest / 架构</td>
+</tr>
+<tr>
+<td>E2E</td>
+<td><code>make e2e-test</code></td>
+<td>Playwright</td>
+</tr>
+</tbody></table>
+<p><code>apps/web/tests/component-layers.test.ts</code> 只扫 <strong>web/components</strong>，不替代 ui-kit 单测。</p>
+<p><strong>exports</strong>：<code>@crm/ui-kit</code> → <code>dist/index.js</code>；<code>styles.css</code>；<code>/nuxt</code>；<code>/tokens</code>。CI 与发布以 <strong>dist</strong> 为准。</p>
+<hr>
+<h2>8. ui-kit 演进（CRM Phase）</h2>
+<table>
+<thead>
+<tr>
+<th>CRM Phase</th>
+<th>ui-kit / 图表</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Phase 0</td>
+<td>Chart*、Card*、monorepo、theme bridge</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Phase 1</td>
+<td>Admin <code>ChartLine</code> 嵌入</td>
+<td>待办</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td>+<code>ChartDonut</code>；Leads 报表</td>
+<td>待办</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td>+<code>ChartSparkline</code>、<code>ChartGauge</code>；Dashboard</td>
+<td>待办</td>
+</tr>
+<tr>
+<td>Phase 4</td>
+<td>+<code>ChartRadar</code>；Storybook + 视觉回归</td>
+<td>待办</td>
+</tr>
+<tr>
+<td>Phase 5+</td>
+<td>Heatmap、Scatter、Sankey 等</td>
+<td>规划中</td>
+</tr>
+</tbody></table>
+<p>Phase 交付勾选：<a href="../tasks/00-mvp-task-breakdown.md">../tasks/00-mvp-task-breakdown.md</a>。</p>
+<hr>
+<h2>9. 合并前检查清单</h2>
+<ul>
+<li><input disabled="" type="checkbox"> 新设计系统组件 → <code>packages/ui-kit</code>（非 <code>apps/web/components/ui</code>）</li>
+<li><input disabled="" type="checkbox"> 新业务组件 → <code>apps/web/components/feature/{domain}/</code></li>
+<li><input disabled="" type="checkbox"> 跨 feature + RBAC → <code>apps/web/components/common/</code></li>
+<li><input disabled="" type="checkbox"> 页面用 <code>&lt;Chart*&gt;</code> / <code>import type { … } from &#39;@crm/ui-kit&#39;</code>，不调用 <code>useChartTheme</code></li>
+<li><input disabled="" type="checkbox"> 未跨 <code>feature/{domain}</code> 互引</li>
+<li><input disabled="" type="checkbox"> <code>lint:layers</code> + ui-kit <code>test</code> 通过；改 ui-kit 后已 <code>build</code></li>
+</ul>
+<hr>
+<h2>10. 常见问题与排障 {#10-常见问题与排障}</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="#q1-charts-v1v2">Q1</a></td>
+<td><code>/charts</code> 点 V1/V2 无反应或 500</td>
+</tr>
+<tr>
+<td><a href="#q2-inject-not-found">Q2</a></td>
+<td><code>injection &quot;crm-ui-kit-theme&quot; not found</code></td>
+</tr>
+<tr>
+<td><a href="#q3-bridge-not-function">Q3</a></td>
+<td><code>bridgeUiKitThemeFromApp is not a function</code></td>
+</tr>
+<tr>
+<td><a href="#q4-dev-port">Q4</a></td>
+<td>dev 端口与 <code>localhost:3000</code> 不一致</td>
+</tr>
+<tr>
+<td><a href="#q5-chart-colors">Q5</a></td>
+<td>图表颜色不随主题切换</td>
+</tr>
+</tbody></table>
+<h3>Q1. <code>/charts</code> V1/V2 无反应或 500 {#q1-charts-v1v2}</h3>
+<p>确认 <a href="#41-%E4%B8%BB%E9%A2%98%E6%A1%A5%E6%8E%A5%E5%BF%85%E9%A1%BB">§4.1</a> 插件、<code>useUiKitTheme()</code>；<code>pnpm --filter @crm/ui-kit build</code> 后重启 <code>pnpm dev</code>。</p>
+<h3>Q2. inject not found {#q2-inject-not-found}</h3>
+<p>用 bridge + <code>useUiKitTheme()</code>；勿仅 <code>app.vue</code> provide。</p>
+<h3>Q3. bridge is not a function {#q3-bridge-not-function}</h3>
+<p>未 build ui-kit <code>dist</code> → <code>pnpm --filter @crm/ui-kit build</code>。</p>
+<h3>Q4. dev 端口 {#q4-dev-port}</h3>
+<p>只保留一个根目录 <code>pnpm dev</code>；以终端 URL 为准。</p>
+<h3>Q5. 图表颜色 {#q5-chart-colors}</h3>
+<p>bridge 接通 + <code>useChartTheme</code> 订阅 <code>useUiKitTheme().id</code> + <code>theme.client.ts</code> watch（见 <a href="./03-design-system.md">03-design-system.md</a>）。</p>
+<hr>
+<h2>11. 相关文档</h2>
+<ul>
+<li><a href="./01-directory-structure.md">01-directory-structure.md</a> — 应用目录速览</li>
+<li><a href="./03-design-system.md">03-design-system.md</a> — Token、主题</li>
+<li><a href="./04-ux-design-guidelines.md">04-ux-design-guidelines.md</a> — UX 与动效</li>
+<li><a href="./05-component-scenarios.md">05-component-scenarios.md</a> — Card/Chart 场景</li>
+<li><code>packages/ui-kit/README.md</code></li>
+</ul>
+<hr>
+<h2>12. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2025-05</td>
+<td>v2.0 双包模型（原 <code>02-component-layers</code>）</td>
+</tr>
+<tr>
+<td>2025-05</td>
+<td>v1.0 ui-kit 模块（原 <code>03-ui-kit-modules</code>）</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>v2.1 合并 02+03；并入原 04-faq 排障</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>合并 02+03，定稿为 <code>02-ui-kit-modules.md</code></td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../frontend-arch\02-ui-kit-modules.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

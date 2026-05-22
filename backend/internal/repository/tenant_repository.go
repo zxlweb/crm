@@ -19,6 +19,12 @@ type TenantListFilter struct {
 	IsActive *bool
 }
 
+type TenantActivityPoint struct {
+	Date       string
+	NewTenants int64
+	Logins     int64
+}
+
 type TenantRepository interface {
 	List(ctx context.Context, filter TenantListFilter) ([]domain.Tenant, int64, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*domain.Tenant, error)
@@ -26,6 +32,7 @@ type TenantRepository interface {
 	CountUsers(ctx context.Context, tenantID uuid.UUID) (int64, error)
 	CountAll(ctx context.Context) (total int64, active int64, err error)
 	CountAllUsers(ctx context.Context) (int64, error)
+	TenantActivityTrend(ctx context.Context, days int) ([]TenantActivityPoint, error)
 }
 
 type GormTenantRepository struct {
@@ -120,4 +127,58 @@ func (r *GormTenantRepository) CountAllUsers(ctx context.Context) (int64, error)
 	var count int64
 	err := r.db.WithContext(ctx).Model(&domain.User{}).Where("deleted_at IS NULL").Count(&count).Error
 	return count, err
+}
+
+func (r *GormTenantRepository) TenantActivityTrend(ctx context.Context, days int) ([]TenantActivityPoint, error) {
+	if days < 1 {
+		days = 7
+	}
+	if days > 90 {
+		days = 90
+	}
+
+	type row struct {
+		Day        string `gorm:"column:day"`
+		NewTenants int64  `gorm:"column:new_tenants"`
+		Logins     int64  `gorm:"column:logins"`
+	}
+	var rows []row
+	err := r.db.WithContext(ctx).Raw(`
+		WITH days AS (
+			SELECT generate_series(
+				(CURRENT_DATE - (?::int - 1) * INTERVAL '1 day')::date,
+				CURRENT_DATE::date,
+				INTERVAL '1 day'
+			)::date AS day
+		)
+		SELECT
+			to_char(d.day, 'MM-DD') AS day,
+			COALESCE(nt.c, 0) AS new_tenants,
+			COALESCE(lg.c, 0) AS logins
+		FROM days d
+		LEFT JOIN (
+			SELECT created_at::date AS day, COUNT(*)::bigint AS c
+			FROM tenants
+			WHERE created_at::date >= (CURRENT_DATE - (?::int - 1) * INTERVAL '1 day')::date
+			GROUP BY 1
+		) nt ON nt.day = d.day
+		LEFT JOIN (
+			SELECT created_at::date AS day, COUNT(*)::bigint AS c
+			FROM audit_logs
+			WHERE action = 'auth.login'
+			  AND created_at::date >= (CURRENT_DATE - (?::int - 1) * INTERVAL '1 day')::date
+			GROUP BY 1
+		) lg ON lg.day = d.day
+		ORDER BY d.day
+	`, days, days, days).Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	out := make([]TenantActivityPoint, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, TenantActivityPoint{
+			Date: r.Day, NewTenants: r.NewTenants, Logins: r.Logins,
+		})
+	}
+	return out, nil
 }

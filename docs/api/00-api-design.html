@@ -54,11 +54,11 @@ article a { color: var(--accent); }
 </head>
 <body>
   <div class="layout">
-    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html" style="color:var(--accent);font-weight:600">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html" style="color:var(--accent);font-weight:600">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
     <main>
       <div class="toolbar">
         <button type="button" id="theme-toggle">🌓 切换主题</button>
-        <a href="../api/00-api-design.md" target="_blank">查看 Markdown 源码</a>
+        <a href="../api\00-api-design.md" target="_blank">查看 Markdown 源码</a>
       </div>
       <article class="markdown-body"><h1>API 设计文档（MVP）</h1>
 <p><strong>版本</strong>：v0.1<br><strong>日期</strong>：2026-05-21<br><strong>Base URL</strong>：<code>http://localhost:8080</code></p>
@@ -170,6 +170,12 @@ article a { color: var(--accent); }
 </tr>
 <tr>
 <td>POST</td>
+<td><code>/api/auth/register</code></td>
+<td>自助注册（创建租户 + 管理员）</td>
+<td>否</td>
+</tr>
+<tr>
+<td>POST</td>
 <td><code>/api/auth/refresh</code></td>
 <td>刷新 Token</td>
 <td>否</td>
@@ -188,12 +194,18 @@ article a { color: var(--accent); }
 </tr>
 <tr>
 <td>GET</td>
+<td><code>/api/auth/profile</code></td>
+<td>当前用户（无需租户）</td>
+<td>是</td>
+</tr>
+<tr>
+<td>GET</td>
 <td><code>/api/auth/me</code></td>
-<td>当前用户 + 权限</td>
+<td>当前用户 + 租户上下文</td>
 <td>是</td>
 </tr>
 </tbody></table>
-<h3>POST /api/auth/login（Phase 1 实现中）</h3>
+<h3>POST /api/auth/login</h3>
 <p><strong>请求</strong></p>
 <pre><code class="language-json">{ &quot;email&quot;: &quot;user@example.com&quot;, &quot;password&quot;: &quot;secret123&quot; }
 </code></pre>
@@ -202,9 +214,80 @@ article a { color: var(--accent); }
   &quot;access_token&quot;: &quot;...&quot;,
   &quot;refresh_token&quot;: &quot;...&quot;,
   &quot;expires_in&quot;: 3600,
-  &quot;tenants&quot;: [{ &quot;id&quot;: &quot;uuid&quot;, &quot;name&quot;: &quot;Acme&quot;, &quot;domain&quot;: &quot;acme&quot; }]
+  &quot;user&quot;: { &quot;id&quot;: &quot;uuid&quot;, &quot;email&quot;: &quot;user@example.com&quot;, &quot;name&quot;: &quot;Admin&quot;, &quot;is_super_admin&quot;: false },
+  &quot;tenants&quot;: [{ &quot;id&quot;: &quot;uuid&quot;, &quot;name&quot;: &quot;Acme&quot;, &quot;domain&quot;: &quot;acme&quot; }],
+  &quot;current_tenant&quot;: null
 }
 </code></pre>
+<p>登录后 <code>current_tenant</code> 为空；调用切换租户后返回当前租户，且 access/refresh Token 的 JWT 载荷含 <code>tenant_id</code>。</p>
+<p><strong>Demo 账号</strong>（迁移 <code>00003_seed_dev</code> 后）：<code>admin@demo.com</code> / <code>password123</code></p>
+<h3>POST /api/auth/register</h3>
+<p><strong>请求</strong></p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;owner@acme.com&quot;,
+  &quot;password&quot;: &quot;secret123&quot;,
+  &quot;name&quot;: &quot;Jane Owner&quot;,
+  &quot;company_name&quot;: &quot;Acme Corp&quot;,
+  &quot;domain&quot;: &quot;acme&quot;
+}
+</code></pre>
+<p><code>domain</code> 可选；留空则根据 <code>company_name</code> 生成小写 slug。冲突时返回 409（邮箱或域名已存在）。</p>
+<p><strong>响应 data</strong>：与 login 相同（HTTP 201），<code>current_tenant</code> 为新创建的租户。</p>
+<h3>GET /api/auth/tenants</h3>
+<p>仅需 <code>Authorization: Bearer &lt;access_token&gt;</code>，<strong>不需要</strong> <code>X-Tenant-ID</code>。</p>
+<p><strong>响应 data</strong>：<code>[{ &quot;id&quot;: &quot;uuid&quot;, &quot;name&quot;: &quot;Acme&quot;, &quot;domain&quot;: &quot;acme&quot; }]</code></p>
+<h3>POST /api/auth/switch-tenant</h3>
+<p>仅需 Bearer Token，<strong>不需要</strong> <code>X-Tenant-ID</code>。</p>
+<p><strong>请求</strong></p>
+<pre><code class="language-json">{ &quot;tenant_id&quot;: &quot;uuid&quot; }
+</code></pre>
+<p><strong>响应 data</strong>：与 login 相同；<code>current_tenant</code> 为切换后的租户。</p>
+<h3>POST /api/auth/refresh</h3>
+<p><strong>请求</strong></p>
+<pre><code class="language-json">{ &quot;refresh_token&quot;: &quot;&lt;refresh_token&gt;&quot; }
+</code></pre>
+<p><strong>响应 data</strong>：与 login 相同结构（含新 access_token、refresh_token、tenants）</p>
+<h3>GET /api/auth/profile</h3>
+<p>仅需 Bearer Token，<strong>不需要</strong> <code>X-Tenant-ID</code>。</p>
+<p><strong>响应 data</strong>：<code>{ &quot;id&quot;, &quot;email&quot;, &quot;name&quot;, &quot;is_super_admin&quot; }</code></p>
+<hr>
+<h2>Super Admin（跨租户）</h2>
+<p>独立路由组 <code>/api/super-admin</code>，仅需 Bearer Token + <code>is_super_admin=true</code>，<strong>不需要</strong> <code>X-Tenant-ID</code>，不经过 Tenant / RBAC 中间件。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>接口</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/super-admin/overview</code></td>
+<td>平台概览（租户数、用户数）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/super-admin/stats/tenant-activity</code></td>
+<td>租户活跃趋势（近 N 日登录/新增租户）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/super-admin/tenants</code></td>
+<td>租户分页列表</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/super-admin/tenants/:id</code></td>
+<td>租户详情</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/super-admin/tenants/:id</code></td>
+<td>启用/停用租户 <code>{ &quot;is_active&quot;: true }</code></td>
+</tr>
+</tbody></table>
+<p>列表 Query：<code>page</code>、<code>page_size</code>、<code>search</code>、<code>is_active</code>。</p>
 <hr>
 <h2>RBAC 权限</h2>
 <table>
@@ -218,7 +301,17 @@ article a { color: var(--accent); }
 <tbody><tr>
 <td>GET</td>
 <td><code>/api/rbac/permissions</code></td>
-<td>权限资源字典</td>
+<td>权限字典（按 resource 分组）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/rbac/permission-items</code></td>
+<td>权限平铺列表（含 id，用于勾选）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/rbac/my-permissions</code></td>
+<td>当前用户在本租户的权限</td>
 </tr>
 <tr>
 <td>GET</td>
@@ -238,7 +331,7 @@ article a { color: var(--accent); }
 <tr>
 <td>POST</td>
 <td><code>/api/rbac/roles/:id/permissions</code></td>
-<td>分配权限</td>
+<td>分配权限 <code>{ &quot;permission_ids&quot;: [&quot;uuid&quot;] }</code></td>
 </tr>
 <tr>
 <td>GET</td>
@@ -247,36 +340,43 @@ article a { color: var(--accent); }
 </tr>
 <tr>
 <td>POST</td>
+<td><code>/api/rbac/users/:id/roles</code></td>
+<td>分配角色 <code>{ &quot;role_ids&quot;: [&quot;uuid&quot;] }</code></td>
+</tr>
+<tr>
+<td>POST</td>
 <td><code>/api/rbac/check</code></td>
-<td>权限检查（前端辅助）</td>
+<td>权限检查 <code>{ &quot;resource&quot;, &quot;action&quot; }</code> → <code>{ &quot;allowed&quot;: true }</code></td>
 </tr>
 </tbody></table>
-<p>权限标识：<code>resource:action</code>（如 <code>leads:view</code>）。</p>
+<p>权限标识：<code>resource:action</code>（如 <code>leads:view</code>）。变更角色/用户角色后自动同步 Casbin。</p>
 <hr>
-<h2>客户与线索（Phase 2+）</h2>
+<h2>客户与线索（Phase 2）</h2>
+<blockquote>
+<p><strong>详细契约</strong>（字段、洞察、情绪旅程、统计、AI Preview）：<a href="./phase-2-crm-ai.md">phase-2-crm-ai.md</a></p>
+</blockquote>
 <h3>Accounts（公司）</h3>
 <ul>
-<li><code>GET /api/accounts</code> — 分页 + 搜索</li>
-<li><code>POST /api/accounts</code></li>
-<li><code>GET /api/accounts/:id</code></li>
-<li><code>PUT /api/accounts/:id</code></li>
-<li><code>DELETE /api/accounts/:id</code></li>
+<li><code>GET|POST /api/accounts</code>、<code>GET|PUT|PATCH|DELETE /api/accounts/:id</code></li>
+<li><code>GET /api/accounts/:id/emotion-journey</code></li>
+<li><code>POST /api/accounts/:id/insights/evaluate</code></li>
 </ul>
 <h3>Contacts（联系人）</h3>
 <ul>
-<li><code>GET /api/contacts</code></li>
-<li><code>POST /api/contacts</code></li>
-<li><code>GET /api/contacts/:id</code></li>
+<li><code>GET|POST /api/contacts</code>、<code>GET|PUT|PATCH|DELETE /api/contacts/:id</code></li>
 <li><code>GET /api/accounts/:id/contacts</code></li>
+<li><code>GET /api/contacts/:id/emotion-journey</code></li>
 </ul>
 <h3>Leads（线索）</h3>
 <ul>
-<li><code>GET /api/leads</code> — 状态、负责人过滤</li>
-<li><code>POST /api/leads</code></li>
-<li><code>PUT /api/leads/:id</code></li>
-<li><code>POST /api/leads/:id/convert</code></li>
+<li><code>GET|POST /api/leads</code>、<code>GET|PUT|PATCH|DELETE /api/leads/:id</code></li>
+<li><code>POST /api/leads/:id/convert</code>、<code>POST /api/leads/:id/assign</code></li>
 <li><code>POST /api/leads/import</code></li>
+<li><code>GET /api/leads/stats/*</code>（来源、趋势、漏斗、状态、健康度）</li>
+<li><code>GET /api/leads/:id/emotion-journey</code></li>
 </ul>
+<h3>Activities / Insights / Segments / Copilot</h3>
+<p>见 <a href="./phase-2-crm-ai.md">phase-2-crm-ai.md</a> §6–§11</p>
 <h3>Deals（商机，Phase 3）</h3>
 <ul>
 <li><code>GET /api/deals</code></li>
@@ -297,10 +397,10 @@ article a { color: var(--accent); }
 <li>业务接口由中间件注入租户，<strong>前端不传 <code>tenant_id</code>  body 字段</strong></li>
 <li>分页：<code>page</code>、<code>page_size</code> Query 参数</li>
 <li>过滤：Query 参数，命名与资源字段一致</li>
-<li>写操作记录 <code>audit_logs</code>（Phase 1.6+）</li>
+<li>写操作记录 <code>audit_logs</code>：登录/注册/切换租户、RBAC 变更、Super Admin 租户启停（<code>action</code> 如 <code>auth.login</code>、<code>rbac.role.create</code>）</li>
 </ul>
 </article>
-      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../api/00-api-design.md</p>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../api\00-api-design.md</p>
     </main>
   </div>
   <script>

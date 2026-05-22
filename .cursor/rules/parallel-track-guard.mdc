@@ -1,0 +1,36 @@
+---
+description: "三轨任务清单更新边界（编辑 docs/tasks 时防 BE/FE/QA 互标完成）"
+globs: ["docs/tasks/**"]
+alwaysApply: false
+---
+
+# 并行轨任务清单 — 只改本列
+
+编辑 `docs/tasks/00-mvp-task-breakdown.md`（或 Phase 并行表）时：
+
+## 识别当前轨道
+
+- 用户首条消息含 `【BE】` → 当前为 **Backend**
+- 含 `【FE】` → **Frontend**
+- 含 `【QA】` → **Test**
+- 未声明轨道 → **不要**改并行表里的 `✅/⬜`，只改用户点名的具体行；或先问轨道
+
+## 允许 / 禁止
+
+| 操作 | BE | FE | QA |
+|------|----|----|-----|
+| 改并行表 **`[BE]` 列** | ✅ | ❌ | ❌ |
+| 改并行表 **`[FE]` 列** | ❌ | ✅ | ❌ |
+| 改并行表 **`[QA]` 列** | ❌ | ❌ | ✅ |
+| 勾选 **业务汇总** `- [x] 公司/Leads…` | ❌ | ❌ | ❌（除非 PM 或用户明确要求） |
+| 改 **`docs/meeting-notes/`** BLOCKED | ✅ | ✅ | ✅ |
+
+## 反例（禁止）
+
+- `【BE】` 做完 API 后把 `2.1 [FE] … — ✅` 标完成
+- `【QA】` 写完集成测后把 `[FE]` 或业务汇总勾选
+- 未做 FE 页面却把「公司 CRUD」业务行勾 `[x]`
+
+## 完整边界
+
+代码目录与 mock 约定见 `docs/tasks/parallel-implementation.md` §3–§5；工作流见 `development-workflow.mdc` §3。

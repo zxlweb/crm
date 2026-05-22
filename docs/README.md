@@ -123,4 +123,5 @@ flowchart LR
 | 端 | 路径 |
 |----|------|
 | Backend | [../backend/README.md](../backend/README.md) |
-| Frontend | [../frontend/README.md](../frontend/README.md) |
+| Frontend 应用 | [../apps/web/README.md](../apps/web/README.md) |
+| UI Kit 组件库 | [../packages/ui-kit/README.md](../packages/ui-kit/README.md) |

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QA 测试计划 - Phase 1 认证与权限 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html" style="color:var(--accent);font-weight:600">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../qa\phase-1-qa.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>QA 测试计划 - Phase 1 认证与权限</h1>
+<p><strong>测试日期</strong>：2026-05-22<br><strong>测试人</strong>：AI + 开发者<br><strong>关联笔记</strong>：<a href="../meeting-notes/phase-1-notes.md">phase-1-notes.md</a></p>
+<h2>1. 测试范围</h2>
+<ul>
+<li>登录 / Refresh Token</li>
+<li><strong>自助注册</strong>（新租户 + Tenant Admin）→ 进入应用</li>
+<li>多租户列表与切换</li>
+<li>Super Admin <code>/admin</code> 入口</li>
+<li>RBAC API 与前端 <code>my-permissions</code> / <code>PermissionGuard</code></li>
+<li>审计日志（注册/登录写 <code>audit_logs</code>）</li>
+<li>中英文登录页文案（抽测）</li>
+</ul>
+<p><strong>不在本次范围</strong>：忘记密码、邮件验证、Casbin 全路由 Enforce 根因修复（见 Bug #3 技术债）</p>
+<h2>2. 与 Phase 0 / 任务清单的差异说明</h2>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>写了什么</th>
+<th>实际验收了什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="./phase-0-qa.md">phase-0-qa.md</a></td>
+<td>Phase 0 <strong>通过</strong>，可进入 Phase 1</td>
+<td>未测注册；Casbin 端到端<strong>留 Phase 1</strong></td>
+</tr>
+<tr>
+<td><a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a></td>
+<td>Phase 1 多项 <code>[x]</code></td>
+<td>多为实现完成勾选，<strong>此前无本文档</strong></td>
+</tr>
+<tr>
+<td><a href="../meeting-notes/phase-1-notes.md">phase-1-notes.md</a></td>
+<td>1.1–1.5 完成</td>
+<td>本地验证以 <strong>demo Super Admin 登录</strong> 为主</td>
+</tr>
+</tbody></table>
+<p><strong>结论</strong>：此前「Phase 1 过了」易误解为注册 E2E 已过；本次补测聚焦 <strong>新用户注册链路</strong>。</p>
+<h2>3. 自动化测试</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>命令</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Backend</td>
+<td><code>cd backend &amp;&amp; make test</code></td>
+<td>沿用 Phase 0（无 Register 成功路径集成测）</td>
+</tr>
+<tr>
+<td>Frontend Vitest</td>
+<td><code>pnpm --filter @crm/web test</code></td>
+<td>未单独回归 Phase 1</td>
+</tr>
+<tr>
+<td>E2E Playwright</td>
+<td><code>cd e2e &amp;&amp; npm test -- tests/phase1-auth.spec.ts</code></td>
+<td>见 §4（需本地 DB + 前后端）</td>
+</tr>
+</tbody></table>
+<h2>4. 核心功能测试（手动 + E2E）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>场景</th>
+<th>步骤</th>
+<th>预期</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Demo 登录</td>
+<td><code>/login</code>，<code>admin@demo.com</code> / <code>password123</code></td>
+<td>跳转 <code>/admin</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Super Admin 概览</td>
+<td><code>/admin</code></td>
+<td>卡片 + 租户列表 + 图表</td>
+<td>✅（笔记已验）</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>新用户注册</strong></td>
+<td><code>/login?mode=register</code>，填名称/公司/邮箱/密码，域名留空</td>
+<td><code>POST /register</code> 201，跳转 <code>/</code></td>
+<td>✅（修复后）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>注册后权限</td>
+<td>注册完成瞬间</td>
+<td><code>GET /my-permissions</code> 不阻断进首页</td>
+<td>✅（中间件白名单 + 前端容错）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>注册入口 UI</td>
+<td>登录页底部「注册」</td>
+<td>可切换注册表单</td>
+<td>✅（<code>LoginAuthModeSwitch</code> 已移除；底部链接）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Refresh</td>
+<td><code>POST /api/auth/refresh</code></td>
+<td>新 access_token</td>
+<td>⬜ 未回归</td>
+</tr>
+<tr>
+<td>7</td>
+<td>租户切换</td>
+<td><code>POST /switch-tenant</code></td>
+<td><code>current_tenant</code> 更新</td>
+<td>⬜ 未回归</td>
+</tr>
+<tr>
+<td>8</td>
+<td>角色管理页</td>
+<td><code>/settings/roles</code>（Tenant Admin）</td>
+<td>列表可访问</td>
+<td>⬜ 依赖 Casbin Enforce，可能 403</td>
+</tr>
+</tbody></table>
+<p><strong>E2E</strong>：<code>e2e/tests/phase1-auth.spec.ts</code> — 用例「register new tenant admin lands on home」覆盖 #3。</p>
+<h2>5. 多租户 / RBAC</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>场景</th>
+<th>结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>新注册租户数据隔离</td>
+<td>✅</td>
+<td>每注册创建独立 <code>tenants</code> + <code>user_tenants</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Tenant Admin 拥有 19 条 <code>role_permissions</code></td>
+<td>✅</td>
+<td>DB 可查</td>
+</tr>
+<tr>
+<td>3</td>
+<td>新用户 <code>GET /rbac/my-permissions</code>（修复前）</td>
+<td>❌ → ✅</td>
+<td>修复前 Casbin 路由 Enforce 403</td>
+</tr>
+<tr>
+<td>4</td>
+<td>新用户 <code>GET /rbac/roles</code> 等写操作</td>
+<td>⬜</td>
+<td>仍走 Casbin，<strong>可能 403</strong>（技术债）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Super Admin 绕过 RBAC</td>
+<td>✅</td>
+<td><code>is_super_admin</code> 跳过中间件</td>
+</tr>
+</tbody></table>
+<h2>6. Bug 记录</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>描述</th>
+<th>严重程度</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>注册时 <code>domain</code> 留空，前端 Zod 将 <code>undefined</code> 当非法，<code>safeParse</code> 失败</td>
+<td>高</td>
+<td>✅ 已修 <code>apps/web/schemas/register.ts</code>（<code>.optional()</code>）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>注册 API 201 后 <code>my-permissions</code> 403，页面显示「无权限访问该资源」且不跳转</td>
+<td>高</td>
+<td>✅ 已修：<code>rbac.go</code> 对 <code>GET .../my-permissions</code> 放行；<code>login.vue</code> 加载失败不阻断</td>
+</tr>
+<tr>
+<td>3</td>
+<td>新租户管理员 Casbin <code>Enforce</code> 对一般 RBAC 路由仍失败（DB 有策略）</td>
+<td>中</td>
+<td>⬜ 技术债；需集成测 + 核对 <code>SyncCasbinPolicies</code> / matcher</td>
+</tr>
+<tr>
+<td>4</td>
+<td>登录页误用 <code>AuthModeSwitch</code>，Nuxt 实际组件名为 <code>LoginAuthModeSwitch</code>，注册入口不显示</td>
+<td>中</td>
+<td>✅ 已改为底部链接切换</td>
+</tr>
+<tr>
+<td>5</td>
+<td>无 <code>phase-1-qa.md</code>、无注册 E2E，任务清单误标「注册已完成」</td>
+<td>低</td>
+<td>✅ 本文档 + <code>phase1-auth.spec.ts</code></td>
+</tr>
+</tbody></table>
+<h2>7. 测试结论</h2>
+<p><strong>有条件通过</strong> — Phase 1 可进入 Phase 2，但须知晓：</p>
+<ol>
+<li><strong>注册 → 首页</strong> 主路径已通（含本次修复）。  </li>
+<li><strong>Casbin 全链路</strong> 对新租户管理员仍未完全验证；<code>my-permissions</code> 为<strong>临时白名单</strong>，非根因修复。  </li>
+<li>建议在 Phase 2 并行轨 <code>[QA]</code> 补：Register 集成测、Casbin Enforce 集成测、<code>/settings/roles</code> 租户 Admin 冒烟。</li>
+</ol>
+<p><strong>Phase 1 正式关闭条件（建议）</strong>：</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 本文档落档  </li>
+<li><input checked="" disabled="" type="checkbox"> E2E <code>phase1-auth.spec.ts</code> 纳入 CI / 本地 <code>make e2e-test</code>  </li>
+<li><input disabled="" type="checkbox"> Bug #3 根因修复或 ADR 记录「白名单策略」  </li>
+<li><input disabled="" type="checkbox"> <code>phase-1-review.md</code>（Code Review 留档，可选）</li>
+</ul>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../qa\phase-1-qa.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

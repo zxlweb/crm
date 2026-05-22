@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM 组件场景手册（Chart + Card） · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html" style="color:var(--accent);font-weight:600">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../frontend-arch\05-component-scenarios.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>CRM 组件场景手册（Chart + Card）</h1>
+<p><strong>版本</strong>：v1.1<br><strong>原则</strong>：新增固定设计风格 = 新增 <strong>场景 id</strong> + <strong><code>Card*</code> / <code>Chart*</code> 组件</strong> + 在本表补一行；<strong>不单独开文档</strong>。</p>
+<p><strong>关联</strong>：<a href="./03-design-system.md">03-design-system.md</a> · <a href="../tasks/00-mvp-task-breakdown.md">../tasks/00-mvp-task-breakdown.md</a> · <a href="../prd/00-crm-overview.md">prd/00-crm-overview.md</a></p>
+<p><strong>展示页</strong>：<code>/charts</code>（图表）· <code>/cards</code>（卡片场景）</p>
+<hr>
+<h2>0. 如何扩展（Chart / Card 通用）</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>Card 示例</th>
+<th>Chart 示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. 定场景 id</td>
+<td><code>dashboard</code></td>
+<td><code>pipeline</code>（已有 funnel）</td>
+</tr>
+<tr>
+<td>2. 实现组件</td>
+<td><code>packages/ui-kit/.../card/card-metric.vue</code></td>
+<td><code>chart-line.vue</code></td>
+</tr>
+<tr>
+<td>3. 注册 Nuxt</td>
+<td><code>module.ts</code> → <code>prefix: &#39;Card&#39;</code></td>
+<td><code>prefix: &#39;Chart&#39;</code></td>
+</tr>
+<tr>
+<td>4. 登记场景</td>
+<td>下表 Part A</td>
+<td>下表 Part B</td>
+</tr>
+<tr>
+<td>5. 业务接入</td>
+<td>Admin/Dashboard 顶栏</td>
+<td>报表区</td>
+</tr>
+</tbody></table>
+<p>类型注册：<code>packages/ui-kit/src/card/types.ts</code> → <code>CARD_SCENARIOS</code></p>
+<hr>
+<h2>Part A · Card 场景</h2>
+<p>与 <strong>Chart</strong> 同级，组件前缀 <strong><code>Card*</code></strong>。</p>
+<h3>A.1 场景注册表</h3>
+<table>
+<thead>
+<tr>
+<th>场景 id</th>
+<th>组件</th>
+<th>用途</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><code>dashboard</code></strong></td>
+<td><strong><code>CardMetric</code></strong></td>
+<td>看板 / Admin / Dashboard <strong>KPI 行</strong>（左圆标 + 底栏同比）</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong><code>content</code></strong></td>
+<td><strong><code>CardShell</code></strong></td>
+<td>表格、表单、详情<strong>内容容器</strong>（标题 + slot）</td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>新风格示例：<code>CardCompare</code> + 场景 <code>compare</code> — 只加上表一行 + 一个 vue 文件，无需新 md。</p>
+</blockquote>
+<h3>A.2 <code>dashboard</code> 场景 · <code>CardMetric</code>（设计偏好）</h3>
+<p>布局（<strong>禁止</strong>改成右上大图标 + 趋势贴标题的旧样式）：</p>
+<pre><code>┌────────────────────────────────────┐
+│ (○)  指标名 · 小字灰                │
+│      1,235 · text-ds-3xl           │
+│  同比增长              12% ↓       │
+└────────────────────────────────────┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>栅格</td>
+<td><code>grid gap-ds-4 sm:grid-cols-2 xl:grid-cols-4</code></td>
+</tr>
+<tr>
+<td>趋势</td>
+<td><code>up</code> → 绿 ↑；<code>down</code> → 红 ↓</td>
+</tr>
+<tr>
+<td><code>iconTone</code></td>
+<td>同行相邻卡用不同 tone（info / calendar / accent / brand / neutral）</td>
+</tr>
+</tbody></table>
+<pre><code class="language-vue">&lt;CardMetric
+  label=&quot;昨日产量(万吨)&quot;
+  :value=&quot;22&quot;
+  compare-label=&quot;同比增长&quot;
+  trend=&quot;12%&quot;
+  trend-direction=&quot;down&quot;
+  icon-tone=&quot;info&quot;
+&gt;
+  &lt;template #icon&gt;&lt;!-- SVG h-5 w-5 --&gt;&lt;/template&gt;
+&lt;/CardMetric&gt;
+</code></pre>
+<h3>A.3 <code>content</code> 场景 · <code>CardShell</code></h3>
+<pre><code class="language-vue">&lt;CardShell title=&quot;租户列表&quot; subtitle=&quot;最近更新&quot;&gt;
+  &lt;table&gt;...&lt;/table&gt;
+&lt;/CardShell&gt;
+</code></pre>
+<h3>A.4 模块 × Card</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>场景</th>
+<th>组件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Admin / Dashboard 顶栏 KPI</td>
+<td><code>dashboard</code></td>
+<td><code>CardMetric</code></td>
+</tr>
+<tr>
+<td>列表/表格外框</td>
+<td><code>content</code></td>
+<td><code>CardShell</code></td>
+</tr>
+<tr>
+<td>图表外框</td>
+<td>—</td>
+<td><code>ChartShell</code>（与 Card 分工）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Part B · Chart 场景</h2>
+<p>组件前缀 <strong><code>Chart*</code></strong>。下列章节沿用原图表选型内容。</p>
+<h3>B.1 选型原则</h3>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>回答一个问题</strong></td>
+<td>每张图只服务一个业务问题</td>
+</tr>
+<tr>
+<td><strong>匹配数据形态</strong></td>
+<td>时间序列 → 折线；转化 → 漏斗；占比 → 环/饼</td>
+</tr>
+<tr>
+<td><strong>设计系统一致</strong></td>
+<td><code>--ds-chart-*</code>，<code>useChartTheme</code></td>
+</tr>
+</tbody></table>
+<h3>B.2 总览：模块 × 图表</h3>
+<table>
+<thead>
+<tr>
+<th>CRM 模块</th>
+<th>典型场景</th>
+<th>推荐组件</th>
+<th>ui-kit 状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>仪表盘</strong></td>
+<td>营收趋势</td>
+<td><code>ChartLine</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>仪表盘</strong></td>
+<td>KPI 数字</td>
+<td><code>CardMetric</code>（<strong>Card</strong>）</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>仪表盘</strong></td>
+<td>管道</td>
+<td><code>ChartFunnel</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>线索</strong></td>
+<td>来源占比</td>
+<td><code>ChartDonut</code></td>
+<td>🔲</td>
+</tr>
+<tr>
+<td><strong>商机</strong></td>
+<td>销售管道</td>
+<td><code>ChartFunnel</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>团队</strong></td>
+<td>业绩排行</td>
+<td><code>ChartBar</code></td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<p>（完整矩阵见历史版本各模块行，与 Part B 图表专项一致。）</p>
+<h3>B.3 图表类型速查</h3>
+<p>折线、柱状、漏斗、环形、雷达、热力、桑基等 — 见 <a href="./03-design-system.md">03-design-system.md</a> §9。</p>
+<h3>B.4 与 MVP Phase 同步（Chart）</h3>
+<table>
+<thead>
+<tr>
+<th>MVP Phase</th>
+<th>新增 Chart</th>
+<th>Card 并行</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Phase 1</td>
+<td><code>ChartLine</code> on <code>/admin</code></td>
+<td><code>CardMetric</code> on <code>/admin</code> ✅</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td><code>ChartDonut</code></td>
+<td><code>CardMetric</code> on Leads 报表</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td><code>ChartSparkline</code>、<code>ChartGauge</code></td>
+<td>Dashboard 顶栏 <code>CardMetric</code> 行</td>
+</tr>
+</tbody></table>
+<p>Phase 排期与验收勾选见 <a href="../tasks/00-mvp-task-breakdown.md">../tasks/00-mvp-task-breakdown.md</a>。</p>
+<hr>
+<h2>修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-22</td>
+<td>初版图表场景（<code>05-crm-chart-scenarios</code>）</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>合并为 Chart + Card；<code>CardMetric</code> / <code>dashboard</code> 场景；废止独立 07 文档</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>统一编号为 <code>05-component-scenarios.md</code></td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../frontend-arch\05-component-scenarios.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

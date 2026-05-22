@@ -7,6 +7,7 @@
 | 文件 | 范围 | 状态 |
 |------|------|------|
 | [00-api-design.md](./00-api-design.md) | MVP 全量 API 索引 | v0.1 |
+| [phase-2-crm-ai.md](./phase-2-crm-ai.md) | Phase 2 客户关系 + 情绪旅程 + AI Preview | v1.0 Accepted |
 
 ## 命名规范
 

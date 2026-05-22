@@ -49,6 +49,7 @@
 |------|------|------|------|
 | GET | `/health` | 健康检查 | 否 |
 | POST | `/api/auth/login` | 登录 | 否 |
+| POST | `/api/auth/register` | 自助注册（创建租户 + 管理员） | 否 |
 | POST | `/api/auth/refresh` | 刷新 Token | 否 |
 | GET | `/api/auth/tenants` | 可访问租户列表 | 是 |
 | POST | `/api/auth/switch-tenant` | 切换租户 | 是 |
@@ -77,6 +78,23 @@
 登录后 `current_tenant` 为空；调用切换租户后返回当前租户，且 access/refresh Token 的 JWT 载荷含 `tenant_id`。
 
 **Demo 账号**（迁移 `00003_seed_dev` 后）：`admin@demo.com` / `password123`
+
+### POST /api/auth/register
+
+**请求**
+```json
+{
+  "email": "owner@acme.com",
+  "password": "secret123",
+  "name": "Jane Owner",
+  "company_name": "Acme Corp",
+  "domain": "acme"
+}
+```
+
+`domain` 可选；留空则根据 `company_name` 生成小写 slug。冲突时返回 409（邮箱或域名已存在）。
+
+**响应 data**：与 login 相同（HTTP 201），`current_tenant` 为新创建的租户。
 
 ### GET /api/auth/tenants
 
@@ -119,6 +137,7 @@
 | 方法 | 接口 | 描述 |
 |------|------|------|
 | GET | `/api/super-admin/overview` | 平台概览（租户数、用户数） |
+| GET | `/api/super-admin/stats/tenant-activity` | 租户活跃趋势（近 N 日登录/新增租户） |
 | GET | `/api/super-admin/tenants` | 租户分页列表 |
 | GET | `/api/super-admin/tenants/:id` | 租户详情 |
 | PATCH | `/api/super-admin/tenants/:id` | 启用/停用租户 `{ "is_active": true }` |
@@ -146,30 +165,33 @@
 
 ---
 
-## 客户与线索（Phase 2+）
+## 客户与线索（Phase 2）
+
+> **详细契约**（字段、洞察、情绪旅程、统计、AI Preview）：[phase-2-crm-ai.md](./phase-2-crm-ai.md)
 
 ### Accounts（公司）
 
-- `GET /api/accounts` — 分页 + 搜索
-- `POST /api/accounts`
-- `GET /api/accounts/:id`
-- `PUT /api/accounts/:id`
-- `DELETE /api/accounts/:id`
+- `GET|POST /api/accounts`、`GET|PUT|PATCH|DELETE /api/accounts/:id`
+- `GET /api/accounts/:id/emotion-journey`
+- `POST /api/accounts/:id/insights/evaluate`
 
 ### Contacts（联系人）
 
-- `GET /api/contacts`
-- `POST /api/contacts`
-- `GET /api/contacts/:id`
+- `GET|POST /api/contacts`、`GET|PUT|PATCH|DELETE /api/contacts/:id`
 - `GET /api/accounts/:id/contacts`
+- `GET /api/contacts/:id/emotion-journey`
 
 ### Leads（线索）
 
-- `GET /api/leads` — 状态、负责人过滤
-- `POST /api/leads`
-- `PUT /api/leads/:id`
-- `POST /api/leads/:id/convert`
+- `GET|POST /api/leads`、`GET|PUT|PATCH|DELETE /api/leads/:id`
+- `POST /api/leads/:id/convert`、`POST /api/leads/:id/assign`
 - `POST /api/leads/import`
+- `GET /api/leads/stats/*`（来源、趋势、漏斗、状态、健康度）
+- `GET /api/leads/:id/emotion-journey`
+
+### Activities / Insights / Segments / Copilot
+
+见 [phase-2-crm-ai.md](./phase-2-crm-ai.md) §6–§11
 
 ### Deals（商机，Phase 3）
 
@@ -193,4 +215,4 @@
 - 业务接口由中间件注入租户，**前端不传 `tenant_id`  body 字段**
 - 分页：`page`、`page_size` Query 参数
 - 过滤：Query 参数，命名与资源字段一致
-- 写操作记录 `audit_logs`（Phase 1.6+）
+- 写操作记录 `audit_logs`：登录/注册/切换租户、RBAC 变更、Super Admin 租户启停（`action` 如 `auth.login`、`rbac.role.create`）

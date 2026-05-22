@@ -1,6 +1,9 @@
 package middleware
 
 import (
+	"net/http"
+	"strings"
+
 	"crm-backend/internal/pkg/rbac"
 	"crm-backend/internal/pkg/response"
 
@@ -11,6 +14,12 @@ import (
 func RBACMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.GetBool("is_super_admin") {
+			c.Next()
+			return
+		}
+
+		// 登录/注册后拉取当前用户权限集合，不依赖 Casbin 路由策略（避免新租户管理员被误拦）
+		if c.Request.Method == http.MethodGet && strings.HasSuffix(c.Request.URL.Path, "/rbac/my-permissions") {
 			c.Next()
 			return
 		}

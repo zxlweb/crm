@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 2 PRD：从「管理客户」到「经营关系」 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html" style="color:var(--accent);font-weight:600">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../prd\phase-2-relationship-crm-prd.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 2 PRD：从「管理客户」到「经营关系」</h1>
+<p><strong>产品名称</strong>：EnterpriseFlow CRM<br><strong>版本</strong>：Phase 2 v0.3（关系经营基座 + <strong>AI Preview 演示壳</strong>）<br><strong>日期</strong>：2026-05-22<br><strong>状态</strong>：待评审（Implementation 开工前必读）<br><strong>MVP 总览</strong>：<a href="./00-crm-overview.md">00-crm-overview.md</a>（AI 战略与 MoSCoW）<br><strong>依赖</strong>：Phase 0 架构、Phase 1 认证/RBAC/审计（已关闭或有条件关闭）<br><strong>关联任务</strong>：<a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> § Phase 2</p>
+<hr>
+<h2>0. 执行摘要（给决策者）</h2>
+<p>Phase 0/1 已解决 <strong>「谁能进系统、能看什么」</strong>。若 Phase 2 仍按传统 CRM 只做 Accounts / Leads 录入，产品将停留在 <strong>「被动存储」</strong>——与参考材料中的 AI/智能 CRM 差距不在「有没有聊天机器人」，而在 <strong>产品范式</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>范式问题</th>
+<th>传统答案</th>
+<th>本阶段目标答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>系统是管流程还是养关系？</td>
+<td>管流程（状态、分配、报表）</td>
+<td><strong>经营关系</strong>（生命周期 + 关系健康 + 下一步行动）</td>
+</tr>
+<tr>
+<td>触达是推送还是对话？</td>
+<td>单向通知/填表</td>
+<td><strong>对话式跟进</strong>（时间线语境 + 可扩展多渠道）</td>
+</tr>
+<tr>
+<td>数据是记录还是理解？</td>
+<td>静态字段归档</td>
+<td><strong>可计算的理解</strong>（行为信号 → 规则洞察 → <strong>情绪旅程地图</strong> → 为 Phase 5+ AI 留接口）</td>
+</tr>
+</tbody></table>
+<p><strong>结论</strong>：Phase 2 <strong>必须交付</strong>任务清单中的 CRUD / 导入 / 报表（否则 Pipeline 与 Dashboard 无数据），但 <strong>数据模型与页面信息架构</strong> 要按上表升级；智能能力分 <strong>三层递进</strong>，避免「加一个 Bot」的伪创新。<br><strong>新增亮点</strong>：<strong>情绪旅程地图</strong>——把生命周期阶段与客户情绪曲线叠在同一张图上，回答「关系走到哪、客户感受如何、下一步该怎么聊」。</p>
+<hr>
+<h2>1. 背景与业务目标</h2>
+<h3>1.1 行业洞察（来自参考材料，内化为产品原则）</h3>
+<ol>
+<li><strong>传统 CRM 的 80/20 困境</strong>：大量客户记录沉淀，销售仍靠直觉判断意向与跟进时机。  </li>
+<li><strong>智能 CRM 的价值</strong>：从 <strong>存数据</strong> 到 <strong>用数据</strong>——行为监测、机会/风险提醒、差异化沟通。  </li>
+<li><strong>AI 不是客服插件</strong>：真正重构的是 <strong>感知人的状态</strong>（情绪/犹豫/流失风险）、<strong>实时语境响应</strong>（RAG/知识）、<strong>自动化个性旅程</strong>（非机械规则群发）。  </li>
+<li><strong>落地路径（Mio）</strong>：先在前线高频摩擦点做 <strong>Copilot</strong>（摘要、一键生成），再演进到 <strong>预测性洞察引擎</strong>。  </li>
+<li><strong>全生命周期（有赞等）</strong>：获客 → 激活 → 成长 → 沉淀 → 唤醒；画像分群 + 场景化自动化 + 会员成长体系。</li>
+</ol>
+<h3>1.2 与本项目 MVP 的关系</h3>
+<table>
+<thead>
+<tr>
+<th>原 MVP PRD（00-crm-overview）</th>
+<th>Phase 2 升级点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>「客户全生命周期管理」表述较泛</td>
+<td>落 <strong>生命周期阶段枚举</strong> + 阶段迁移规则 + 报表维度</td>
+</tr>
+<tr>
+<td>Leads 状态流转</td>
+<td>与 <strong>关系健康</strong>、<strong>下一步建议</strong> 联动，而非孤立看板</td>
+</tr>
+<tr>
+<td>Activity「后续迭代」</td>
+<td><strong>本阶段必做基座</strong>，作为「对话/理解」的主数据管道</td>
+</tr>
+<tr>
+<td>原「MVP 不做 AI」</td>
+<td><strong>生产级 AI 不做</strong>；<strong>AI Preview UI + 接口预留 + Mock 演示必做</strong>（§15）</td>
+</tr>
+</tbody></table>
+<h3>1.3 Phase 2 业务目标（可度量）</h3>
+<table>
+<thead>
+<tr>
+<th>目标 ID</th>
+<th>描述</th>
+<th>指标（Phase 2 末）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G1</td>
+<td>销售能在 <strong>一张客户/线索视图</strong> 看到关系全貌（谁、阶段、最近互动、建议行动、<strong>情绪走势</strong>）</td>
+<td>详情页 5 区块（含情绪旅程 Tab）验收率 100%</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>跟进从「记一笔」升级为 <strong>可检索的对话时间线</strong></td>
+<td>Activity 创建率 ≥ 60% 活跃线索</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>经理能用 <strong>分群 + 报表</strong> 识别高潜/沉默，而非仅看总数</td>
+<td>预置分群 ≥ 5 个；Leads 报表 3 图接 API</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>为 Phase 3+ 预测与 AI 铺路</td>
+<td><code>engagement_score</code>、事件类型、洞察 JSON schema 定稿</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>销售能一眼看到 <strong>情绪 × 生命周期</strong> 的演变</td>
+<td>Lead/Account 详情「情绪旅程」Tab；≥3 个触点有情绪标注即可成图</td>
+</tr>
+<tr>
+<td>G6</td>
+<td><strong>老板/投资人</strong> 3 分钟内理解 AI CRM 差异化</td>
+<td>演示路径跑通；Preview 与生产数据隔离；见 §15.2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. 用户角色 (Persona) 与场景</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>Phase 2 核心场景</th>
+<th>关系经营诉求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Sales</strong></td>
+<td>每日打开「今日该跟进的客户」</td>
+<td>不要翻列表猜，要 <strong>洞察卡片 + 建议话术</strong></td>
+</tr>
+<tr>
+<td><strong>Sales Manager</strong></td>
+<td>晨会看团队漏斗与沉默线索</td>
+<td><strong>分群 + 分配 + 转化漏斗</strong>，识别需介入的客户</td>
+</tr>
+<tr>
+<td><strong>Tenant Admin</strong></td>
+<td>配置来源、阶段、分群模板</td>
+<td>租户可定义 <strong>生命周期名称</strong>（i18n），不改代码</td>
+</tr>
+<tr>
+<td><strong>Viewer</strong></td>
+<td>只读客户时间线</td>
+<td>同权限模型，无写操作</td>
+</tr>
+</tbody></table>
+<h3>2.1 场景故事（对比传统）</h3>
+<p><strong>场景 A — 传统（要避免成为默认体验）</strong><br>销售导入 3000 条线索 → 系统仅存储 → 销售凭感觉挑 20 条打电话 → 其余沉睡。</p>
+<p><strong>场景 B — Phase 2 目标</strong><br>系统标记「7 天无互动 + 曾打开资料页（若有人工录入事件）」→ 洞察：<strong>流失风险中</strong> → 建议：<strong>今日电话 + 限时方案要点</strong> → 销售在时间线记录对话 → 状态自动建议更新（需确认）。</p>
+<hr>
+<h2>3. 产品架构：三层智能递进</h2>
+<p>智能能力分 <strong>L1 生产（规则）</strong>、<strong>L2/L3 预留（契约 + Mock）</strong>、<strong>P0 演示（Preview UI）</strong>。Phase 2 <strong>L1 必交付</strong>；<strong>L2/L3 不做真模型</strong>，但 <strong>P0 + 架构师 API 契约须先行</strong>（§15.3）。</p>
+<pre><code class="language-mermaid">flowchart LR
+  subgraph L1[&quot;L1 本阶段必做 · 规则与信号&quot;]
+    E[行为/跟进事件]
+    R[规则引擎]
+    I[洞察卡片 Next Best Action]
+    E --&gt; R --&gt; I
+  end
+  subgraph L2[&quot;L2 Phase 3-4 · 预测&quot;]
+    P[流失/复购/升购评分]
+    S[动态分群]
+  end
+  subgraph L3[&quot;L3 Phase 5+ · 生成式 AI&quot;]
+    NLP[NLP 字段抽取]
+    RAG[RAG 语境应答]
+    J[个性旅程编排]
+  end
+  L1 --&gt; L2 --&gt; L3
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>能力</th>
+<th>参考材料对应</th>
+<th>Phase 2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>L1</strong></td>
+<td>事件时间线、生命周期、规则洞察、预置分群、情绪旅程（人工+规则）</td>
+<td>感知人的状态（规则版）</td>
+<td><strong>Must</strong> 生产</td>
+</tr>
+<tr>
+<td><strong>P0 Preview</strong></td>
+<td>AI 工作台 UI、Mock 洞察/预测/Copilot、演示账号、「样例数据」标识</td>
+<td>老板汇报</td>
+<td><strong>Must</strong>（FE + 假数据；见 §15）</td>
+</tr>
+<tr>
+<td><strong>L2</strong></td>
+<td>流失/复购概率、动态分群、团队情绪热力</td>
+<td>预测建模</td>
+<td><strong>契约先行</strong>；UI 用 Preview 分数；真算 Phase 3–4</td>
+</tr>
+<tr>
+<td><strong>L3</strong></td>
+<td>LLM 情绪/摘要、RAG 问答、个性旅程</td>
+<td>生成式 AI</td>
+<td><strong>契约先行</strong>；UI 占位；真接 Phase 5+</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. 功能需求（User Story + Acceptance Criteria）</h2>
+<h3>4.1 模块映射：任务清单 ↔ 关系经营</h3>
+<table>
+<thead>
+<tr>
+<th>任务 ID</th>
+<th>原描述</th>
+<th>关系经营增强（本 PRD 增量）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.1</td>
+<td>Accounts CRUD</td>
+<td>+ <code>lifecycle_stage</code>、+ <code>relationship_health</code>（规则计算）</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Contacts CRUD</td>
+<td>+ 主联系人、+ 与 Account 阶段联动展示</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Leads CRUD + 状态</td>
+<td>+ <strong>洞察侧栏</strong>、状态变更可选关联 Activity</td>
+</tr>
+<tr>
+<td>2.4–2.6</td>
+<td>Leads 统计图表</td>
+<td>+ 按 <strong>生命周期/健康度</strong> 切片（API 维度扩展）</td>
+</tr>
+<tr>
+<td>2.7</td>
+<td>导入、分配</td>
+<td>导入映射 <strong>来源/阶段</strong>；分配写入审计</td>
+</tr>
+<tr>
+<td>2.8</td>
+<td>Activity 基础</td>
+<td><strong>对话式时间线</strong> + 事件类型枚举 + <strong>情绪标注</strong> + Copilot 占位</td>
+</tr>
+<tr>
+<td>2.12</td>
+<td>情绪旅程 API + 聚合</td>
+<td><strong>情绪旅程地图</strong> Tab（<code>EmotionJourneyMap</code>）</td>
+</tr>
+<tr>
+<td>2.13</td>
+<td>架构师：AI 能力契约（§15.3）</td>
+<td><strong>AI Preview 全套 UI</strong> + <code>use-ai-preview</code> Mock</td>
+</tr>
+<tr>
+<td>2.E2E</td>
+<td>Leads CRUD</td>
+<td>+ 标注情绪后地图更新 + 洞察联动 + Preview 路径</td>
+</tr>
+</tbody></table>
+<h3>4.2 生命周期（全链路管理 — Phase 2 基座）</h3>
+<p><strong>统一阶段枚举</strong>（租户可配置显示名，系统存 code）：</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>中文默认</th>
+<th>典型对象</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>acquire</code></td>
+<td>获客</td>
+<td>Lead</td>
+<td>新线索未有效触达</td>
+</tr>
+<tr>
+<td><code>activate</code></td>
+<td>激活</td>
+<td>Lead → Contact</td>
+<td>首次有效互动</td>
+</tr>
+<tr>
+<td><code>grow</code></td>
+<td>成长</td>
+<td>Account/Deal 前</td>
+<td>需求明确、推进中</td>
+</tr>
+<tr>
+<td><code>retain</code></td>
+<td>沉淀</td>
+<td>Account</td>
+<td>已成交/稳定合作</td>
+</tr>
+<tr>
+<td><code>revive</code></td>
+<td>唤醒</td>
+<td>Account/Lead</td>
+<td>曾活跃现沉默</td>
+</tr>
+</tbody></table>
+<p><strong>User Story</strong></p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>以便</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LC-01</td>
+<td>销售</td>
+<td>在客户/公司详情看到当前生命周期阶段</td>
+<td>知道处于关系哪一站</td>
+<td>阶段徽章 + 最近变更时间</td>
+</tr>
+<tr>
+<td>LC-02</td>
+<td>经理</td>
+<td>在列表按阶段筛选</td>
+<td>做阶段运营</td>
+<td>筛选与导出一致</td>
+</tr>
+<tr>
+<td>LC-03</td>
+<td>系统</td>
+<td>在关键 Activity 后建议阶段迁移</td>
+<td>减少手工维护</td>
+<td>建议以 Toast/侧栏展示，<strong>人工确认</strong>后写入</td>
+</tr>
+</tbody></table>
+<h3>4.3 从「记录」到「理解」— 信号与洞察</h3>
+<h4>4.3.1 数据：行为与跟进事件（非仅文本日志）</h4>
+<p><code>activities</code> 表（或与任务 2.8 合并设计）扩展建议：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>event_type</code></td>
+<td>enum</td>
+<td><code>note</code>, <code>call</code>, <code>email</code>, <code>meeting</code>, <code>wechat</code>, <code>visit</code>, <code>system</code></td>
+</tr>
+<tr>
+<td><code>direction</code></td>
+<td>enum</td>
+<td><code>inbound</code> / <code>outbound</code>（对话性）</td>
+</tr>
+<tr>
+<td><code>subject_id</code></td>
+<td>uuid</td>
+<td>关联 lead/contact/account</td>
+</tr>
+<tr>
+<td><code>body</code></td>
+<td>text</td>
+<td>跟进内容</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>jsonb</td>
+<td>时长、渠道、附件、<strong>人工录入的行为</strong>（如「浏览产品页」）</td>
+</tr>
+<tr>
+<td><code>sentiment</code></td>
+<td>enum nullable</td>
+<td>Phase 2 <strong>启用</strong>：见 §4.6；无标注时可规则推断</td>
+</tr>
+<tr>
+<td><code>sentiment_source</code></td>
+<td>enum</td>
+<td><code>manual</code> / <code>rule</code> / <code>ai</code>（Phase 5+ 才写 <code>ai</code>）</td>
+</tr>
+</tbody></table>
+<h4>4.3.2 规则洞察引擎（L1 — 非 LLM）</h4>
+<p>租户级可配置规则表（首版可用 <strong>内置 JSON 模板</strong> + 超管不可改逻辑仅改阈值）：</p>
+<table>
+<thead>
+<tr>
+<th>规则 ID</th>
+<th>条件（示例）</th>
+<th>洞察文案</th>
+<th>建议行动</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INS-001</td>
+<td><code>days_since_last_activity &gt; 7</code></td>
+<td>沉默风险</td>
+<td>今日回访</td>
+</tr>
+<tr>
+<td>INS-002</td>
+<td><code>lead.status = qualified</code> 且 7 天无跟进</td>
+<td>高意向冷却</td>
+<td>经理介入</td>
+</tr>
+<tr>
+<td>INS-003</td>
+<td><code>lifecycle = revive</code></td>
+<td>唤醒窗口</td>
+<td>发送专属权益（手动）</td>
+</tr>
+<tr>
+<td>INS-004</td>
+<td>导入后 3 天无首次触达</td>
+<td>激活失败</td>
+<td>分配复核</td>
+</tr>
+</tbody></table>
+<p><strong>User Story</strong></p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IN-01</td>
+<td>销售</td>
+<td>打开 Lead/Contact 详情看到 <strong>洞察卡片</strong>（最多 3 条优先级）</td>
+<td>规则命中才展示；无则显示「暂无洞察」</td>
+</tr>
+<tr>
+<td>IN-02</td>
+<td>销售</td>
+<td>点击「采纳建议」创建预填 Activity</td>
+<td>Activity 类型/标题预填，可编辑后保存</td>
+</tr>
+<tr>
+<td>IN-03</td>
+<td>经理</td>
+<td>列表页批量查看「需关注」数量</td>
+<td>仪表盘数字与分群 <code>churn_risk</code> 一致</td>
+</tr>
+</tbody></table>
+<h4>4.3.3 客户分群（静态模板 → 动态预留）</h4>
+<p>Phase 2 交付 <strong>预置分群模板</strong>（筛选条件存 JSON，非 ML）：</p>
+<table>
+<thead>
+<tr>
+<th>分群 code</th>
+<th>名称</th>
+<th>筛选逻辑（示例）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>high_value</code></td>
+<td>高价值</td>
+<td>预计金额 &gt; 租户阈值</td>
+</tr>
+<tr>
+<td><code>churn_risk</code></td>
+<td>流失预警</td>
+<td>7 天无 Activity</td>
+</tr>
+<tr>
+<td><code>new_potential</code></td>
+<td>潜在新客</td>
+<td>7 天内创建 + 未 qualified</td>
+</tr>
+<tr>
+<td><code>needs_activation</code></td>
+<td>待激活</td>
+<td><code>lifecycle=acquire</code> + 无 outbound</td>
+</tr>
+<tr>
+<td><code>revive_pool</code></td>
+<td>唤醒池</td>
+<td><code>lifecycle=revive</code></td>
+</tr>
+</tbody></table>
+<p><strong>AC</strong>：Leads/Contacts 列表支持「分群」下拉；URL 可分享筛选状态；权限遵守数据范围。</p>
+<h4>4.3.4 <code>engagement_score</code>（0–100，规则版）</h4>
+<table>
+<thead>
+<tr>
+<th>因子</th>
+<th>权重（默认）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>近 7 天 Activity 次数</td>
+<td>40%</td>
+</tr>
+<tr>
+<td>状态推进</td>
+<td>30%</td>
+</tr>
+<tr>
+<td>生命周期匹配度</td>
+<td>30%</td>
+</tr>
+</tbody></table>
+<p>AC：详情页展示分数 + 简释（「基于近 7 天互动」）；<strong>不在 Phase 2 承诺 ML 校准</strong>。</p>
+<h3>4.4 从「推送」到「对话」— Activity 与时间线</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DL-01</td>
+<td>销售</td>
+<td>用 <strong>时间线</strong> 查看所有互动（最新在上）</td>
+<td>支持类型图标、方向、操作人</td>
+</tr>
+<tr>
+<td>DL-02</td>
+<td>销售</td>
+<td>写跟进时选 <strong>渠道/方向</strong></td>
+<td>保存后出现在时间线</td>
+</tr>
+<tr>
+<td>DL-03</td>
+<td>产品</td>
+<td>预留 <code>channel_config</code>（微信/邮件/SMS）</td>
+<td>表结构或 tenant config JSON，<strong>不接真实发送</strong></td>
+</tr>
+<tr>
+<td>DL-04</td>
+<td>销售</td>
+<td>对长备注使用「生成摘要」按钮</td>
+<td>Phase 2：<strong>禁用或 Mock</strong>；接口 <code>POST /api/copilot/summarize</code> 返回 501 + 明确文案</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>原则</strong>：对话优先于群发。Phase 2 不做营销自动化群发；在 PRD/ADR 中单列 Phase 5「旅程编排」。</p>
+</blockquote>
+<h3>4.6 情绪旅程地图（Emotion Journey Map）</h3>
+<p><strong>定义</strong>：在 <strong>时间轴</strong> 与 <strong>生命周期阶段带</strong> 上，叠加客户 <strong>情绪曲线</strong> 与关键触点，形成「关系旅程 + 情绪旅程」合一的可视化；对应参考材料中的 <strong>「感知人的状态」</strong>（犹豫、抵触、满意、流失风险）。</p>
+<p><strong>不是</strong>：单独的情绪分析报表，也不是聊天机器人；<strong>是</strong> 销售在详情页 10 秒内读懂「这段关系曾哪里升温/降温」。</p>
+<h4>4.6.1 概念模型</h4>
+<pre><code class="language-mermaid">flowchart TB
+  subgraph map[&quot;情绪旅程地图 · 单客户视图&quot;]
+    L[&quot;生命周期带&lt;br/&gt;获客→激活→成长→沉淀→唤醒&quot;]
+    T[&quot;时间轴 · Activity 触点&quot;]
+    E[&quot;情绪曲线 · -2～+2&quot;]
+    M[&quot;里程碑 · 转化/流失/经理介入&quot;]
+  end
+  A[Activity 标注情绪] --&gt; T
+  A --&gt; E
+  LC[生命周期阶段] --&gt; L
+  R[规则推断] -.-&gt; E
+  AI[LLM 推断 Phase 5+] -.-&gt; E
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>横轴</strong></td>
+<td>时间（<code>occurred_at</code>），可选缩放：30 天 / 90 天 / 全量</td>
+</tr>
+<tr>
+<td><strong>纵轴（情绪）</strong></td>
+<td>离散 5 档 + 数值分（便于画线）</td>
+</tr>
+<tr>
+<td><strong>背景带</strong></td>
+<td>当前及历史 <code>lifecycle_stage</code> 区间（色带区分）</td>
+</tr>
+<tr>
+<td><strong>散点/标记</strong></td>
+<td>每条 Activity：图标=渠道，颜色=情绪，悬停=摘要</td>
+</tr>
+<tr>
+<td><strong>里程碑</strong></td>
+<td><code>converted</code>、<code>owner_changed</code>、<code>insight_triggered</code> 等系统事件</td>
+</tr>
+</tbody></table>
+<h4>4.6.2 情绪枚举（Phase 2）</h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>中文</th>
+<th>数值 <code>sentiment_score</code></th>
+<th>色板（示例）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>positive</code></td>
+<td>积极/满意</td>
+<td>+2</td>
+<td>绿</td>
+</tr>
+<tr>
+<td><code>neutral</code></td>
+<td>中性</td>
+<td>0</td>
+<td>灰</td>
+</tr>
+<tr>
+<td><code>hesitant</code></td>
+<td>犹豫/观望</td>
+<td>-1</td>
+<td>琥珀</td>
+</tr>
+<tr>
+<td><code>negative</code></td>
+<td>消极/不满</td>
+<td>-2</td>
+<td>红</td>
+</tr>
+<tr>
+<td><code>unknown</code></td>
+<td>未标注</td>
+<td>null</td>
+<td>不画点或虚线</td>
+</tr>
+</tbody></table>
+<p><strong>录入方式（L1，必做其一）</strong>：</p>
+<ol>
+<li><strong>人工</strong>：创建/编辑 Activity 时选「客户情绪」（默认 <code>unknown</code>，不阻断保存）。  </li>
+<li><strong>规则推断</strong>（可选开关）：关键词表（租户可配）如「太贵」「考虑一下」→ <code>hesitant</code>；「投诉」「失望」→ <code>negative</code>；写入 <code>sentiment_source=rule</code>。  </li>
+<li><strong>AI 推断（Phase 5+）</strong>：对 <code>body</code> 调用 LLM → <code>sentiment_source=ai</code>，人工可改。</li>
+</ol>
+<p><strong>AC（情绪数据）</strong>：</p>
+<ul>
+<li>每条 Activity 最多一个 <code>sentiment</code>；修改写审计。  </li>
+<li>列表/时间线与地图 <strong>同源</strong> API，禁止两套状态。  </li>
+<li>权限：与 Activity 一致（本人/部门/全部）。</li>
+</ul>
+<h4>4.6.3 API 与聚合</h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/{leads|contacts|accounts}/:id/emotion-journey</code></td>
+<td>返回地图所需序列（见下）</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/activities/:id</code></td>
+<td>更新 <code>sentiment</code>、<code>sentiment_source</code></td>
+</tr>
+</tbody></table>
+<p><strong>响应 JSON（契约提纲）</strong>：</p>
+<pre><code class="language-json">{
+  &quot;subject_type&quot;: &quot;lead&quot;,
+  &quot;subject_id&quot;: &quot;uuid&quot;,
+  &quot;lifecycle_current&quot;: &quot;grow&quot;,
+  &quot;lifecycle_bands&quot;: [
+    { &quot;stage&quot;: &quot;acquire&quot;, &quot;from&quot;: &quot;2026-01-01T00:00:00Z&quot;, &quot;to&quot;: &quot;2026-02-01T00:00:00Z&quot; }
+  ],
+  &quot;points&quot;: [
+    {
+      &quot;activity_id&quot;: &quot;uuid&quot;,
+      &quot;at&quot;: &quot;2026-03-15T10:00:00Z&quot;,
+      &quot;event_type&quot;: &quot;call&quot;,
+      &quot;sentiment&quot;: &quot;hesitant&quot;,
+      &quot;sentiment_score&quot;: -1,
+      &quot;sentiment_source&quot;: &quot;manual&quot;,
+      &quot;label&quot;: &quot;电话：价格顾虑&quot;,
+      &quot;lifecycle_stage_at_time&quot;: &quot;grow&quot;
+    }
+  ],
+  &quot;milestones&quot;: [
+    { &quot;type&quot;: &quot;converted&quot;, &quot;at&quot;: &quot;2026-04-01T12:00:00Z&quot;, &quot;label&quot;: &quot;转为商机&quot; }
+  ],
+  &quot;summary&quot;: {
+    &quot;current_sentiment&quot;: &quot;hesitant&quot;,
+    &quot;trend&quot;: &quot;down&quot;,
+    &quot;days_since_positive&quot;: 14
+  }
+}
+</code></pre>
+<p><code>summary</code> 由服务端规则计算，供洞察卡片引用（如 INS-005：情绪连续 2 次 negative → 「关系降温，建议经理协同」）。</p>
+<h4>4.6.4 前端体验（<code>EmotionJourneyMap</code>）</h4>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>入口</strong></td>
+<td>Lead / Contact / Account 详情 <strong>Tab：「情绪旅程」</strong>（与「概览」「时间线」并列）</td>
+</tr>
+<tr>
+<td><strong>主图</strong></td>
+<td><code>ChartLine</code> 或专用 <code>EmotionJourneyMap</code>（feature 层）；Y 轴情绪分，X 轴时间；生命周期色带在背景</td>
+</tr>
+<tr>
+<td><strong>空态</strong></td>
+<td>无 Activity：引导「先记录一次跟进并标注情绪」</td>
+</tr>
+<tr>
+<td><strong>交互</strong></td>
+<td>点击触点 → 滚动定位到时间线对应条；支持「在此补标注情绪」</td>
+</tr>
+<tr>
+<td><strong>经理视图</strong></td>
+<td>Phase 3+：团队「情绪降温」列表（Could：Phase 2 仅单客户）</td>
+</tr>
+</tbody></table>
+<p><strong>组件落点</strong>：<code>apps/web/components/feature/crm/emotion-journey-map.vue</code>；数据 <code>use-emotion-journey.ts</code>。</p>
+<h4>4.6.5 User Story</h4>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EJM-01</td>
+<td>销售</td>
+<td>在详情 Tab 查看情绪旅程地图</td>
+<td>≥1 条标注即可显示曲线；≥3 条显示趋势箭头</td>
+</tr>
+<tr>
+<td>EJM-02</td>
+<td>销售</td>
+<td>在写跟进时选择客户情绪</td>
+<td>表单单选 5 档；保存后地图刷新</td>
+</tr>
+<tr>
+<td>EJM-03</td>
+<td>销售</td>
+<td>点击地图触点跳到时间线</td>
+<td>高亮对应 Activity</td>
+</tr>
+<tr>
+<td>EJM-04</td>
+<td>经理</td>
+<td>看到当前情绪与趋势摘要</td>
+<td><code>summary</code> 展示在洞察区或地图顶部</td>
+</tr>
+<tr>
+<td>EJM-05</td>
+<td>系统</td>
+<td>命中 INS-005 时提示关系降温</td>
+<td>与地图 <code>summary.trend=down</code> 一致</td>
+</tr>
+</tbody></table>
+<h4>4.6.6 与洞察 / 生命周期的联动</h4>
+<table>
+<thead>
+<tr>
+<th>规则 ID</th>
+<th>条件</th>
+<th>洞察</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INS-005</td>
+<td>最近 2 次 Activity <code>sentiment</code> ∈ {negative, hesitant}</td>
+<td>关系降温，建议共情式回访</td>
+</tr>
+<tr>
+<td>INS-006</td>
+<td><code>summary.days_since_positive</code> &gt; 30 且 lifecycle=grow</td>
+<td>成长阶段热情消退</td>
+</tr>
+</tbody></table>
+<p>阶段迁移建议（LC-03）可参考情绪：如连续 <code>positive</code> + qualified → 建议进入 <code>grow</code>。</p>
+<h4>4.6.7 Phase 2 边界</h4>
+<table>
+<thead>
+<tr>
+<th>做</th>
+<th>不做</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单客户地图、人工情绪、规则关键词、INS-005/006</td>
+<td>语音情绪识别、实时微信情绪抓取</td>
+</tr>
+<tr>
+<td>导出 PNG（Could）</td>
+<td>群体情绪聚类 ML</td>
+</tr>
+<tr>
+<td><code>sentiment_source=ai</code> 字段预留</td>
+<td>未接 LLM 不写 <code>ai</code></td>
+</tr>
+</tbody></table>
+<h3>4.5 核心业务 CRUD（与 00-mvp-task-breakdown 对齐）</h3>
+<p>保留原 Must 范围，验收标准不变，补充 <strong>关系字段</strong>：</p>
+<p><strong>Accounts / Contacts / Leads</strong> 共有扩展字段建议：</p>
+<ul>
+<li><code>lifecycle_stage</code> (enum)  </li>
+<li><code>engagement_score</code> (int, 系统计算)  </li>
+<li><code>last_activity_at</code> (denormalized, 由 Activity 触发器更新)  </li>
+<li><code>tags</code> (text[] 或 tag 关联表，Phase 2 简单数组即可)</li>
+</ul>
+<p><strong>Leads 状态机</strong>（保持 MVP）：</p>
+<p><code>new</code> → <code>contacted</code> → <code>qualified</code> → <code>unqualified</code> / <code>converted</code></p>
+<p><strong>AC 补充</strong>：<code>converted</code> 必须关联创建 Account/Contact（或向导）；写入审计。</p>
+<p><strong>导入（2.7）</strong>：Excel 模板含 <code>source</code>, <code>lifecycle_stage</code>（可选）；错误行报告可下载。</p>
+<p><strong>分配（2.7）</strong>：变更 <code>owner_id</code> + 可选「分配说明」Activity 自动一条 <code>system</code> 类型记录。</p>
+<h3>4.6 报表（2.4–2.6）— 从「记账报表」到「经营报表」</h3>
+<table>
+<thead>
+<tr>
+<th>图表</th>
+<th>指标</th>
+<th>关系经营增强</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ChartDonut</td>
+<td>来源占比</td>
+<td>保持不变</td>
+</tr>
+<tr>
+<td>ChartLine</td>
+<td>新增趋势</td>
+<td>+ 按 lifecycle 堆叠可选</td>
+</tr>
+<tr>
+<td>ChartFunnel</td>
+<td>线索→合格→商机</td>
+<td>+ 标注阶段转化率 vs 上期</td>
+</tr>
+<tr>
+<td>ChartBar</td>
+<td>状态分布</td>
+<td>+ 「健康度」分布（高/中/低 engagement）</td>
+</tr>
+</tbody></table>
+<p><strong>AC</strong>：经理角色 <code>view_all</code> 与本人数据范围在 API 与 E2E 各测一条。</p>
+<hr>
+<h2>5. 多租户与 RBAC 要求</h2>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>操作</th>
+<th>默认 Sales</th>
+<th>默认 Manager</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>accounts</code></td>
+<td>view/create/update/delete</td>
+<td>本人</td>
+<td>部门/全部可配置</td>
+<td>同 leads</td>
+</tr>
+<tr>
+<td><code>contacts</code></td>
+<td>同上</td>
+<td>同上</td>
+<td>同上</td>
+<td></td>
+</tr>
+<tr>
+<td><code>leads</code></td>
+<td>同上 + assign</td>
+<td>本人；assign 仅经理</td>
+<td>assign</td>
+<td></td>
+</tr>
+<tr>
+<td><code>activities</code></td>
+<td>create/view</td>
+<td>本人相关主体</td>
+<td>部门</td>
+<td>不可跨租户</td>
+</tr>
+<tr>
+<td><code>insights</code></td>
+<td>view</td>
+<td>与主体一致</td>
+<td>与主体一致</td>
+<td>只读 API</td>
+</tr>
+<tr>
+<td><code>segments</code></td>
+<td>view/use</td>
+<td>✓</td>
+<td>✓</td>
+<td>模板租户级</td>
+</tr>
+<tr>
+<td><code>segments</code></td>
+<td>manage</td>
+<td>Admin</td>
+<td>Admin</td>
+<td>改阈值</td>
+</tr>
+</tbody></table>
+<ul>
+<li>所有查询 <strong>强制</strong> <code>tenant_id</code>；洞察计算在 Service 层带 tenant scope。  </li>
+<li>审计：<code>assign</code>、<code>import</code>、<code>lifecycle</code> 变更、<code>convert</code> 必须写 <code>audit_logs</code>。  </li>
+<li>Copilot 端点：租户 feature flag <code>tenant.config.ai_enabled</code> 默认 <code>false</code>。</li>
+</ul>
+<hr>
+<h2>6. i18n 与本地化需求</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>生命周期阶段</td>
+<td><code>lifecycle.*</code> 中英文键</td>
+</tr>
+<tr>
+<td>洞察文案</td>
+<td>规则模板走 i18n；<strong>禁止</strong>硬编码中文仅</td>
+</tr>
+<tr>
+<td>事件类型</td>
+<td><code>activity.type.*</code></td>
+</tr>
+<tr>
+<td>分群名称</td>
+<td>预置模板中英各一套</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>相对时间「7 天前」跟随 locale</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 非功能需求</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>性能</td>
+<td>详情页时间线首屏 ≤ 500ms（50 条内）；列表分页默认 20</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>洞察规则不可由前端注入执行；仅服务端求值</td>
+</tr>
+<tr>
+<td>审计</td>
+<td>见 §5</td>
+</tr>
+<tr>
+<td>可扩展</td>
+<td><code>metadata</code>、<code>insight_snapshot</code> JSONB；Copilot/OpenAPI 版本头</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>规则引擎单测覆盖率 ≥ 80%；洞察 + 权限集成测必做</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. 优先级 (MoSCoW) — Phase 2 实施包</h2>
+<h3>Must Have（与并行任务表同步，不可砍）</h3>
+<ul>
+<li>Accounts / Contacts / Leads CRUD + 搜索  </li>
+<li>Leads 状态流转 + convert  </li>
+<li>Activity 时间线（含 event_type / direction）  </li>
+<li>导入、分配  </li>
+<li>Leads 报表三张图（Donut + Line + Funnel）+ API  </li>
+<li>洞察卡片 <strong>规则版</strong> INS-001～004 至少 2 条上线  </li>
+<li>生命周期字段 + 列表筛选  </li>
+<li>E2E：Leads CRUD + 权限 + 1 条 Activity 洞察联动  </li>
+<li>Activity <strong><code>sentiment</code> 字段</strong> + 创建/编辑表单单选</li>
+</ul>
+<h3>Should Have（同迭代尽量完成）</h3>
+<ul>
+<li><strong>情绪旅程地图</strong> Tab + <code>GET emotion-journey</code> API（2.12）  </li>
+<li>规则关键词推断情绪 + INS-005/006  </li>
+<li>5 个预置分群 + URL 筛选  </li>
+<li><code>engagement_score</code> 展示  </li>
+<li>阶段迁移「建议 + 人工确认」  </li>
+<li>Activity 图表（ChartBar TOP）  </li>
+<li>Leads 报表按 health 分布</li>
+</ul>
+<h3>Could Have</h3>
+<ul>
+<li>导入模板下载多语言  </li>
+<li>详情页「今日待跟进」聚合页（跨 Leads）  </li>
+<li><code>/demo/ai-crm</code> 独立路演页（单页故事线）</li>
+</ul>
+<h3>Won&#39;t Have（Phase 2 生产环境不做）</h3>
+<ul>
+<li>生产级 LLM 调用、RAG 知识库索引、ML 训练与回测 pipeline  </li>
+<li>真实微信/SMS/邮件发送、自动营销群发  </li>
+<li>会员积分/等级商城（Phase 5+）</li>
+</ul>
+<h3>Must Have — AI Preview（§15，可与 Mock 交付）</h3>
+<ul>
+<li>Lead/Account 详情 <strong>AI 关系助手</strong> 侧栏（洞察 + Copilot + 概率条）  </li>
+<li>Copilot：跟进摘要 / 话术 / 邮件草稿 — <strong>Mock 或 501+演示 JSON</strong>  </li>
+<li>全站 <strong>Preview 模式</strong> 标识；演示账号；架构师 API 契约评审通过</li>
+</ul>
+<hr>
+<h2>9. 成功指标</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>目标</th>
+<th>测量方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>关系视图可用性</td>
+<td>详情页 5 区块（基础信息 / 阶段 / 时间线 / 洞察 / <strong>情绪旅程</strong>）齐备</td>
+<td>UX 验收清单</td>
+</tr>
+<tr>
+<td>情绪标注率</td>
+<td>新建 Activity 中 ≥30% 选择非 unknown 情绪（试点 2 周）</td>
+<td>SQL</td>
+</tr>
+<tr>
+<td>跟进活跃度</td>
+<td>有 Activity 的 Lead 占比 ≥ 40%（试点租户 2 周后）</td>
+<td>SQL 统计</td>
+</tr>
+<tr>
+<td>洞察点击率</td>
+<td>「采纳建议」≥ 15% 洞察展示次数</td>
+<td>事件埋点（审计或 analytics 表）</td>
+</tr>
+<tr>
+<td>报表准确性</td>
+<td>漏斗与列表 count 误差 0</td>
+<td>集成测</td>
+</tr>
+<tr>
+<td>技术债</td>
+<td>Casbin 新租户 Enforce</td>
+<td>沿用 Phase 1 QA 项，不阻塞 2.3</td>
+</tr>
+<tr>
+<td>演示成功率</td>
+<td>老板路径 3 分钟无断点</td>
+<td>彩排 checklist §15.2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>10. 风险与依赖</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>影响</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>范围膨胀（做真 AI）</td>
+<td>延期</td>
+<td>严守 L1；L3 写 ADR-0004 占位</td>
+</tr>
+<tr>
+<td>规则洞察不准</td>
+<td>销售不信任</td>
+<td>阈值租户可配；展示「规则说明」</td>
+</tr>
+<tr>
+<td>无外部行为数据</td>
+<td>洞察偏弱</td>
+<td>允许人工录入 <code>metadata.behavior</code>；Phase 3 接 Webhook</td>
+</tr>
+<tr>
+<td>并行三轨契约漂移</td>
+<td>FE/BE 联调失败</td>
+<td>架构师先评审 §15.3 并落 <code>docs/api/</code>；FE 用 fixtures 并行</td>
+</tr>
+<tr>
+<td>Preview 被当成真 AI</td>
+<td>信任危机</td>
+<td>强制 Badge + <code>source: preview</code>；合同/对外材料注明演示</td>
+</tr>
+</tbody></table>
+<p><strong>依赖</strong>：Phase 1 <code>my-permissions</code>、审计；ui-kit <code>ChartDonut</code>；<strong>架构师</strong>根据 §15.3 在 <code>docs/api/</code> <strong>扩写</strong>契约（PM 不新建 api md）；ER 增量迁移。</p>
+<hr>
+<h2>11. 信息架构（前端切面 — 供 2b 架构师）</h2>
+<h3>11.1 路由</h3>
+<table>
+<thead>
+<tr>
+<th>路由</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/accounts</code></td>
+<td>列表 + 分群筛选 + 健康度</td>
+</tr>
+<tr>
+<td><code>/accounts/:id</code></td>
+<td>Tab：概览 / 时间线 / <strong>情绪旅程</strong> / 洞察；关联 Contacts</td>
+</tr>
+<tr>
+<td><code>/contacts/:id</code></td>
+<td>同上（主体为 contact）</td>
+</tr>
+<tr>
+<td><code>/contacts</code></td>
+<td>列表 / 表单</td>
+</tr>
+<tr>
+<td><code>/leads</code></td>
+<td>列表 / 表单 / <strong>报表 Tab</strong></td>
+</tr>
+<tr>
+<td><code>/leads/:id</code></td>
+<td>Tab：概览 / 时间线 / <strong>情绪旅程</strong> / 洞察侧栏 + 状态机</td>
+</tr>
+<tr>
+<td><code>/today</code>（Could）</td>
+<td>聚合 INS 命中主体</td>
+</tr>
+</tbody></table>
+<h3>11.2 组件落点（feature vs ui-kit）</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>落点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>InsightCard</code>, <code>LifecycleBadge</code>, <code>ActivityTimeline</code>, <strong><code>EmotionJourneyMap</code></strong></td>
+<td><code>apps/web/components/feature/crm/</code></td>
+</tr>
+<tr>
+<td><code>ChartDonut/Line/Funnel/Bar</code></td>
+<td><code>@crm/ui-kit</code>（已有/新增 Donut）；地图可复用 <code>ChartLine</code> + 自定义 series</td>
+</tr>
+<tr>
+<td><code>use-leads</code>, <code>use-insights</code>, <code>use-activities</code>, <strong><code>use-emotion-journey</code></strong></td>
+<td><code>apps/web/composables/</code></td>
+</tr>
+<tr>
+<td><strong><code>AiRelationPanel</code></strong>, <strong><code>AiCopilotDrawer</code></strong>, <strong><code>AiPreviewBadge</code></strong></td>
+<td><code>apps/web/components/feature/ai/</code></td>
+</tr>
+<tr>
+<td><strong><code>use-ai-preview</code></strong>, <strong><code>use-ai-copilot</code></strong>（Mock 切换）</td>
+<td><code>apps/web/composables/</code></td>
+</tr>
+</tbody></table>
+<h3>11.4 AI Preview 页面布局（老板可见）</h3>
+<p><strong>Lead/Account 详情 — 桌面宽屏</strong></p>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│ [Preview 演示数据]  张三 · 某某科技    生命周期: 成长 ▼      │
+├──────────────────────────────┬──────────────────────────────┤
+│ Tab: 概览 | 时间线 | 情绪旅程 │  AI 关系助手 (固定侧栏)      │
+│                              │  ┌─ 洞察 (Mock/规则) ─────┐  │
+│  [情绪旅程地图]               │  │ • 流失风险 72% (样例)   │  │
+│                              │  │ • 建议今日电话          │  │
+│                              │  └────────────────────────┘  │
+│                              │  ┌─ Copilot ───────────────┐  │
+│                              │  │ [生成跟进话术] [邮件草稿]│  │
+│                              │  │ 输出区 (流式占位/Mock)   │  │
+│                              │  └────────────────────────┘  │
+│                              │  [采纳并写入 Activity]        │
+└──────────────────────────────┴──────────────────────────────┘
+</code></pre>
+<p><strong>交互要点</strong></p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>行为</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>进入详情且 <code>preview=true</code> 或演示账号</td>
+<td>侧栏加载 <strong>fixtures</strong></td>
+<td><code>public/fixtures/ai-preview/*.json</code> 或 composable Mock</td>
+</tr>
+<tr>
+<td>点击「生成跟进话术」</td>
+<td>0.8s 骨架屏 → 展示 Mock 文案</td>
+<td>未来 <code>POST .../copilot/generate</code></td>
+</tr>
+<tr>
+<td>点击「采纳建议」</td>
+<td>预填 Activity 表单</td>
+<td>与 IN-02 相同</td>
+</tr>
+<tr>
+<td>点击洞察「为什么？」</td>
+<td>Popover 展示规则/模型说明</td>
+<td><code>explanation</code> 字段</td>
+</tr>
+<tr>
+<td>Tab「智能问答」(L3)</td>
+<td>Phase 2：<strong>禁用或空态+即将推出</strong></td>
+<td>契约预留 <code>POST .../copilot/chat</code></td>
+</tr>
+</tbody></table>
+<h3>11.3 数据流</h3>
+<pre><code>API → use-* (tenant + permission) → feature/* → ui-kit 展示
+                ↓
+         insights/evaluate (服务端规则)
+                ↓
+         ai/* (Preview: Mock | 生产: 501→后续真接口)
+</code></pre>
+<hr>
+<h2>12. Phase 2 后路线图（理解 → 预测 → 对话 AI）</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>主题</th>
+<th>关键交付</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>2（本 PRD）</strong></td>
+<td>关系基座 + <strong>AI Preview</strong></td>
+<td>L1 生产 + P0 演示壳 + L2/L3 契约</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>成交经营</td>
+<td>Deals、Dashboard；L2 规则预测分生产化</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>租户运营</td>
+<td>自定义字段、审计、Admin 健康度</td>
+</tr>
+<tr>
+<td><strong>5+</strong></td>
+<td>AI 生产</td>
+<td>Copilot/RAG/LLM 情绪、旅程编排真接入</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>13. 对 <code>00-mvp-task-breakdown.md</code> 的修订建议</h2>
+<p>在 <strong>不删除</strong> 原 2.1–2.8 行的前提下，建议增加并行任务行：</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>[BE]</th>
+<th>[FE]</th>
+<th>[QA]</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.9</td>
+<td>lifecycle + engagement 字段迁移；<code>insights/evaluate</code> API</td>
+<td>详情洞察侧栏 + LifecycleBadge</td>
+<td>规则引擎单测 + 洞察集成测</td>
+</tr>
+<tr>
+<td>2.10</td>
+<td>segments 模板 API；列表筛选</td>
+<td>分群下拉 + 筛选 URL</td>
+<td>分群权限与 count 一致性</td>
+</tr>
+<tr>
+<td>2.11</td>
+<td>Activity 扩展 event_type/direction</td>
+<td>ActivityTimeline 组件</td>
+<td>时间线 E2E</td>
+</tr>
+<tr>
+<td>2.12</td>
+<td><code>sentiment</code> 迁移；<code>emotion-journey</code> 聚合 API；关键词规则</td>
+<td><code>EmotionJourneyMap</code> Tab + Activity 情绪表单项</td>
+<td>情绪序列 + 地图空态/联动 E2E</td>
+</tr>
+<tr>
+<td>2.13</td>
+<td>按 §15.3 扩写 <code>docs/api/</code> AI 契约</td>
+<td><code>AiRelationPanel</code> + Copilot Mock + Preview 角标</td>
+<td>§15.2 演示路径 E2E</td>
+</tr>
+</tbody></table>
+<p><strong>文档动作</strong>（评审通过后，<strong>不新增 PRD md</strong>）：</p>
+<ol>
+<li><del>更新</del> <a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> Phase 2 表（含 2.9–2.13）— <strong>已同步 2026-05-22</strong>  </li>
+<li><strong>架构师</strong>在 <code>docs/api/</code> 扩写 Phase 2 + AI 契约（输入：§15.3）  </li>
+<li><strong>架构师</strong> ADR：规则洞察 + AI Preview 开关（非 PM 新建 prd）  </li>
+<li><a href="./00-crm-overview.md">00-crm-overview.md</a> 已同步 AI 战略（v0.2）</li>
+</ol>
+<hr>
+<h2>14. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>作者</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-22</td>
+<td>PM</td>
+<td>初稿：融合 AI CRM 参考材料与 Phase 2 任务清单</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>PM</td>
+<td>增补 §4.6 情绪旅程地图（EJM）、任务 2.12、G5</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>PM</td>
+<td>v0.3：§15 AI Preview（老板演示）、P0 层、§11.4 UI；2.13；同步 overview</td>
+</tr>
+</tbody></table>
+<h2>15. AI 客户关系：Preview 演示与架构预留（老板汇报）</h2>
+<blockquote>
+<p><strong>PM 范围</strong>：产品定义、UI 交互、能力清单、Mock 策略、验收标准。<br><strong>非 PM 范围</strong>：OpenAPI 路径、表结构 DDL — 由架构师写入 <code>docs/api/</code>、<code>docs/architecture/</code>，<strong>依据本节输入设计</strong>。</p>
+</blockquote>
+<h3>15.1 为什么要 Preview</h3>
+<table>
+<thead>
+<tr>
+<th>诉求</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MVP 来不及接真 LLM</td>
+<td><strong>先做 UI + 假数据 + 统一响应结构</strong>，避免后期推倒重来</td>
+</tr>
+<tr>
+<td>向老板证明方向</td>
+<td>固定 <strong>3 分钟演示路径</strong>（§15.2），突出三转变</td>
+</tr>
+<tr>
+<td>研发不造假接口</td>
+<td>契约 <strong>先行评审</strong>；实现可 501 + <code>X-CRM-Preview: 1</code> 返回 fixture</td>
+</tr>
+</tbody></table>
+<h3>15.2 老板汇报 — 3 分钟演示脚本</h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>页面</th>
+<th>讲解要点</th>
+<th>屏幕证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>/login</code>（演示账号 <code>demo@preview.crm</code>）</td>
+<td>多租户 SaaS 已就绪</td>
+<td>登录成功</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>/leads</code> → 打开「⭐ 华创科技」</td>
+<td>不是录台账，是 <strong>经营关系</strong></td>
+<td>生命周期徽章 + 互动分</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Tab <strong>情绪旅程</strong></td>
+<td><strong>理解</strong>客户：犹豫→消极→回暖</td>
+<td>曲线 + 触点</td>
+</tr>
+<tr>
+<td>4</td>
+<td>右侧 <strong>AI 关系助手</strong></td>
+<td><strong>对话</strong>而非推送：系统给话术</td>
+<td>Copilot 生成 + 采纳</td>
+</tr>
+<tr>
+<td>5</td>
+<td>洞察卡「流失风险 72%」</td>
+<td><strong>预测</strong>关系（样例，将接真实模型）</td>
+<td>Preview 角标 + 说明条</td>
+</tr>
+<tr>
+<td>6（可选）</td>
+<td>Leads 报表漏斗</td>
+<td>数据驱动转化</td>
+<td>三张 Chart</td>
+</tr>
+</tbody></table>
+<p><strong>彩排 AC</strong>：全程无 500；所有 AI 文案带 <strong>「演示样例」</strong> 角标；断网时仍可走前端 fixtures。</p>
+<h3>15.3 架构师输入清单（API 契约，PM 需求非实现）</h3>
+<p>请在 <code>docs/api/</code> <strong>合并进 Phase 2 契约文档</strong>（由架构师命名，如 <code>phase-2-crm-ai.md</code>），满足：</p>
+<h4>15.3.1 租户与开关</h4>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tenant.config.ai_enabled</code></td>
+<td>是否展示 AI 模块（默认 <code>false</code>，演示租户 <code>true</code>）</td>
+</tr>
+<tr>
+<td><code>tenant.config.ai_preview_mode</code></td>
+<td><code>off</code> / <code>fixtures</code> / <code>live</code>（Phase 2 仅 <code>fixtures</code>）</td>
+</tr>
+</tbody></table>
+<h4>15.3.2 建议资源域（路径由架构师定）</h4>
+<table>
+<thead>
+<tr>
+<th>能力 ID</th>
+<th>用途</th>
+<th>Phase 2 实现期望</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>insights.evaluate</code></td>
+<td>规则洞察列表</td>
+<td><strong>真</strong>（L1）</td>
+</tr>
+<tr>
+<td><code>insights.preview</code></td>
+<td>含预测分数的增强包（演示）</td>
+<td><strong>Mock JSON</strong></td>
+</tr>
+<tr>
+<td><code>emotion-journey.get</code></td>
+<td>情绪旅程序列</td>
+<td><strong>真</strong> + Preview 可返回 fixture</td>
+</tr>
+<tr>
+<td><code>copilot.generate</code></td>
+<td>话术/摘要/邮件</td>
+<td><strong>501</strong> 或 Preview 返回 <code>source: preview</code></td>
+</tr>
+<tr>
+<td><code>copilot.chat</code></td>
+<td>RAG 问答</td>
+<td><strong>501</strong> 或空实现</td>
+</tr>
+<tr>
+<td><code>scores.predict</code></td>
+<td>流失/复购/升购概率</td>
+<td>Preview Mock；真算 Phase 3+</td>
+</tr>
+<tr>
+<td><code>segments.dynamic</code></td>
+<td>动态分群刷新</td>
+<td>Preview Mock；真算 Phase 3+</td>
+</tr>
+</tbody></table>
+<h4>15.3.3 统一响应包 <code>AiCapabilityResult</code>（语义约定）</h4>
+<p>架构师契约须包含（字段名可调整，语义不变）：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>source</code></td>
+<td><code>rule</code> | <code>preview</code> | <code>model</code></td>
+</tr>
+<tr>
+<td><code>capability</code></td>
+<td>上表能力 ID</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td>业务体（洞察列表、文案、分数等）</td>
+</tr>
+<tr>
+<td><code>disclaimer</code></td>
+<td>演示免责声明（i18n key）</td>
+</tr>
+<tr>
+<td><code>request_id</code></td>
+<td>审计/trace（真 AI 阶段必填）</td>
+</tr>
+</tbody></table>
+<p><strong>错误态</strong>：<code>AI_DISABLED</code>（403）、<code>AI_PREVIEW_ONLY</code>（200+preview）、<code>AI_NOT_READY</code>（501）。</p>
+<h4>15.3.4 请求头（预留）</h4>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>X-CRM-Preview: 1</code></td>
+<td>强制走 fixture（仅 dev/demo 角色）</td>
+</tr>
+<tr>
+<td><code>X-CRM-AI-Capability</code></td>
+<td>可选，指定 copilot 场景</td>
+</tr>
+</tbody></table>
+<h3>15.4 前端 Mock 策略（FE 可先行）</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>条件</th>
+<th>数据源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>fixtures</strong></td>
+<td><code>ai_preview_mode=fixtures</code> 或 URL <code>?preview=1</code></td>
+<td><code>apps/web/fixtures/ai-preview/</code></td>
+</tr>
+<tr>
+<td><strong>live-fallback</strong></td>
+<td>API 501</td>
+<td>composable 降级到 fixtures + Toast「演示模式」</td>
+</tr>
+<tr>
+<td><strong>rule</strong></td>
+<td><code>insights.evaluate</code> 200</td>
+<td>生产规则，与 Preview 洞察 <strong>分区展示</strong></td>
+</tr>
+</tbody></table>
+<p><strong>禁止</strong>：Mock 写入 <code>leads</code>/<code>activities</code> 生产表；「采纳」仅 <strong>打开表单预填</strong>，保存走正常 API。</p>
+<h3>15.5 User Story — AI Preview</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI-01</td>
+<td>老板</td>
+<td>3 分钟看完 AI CRM 故事线</td>
+<td>§15.2 六步无阻断</td>
+</tr>
+<tr>
+<td>AI-02</td>
+<td>销售</td>
+<td>看到 AI 建议但知其为样例</td>
+<td>角标 + <code>disclaimer</code> 可见</td>
+</tr>
+<tr>
+<td>AI-03</td>
+<td>Admin</td>
+<td>关闭租户 AI 模块</td>
+<td><code>ai_enabled=false</code> 时侧栏隐藏</td>
+</tr>
+<tr>
+<td>AI-04</td>
+<td>开发</td>
+<td>切换 Mock/真接口不改 UI</td>
+<td>仅改 <code>use-ai-copilot</code> 适配层</td>
+</tr>
+<tr>
+<td>AI-05</td>
+<td>架构师</td>
+<td>依据 §15.3 出契约</td>
+<td>评审签字后 BE/FE 并行</td>
+</tr>
+</tbody></table>
+<h3>15.6 与 L1/L2/L3 的关系（回答「为何不做真 AI」）</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>Phase 2 交付</th>
+<th>老板演示用什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L1</td>
+<td>真规则 + 真时间线 + 真情绪（人工）</td>
+<td>情绪旅程 + 部分洞察</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>Preview UI + Mock</td>
+<td>概率条、Copilot 文案、增强洞察</td>
+</tr>
+<tr>
+<td>L2/L3</td>
+<td><strong>仅契约 + 占位</strong></td>
+<td>Mock 展示 <strong>未来能力外观</strong></td>
+</tr>
+</tbody></table>
+<hr>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../prd\phase-2-relationship-crm-prd.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

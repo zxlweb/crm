@@ -1,0 +1,398 @@
+/**
+ * EnterpriseFlow Design System
+ *
+ * 三层逻辑：
+ * 1. Foundation (:root) — 字体、间距、圆角、动效、层级，与主题无关
+ * 2. Semantic ([data-theme]) — 色彩、阴影、图表色，随 V1/V2 切换
+ * 3. Component — .ds-* 工具类，组合 semantic + foundation
+ *
+ * data-theme="v1" 默认 | data-theme="v2" 深色
+ */
+
+/* ─── Foundation（主题无关） ─── */
+:root {
+  --ds-font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --ds-font-mono: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+
+  --ds-text-xs: 0.75rem;
+  --ds-text-sm: 0.875rem;
+  --ds-text-base: 1rem;
+  --ds-text-lg: 1.125rem;
+  --ds-text-xl: 1.25rem;
+  --ds-text-2xl: 1.5rem;
+  --ds-text-3xl: 1.875rem;
+  --ds-text-4xl: 2.25rem;
+
+  --ds-leading-xs: 1rem;
+  --ds-leading-sm: 1.25rem;
+  --ds-leading-base: 1.5rem;
+  --ds-leading-lg: 1.75rem;
+  --ds-leading-xl: 1.75rem;
+  --ds-leading-2xl: 2rem;
+  --ds-leading-3xl: 2.25rem;
+  --ds-leading-4xl: 2.5rem;
+
+  --ds-font-normal: 400;
+  --ds-font-medium: 500;
+  --ds-font-semibold: 600;
+  --ds-font-bold: 700;
+
+  --ds-space-0: 0;
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-5: 1.25rem;
+  --ds-space-6: 1.5rem;
+  --ds-space-8: 2rem;
+  --ds-space-10: 2.5rem;
+  --ds-space-12: 3rem;
+  --ds-space-16: 4rem;
+
+  --ds-radius-none: 0;
+  --ds-radius-sm: 0.375rem;
+  --ds-radius-md: 0.5rem;
+  --ds-radius-lg: 0.75rem;
+  --ds-radius-xl: 1rem;
+  --ds-radius-2xl: 1.25rem;
+  --ds-radius-full: 9999px;
+
+  --ds-border-width: 1px;
+  --ds-border-width-0: 0;
+  --ds-border-width-2: 2px;
+
+  --ds-duration-fast: 150ms;
+  --ds-duration-normal: 200ms;
+  --ds-duration-slow: 300ms;
+  --ds-duration-slower: 500ms;
+
+  --ds-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ds-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ds-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ds-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --ds-z-base: 0;
+  --ds-z-dropdown: 1000;
+  --ds-z-sticky: 1020;
+  --ds-z-fixed: 1030;
+  --ds-z-modal-backdrop: 1040;
+  --ds-z-modal: 1050;
+  --ds-z-popover: 1060;
+  --ds-z-tooltip: 1070;
+  --ds-z-toast: 1080;
+
+  --ds-sidebar-width: 16.25rem;
+  --ds-topbar-height: 4rem;
+  --ds-content-max: 80rem;
+  --ds-page-px: var(--ds-space-6);
+  --ds-page-py: var(--ds-space-8);
+
+  --ds-input-height: 2.5rem;
+  --ds-button-height-sm: 2rem;
+  --ds-button-height-md: 2.5rem;
+  --ds-button-height-lg: 3rem;
+  --ds-icon-sm: 1rem;
+  --ds-icon-md: 1.25rem;
+  --ds-icon-lg: 1.5rem;
+
+  /* Metric 卡图标语义色（info/calendar/accent 两主题共用基色，V2 在主题块覆盖） */
+  --ds-metric-tint-info-bg: #eff6ff;
+  --ds-metric-tint-info-fg: #2563eb;
+  --ds-metric-tint-calendar-bg: #ecfeff;
+  --ds-metric-tint-calendar-fg: #0891b2;
+  --ds-metric-tint-accent-bg: #fef9c3;
+  --ds-metric-tint-accent-fg: #ca8a04;
+}
+
+/* ─── V1 浅色紫（默认） ─── */
+:root,
+[data-theme='v1'] {
+  --ds-bg: #f8f7fc;
+  --ds-bg-elevated: #ffffff;
+  --ds-bg-muted: #f5f3ff;
+  --ds-bg-input: #f1f5f9;
+  --ds-bg-sidebar: #ffffff;
+  --ds-bg-topbar: rgba(255, 255, 255, 0.8);
+  --ds-bg-brand-panel: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 50%, #fdf4ff 100%);
+  --ds-bg-insight: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  --ds-bg-active-nav: #f5f3ff;
+  --ds-bg-brand-subtle: #ede9fe;
+  --ds-bg-success-subtle: #ecfdf5;
+  --ds-bg-danger-subtle: #fef2f2;
+
+  --ds-fg: #1e293b;
+  --ds-fg-heading: #2e1065;
+  --ds-fg-muted: #64748b;
+  --ds-fg-subtle: #8b5cf6;
+  --ds-fg-on-brand: #ffffff;
+  --ds-fg-brand: #6d28d9;
+  --ds-fg-success: #059669;
+  --ds-fg-danger: #b91c1c;
+  --ds-fg-nav: #475569;
+  --ds-fg-nav-active: #6d28d9;
+
+  --ds-border: rgba(139, 92, 246, 0.15);
+  --ds-border-muted: #f5f3ff;
+  --ds-border-focus: rgba(139, 92, 246, 0.22);
+
+  --ds-brand: #7c3aed;
+  --ds-brand-hover: #6d28d9;
+  --ds-brand-muted: #ede9fe;
+  --ds-brand-gradient: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  --ds-brand-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.25);
+
+  --ds-success: #059669;
+  --ds-danger: #b91c1c;
+
+  --ds-chart-grid: #f5f3ff;
+  --ds-chart-area-start: rgba(167, 139, 250, 0.28);
+  --ds-chart-area-mid: rgba(196, 181, 253, 0.14);
+  --ds-chart-area-end: transparent;
+  --ds-chart-area-opacity: 1;
+  --ds-chart-line-start: #a78bfa;
+  --ds-chart-line-end: #7c3aed;
+  --ds-chart-dot: #8b5cf6;
+  --ds-chart-dot-stroke: #ffffff;
+  --ds-chart-secondary: #94a3b8;
+  --ds-chart-axis: #94a3b8;
+  --ds-chart-tooltip-bg: #ffffff;
+  --ds-chart-tooltip-border: rgba(139, 92, 246, 0.2);
+  --ds-chart-tooltip-fg: #1e293b;
+  --ds-chart-glow: rgba(124, 58, 237, 0.45);
+  --ds-chart-bar-track: rgba(139, 92, 246, 0.1);
+  --ds-blur-brand: rgba(196, 181, 253, 0.4);
+  --ds-blur-accent: rgba(216, 180, 254, 0.3);
+
+  --ds-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --ds-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --ds-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
+  --ds-shadow-xl: 0 20px 48px rgba(124, 58, 237, 0.12);
+  /* 输入 focus 环：2px + 低透明度，避免过重紫晕 */
+  --ds-shadow-focus: 0 0 0 2px color-mix(in srgb, var(--ds-brand) 12%, transparent);
+
+  --ds-metric-tint-info-bg: #eff6ff;
+  --ds-metric-tint-info-fg: #2563eb;
+  --ds-metric-tint-calendar-bg: #ecfeff;
+  --ds-metric-tint-calendar-fg: #0891b2;
+  --ds-metric-tint-accent-bg: #fef9c3;
+  --ds-metric-tint-accent-fg: #ca8a04;
+
+  color-scheme: light;
+}
+
+/* ─── V2 深色 Optrixx ─── */
+[data-theme='v2'] {
+  --ds-bg: #0a0a0a;
+  --ds-bg-elevated: #141414;
+  --ds-bg-muted: #111111;
+  --ds-bg-input: #141414;
+  --ds-bg-sidebar: #111111;
+  --ds-bg-topbar: rgba(17, 17, 17, 0.9);
+  --ds-bg-brand-panel: #0a0a0a;
+  --ds-bg-insight: linear-gradient(135deg, rgba(88, 28, 135, 0.5) 0%, rgba(46, 16, 101, 0.8) 100%);
+  --ds-bg-active-nav: rgba(124, 58, 237, 0.1);
+  --ds-bg-brand-subtle: rgba(124, 58, 237, 0.15);
+  --ds-bg-success-subtle: rgba(16, 185, 129, 0.15);
+  --ds-bg-danger-subtle: rgba(239, 68, 68, 0.1);
+
+  --ds-fg: #f4f4f5;
+  --ds-fg-heading: #ffffff;
+  --ds-fg-muted: #71717a;
+  --ds-fg-subtle: #52525b;
+  --ds-fg-on-brand: #ffffff;
+  --ds-fg-brand: #c4b5fd;
+  --ds-fg-success: #34d399;
+  --ds-fg-danger: #f87171;
+  --ds-fg-nav: #a1a1aa;
+  --ds-fg-nav-active: #c4b5fd;
+
+  --ds-border: rgba(255, 255, 255, 0.06);
+  --ds-border-muted: rgba(255, 255, 255, 0.04);
+  --ds-border-focus: rgba(124, 58, 237, 0.38);
+
+  --ds-brand: #9333ea;
+  --ds-brand-hover: #a855f7;
+  --ds-brand-muted: rgba(124, 58, 237, 0.15);
+  --ds-brand-gradient: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
+  --ds-brand-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.35);
+
+  --ds-success: #34d399;
+  --ds-danger: #f87171;
+
+  --ds-chart-grid: rgba(255, 255, 255, 0.05);
+  --ds-chart-area-start: rgba(124, 58, 237, 0.38);
+  --ds-chart-area-mid: rgba(124, 58, 237, 0.16);
+  --ds-chart-area-end: transparent;
+  --ds-chart-area-opacity: 1;
+  --ds-chart-line-start: #7c3aed;
+  --ds-chart-line-end: #c4b5fd;
+  --ds-chart-dot: #7c3aed;
+  --ds-chart-dot-stroke: #141414;
+  --ds-chart-secondary: #52525b;
+  --ds-chart-axis: #71717a;
+  --ds-chart-tooltip-bg: #1a1a1a;
+  --ds-chart-tooltip-border: rgba(255, 255, 255, 0.08);
+  --ds-chart-tooltip-fg: #fafafa;
+  --ds-chart-glow: rgba(167, 139, 250, 0.55);
+  --ds-chart-bar-track: rgba(124, 58, 237, 0.14);
+  --ds-blur-brand: rgba(147, 51, 234, 0.2);
+  --ds-blur-accent: rgba(124, 58, 237, 0.1);
+
+  --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ds-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --ds-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --ds-shadow-xl: 0 20px 48px rgba(124, 58, 237, 0.2);
+  --ds-shadow-focus: 0 0 0 2px color-mix(in srgb, var(--ds-brand) 22%, transparent);
+
+  --ds-metric-tint-info-bg: rgba(37, 99, 235, 0.15);
+  --ds-metric-tint-info-fg: #60a5fa;
+  --ds-metric-tint-calendar-bg: rgba(8, 145, 178, 0.15);
+  --ds-metric-tint-calendar-fg: #22d3ee;
+  --ds-metric-tint-accent-bg: rgba(202, 138, 4, 0.15);
+  --ds-metric-tint-accent-fg: #facc15;
+
+  color-scheme: dark;
+}
+
+/* ─── 组件级工具类 ─── */
+.ds-panel-brand {
+  background: var(--ds-bg-brand-panel);
+}
+
+.ds-bg-insight {
+  background: var(--ds-bg-insight);
+}
+
+.ds-brand-gradient {
+  background: var(--ds-brand-gradient);
+}
+
+.ds-brand-shadow {
+  box-shadow: var(--ds-brand-shadow);
+}
+
+.ds-nav-active {
+  background: var(--ds-bg-active-nav);
+  color: var(--ds-fg-nav-active);
+}
+
+.ds-input {
+  background-color: var(--ds-bg-input);
+  color: var(--ds-fg);
+  border: 1px solid var(--ds-border);
+}
+
+.ds-input:focus {
+  outline: none;
+  border-color: var(--ds-border-focus);
+  box-shadow: var(--ds-shadow-focus);
+}
+
+.ds-input::placeholder {
+  color: var(--ds-fg-muted);
+}
+
+.ds-btn-primary {
+  background-color: var(--ds-brand);
+  color: var(--ds-fg-on-brand);
+  box-shadow: var(--ds-brand-shadow);
+}
+
+.ds-btn-primary:hover:not(:disabled) {
+  background-color: var(--ds-brand-hover);
+}
+
+.ds-card {
+  background-color: var(--ds-bg-elevated);
+  border: var(--ds-border-width) solid var(--ds-border);
+  border-radius: var(--ds-radius-xl);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+/* ─── Foundation 工具类 ─── */
+.ds-text-body {
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-base);
+  line-height: var(--ds-leading-base);
+  font-weight: var(--ds-font-normal);
+  color: var(--ds-fg);
+}
+
+.ds-text-caption {
+  font-size: var(--ds-text-sm);
+  line-height: var(--ds-leading-sm);
+  color: var(--ds-fg-muted);
+}
+
+.ds-text-heading {
+  font-size: var(--ds-text-2xl);
+  line-height: var(--ds-leading-2xl);
+  font-weight: var(--ds-font-semibold);
+  color: var(--ds-fg-heading);
+  letter-spacing: -0.02em;
+}
+
+.ds-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-shadow-focus);
+}
+
+.ds-transition {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: var(--ds-duration-normal);
+  transition-timing-function: var(--ds-ease-default);
+}
+
+/* ─── Card · dashboard 场景（CardMetric：左圆标 + 底栏同比） ─── */
+.ds-card-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.ds-card-metric__icon {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ds-radius-full);
+}
+
+.ds-card-metric__icon[data-tone='info'] {
+  background: var(--ds-metric-tint-info-bg);
+  color: var(--ds-metric-tint-info-fg);
+}
+
+.ds-card-metric__icon[data-tone='calendar'] {
+  background: var(--ds-metric-tint-calendar-bg);
+  color: var(--ds-metric-tint-calendar-fg);
+}
+
+.ds-card-metric__icon[data-tone='accent'] {
+  background: var(--ds-metric-tint-accent-bg);
+  color: var(--ds-metric-tint-accent-fg);
+}
+
+.ds-card-metric__icon[data-tone='brand'] {
+  background: var(--ds-bg-brand-subtle);
+  color: var(--ds-fg-brand);
+}
+
+.ds-card-metric__icon[data-tone='neutral'] {
+  background: var(--ds-bg-muted);
+  color: var(--ds-fg-muted);
+}
+
+.ds-card-metric__trend--up {
+  color: var(--ds-success);
+}
+
+.ds-card-metric__trend--down {
+  color: var(--ds-danger);
+}
+
+.ds-card-metric__trend--flat {
+  color: var(--ds-fg-muted);
+}

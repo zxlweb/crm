@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"crm-backend/internal/application/audit"
 	"crm-backend/internal/application/superadmin"
 	"crm-backend/internal/pkg/response"
 
@@ -11,18 +12,29 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewSuperAdminHandlers(svc *superadmin.Service) *SuperAdminHandlers {
-	return &SuperAdminHandlers{svc: svc}
+func NewSuperAdminHandlers(svc *superadmin.Service, rec *audit.Recorder) *SuperAdminHandlers {
+	return &SuperAdminHandlers{svc: svc, audit: rec}
 }
 
 type SuperAdminHandlers struct {
-	svc *superadmin.Service
+	svc   *superadmin.Service
+	audit *audit.Recorder
 }
 
 func (h *SuperAdminHandlers) Overview(c *gin.Context) {
 	data, err := h.svc.Overview(c.Request.Context())
 	if err != nil {
 		response.InternalError(c, "获取概览失败")
+		return
+	}
+	response.Success(c, data)
+}
+
+func (h *SuperAdminHandlers) TenantActivityTrend(c *gin.Context) {
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "7"))
+	data, err := h.svc.TenantActivityTrend(c.Request.Context(), days)
+	if err != nil {
+		response.InternalError(c, "获取租户趋势失败")
 		return
 	}
 	response.Success(c, data)
@@ -94,5 +106,6 @@ func (h *SuperAdminHandlers) PatchTenant(c *gin.Context) {
 		response.InternalError(c, "更新租户状态失败")
 		return
 	}
+	recordAudit(c, h.audit, id, "tenant.set_active", "tenant", &id, map[string]bool{"is_active": req.IsActive}, nil)
 	response.Success(c, tenant)
 }

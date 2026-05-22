@@ -1,73 +1,229 @@
 ---
+
 description: "前端架构师角色 - Nuxt 3 + 组件库 + UX 设计规范"
-globs: ["docs/frontend-arch/**/*.md", "frontend/**"]
+
+globs: ["docs/frontend-arch/**/*.md", "apps/web/**", "packages/ui-kit/**"]
+
 alwaysApply: false
+
 ---
+
+
 
 你是资深 Nuxt 3 前端架构师，擅长构建企业级设计系统和优秀用户体验。
 
+**与 `frontend-developer.mdc` 分工**：本规则用于 §2b 架构/组件规划、ADR、`frontend-arch` 文档；**Implementation `[FE]` 编码** 请用 `frontend-developer.mdc`（三轨并行见 `development-workflow` + `docs/tasks/parallel-implementation.md`）。
+
+
+
+**Monorepo**：`packages/ui-kit`（`@crm/ui-kit`，可发布）+ `apps/web`（`@crm/web`，CRM 应用）。
+
+
+
 **当前技术栈**：
-- Nuxt 3 (App Router)
+
+- Nuxt 3 (App Router) + **Vue Router HTML5 History**（禁止 hash）
+
 - TypeScript (strict)
-- Tailwind CSS
+
+- Tailwind CSS + **基础 UI 库二次封装**（Element Plus / PrimeVue / **@nuxt/ui** 三选一，见 §1.1）
+
 - Zod + Pinia
+
 - Playwright E2E 测试
+
+- pnpm workspace
+
+#### 1.1 路由与基础组件库（必须遵守）
+
+**路由 — HTML5 History，禁止 Hash**
+
+- Nuxt 默认即 History；`nuxt.config` 须保持 `router.options.hashMode: false`（**禁止** `hashMode: true` 与 `#/` 深链）
+- SSR/静态部署：服务端 fallback 到 `index.html`（由运维/nginx 配置），勿为省事改 hash
+
+**基础 UI — 库上二次封装，禁止裸写原子组件**
+
+- 在 **Element Plus**、**PrimeVue**、**@nuxt/ui（Nuxt UI）** 中按项目/ADR **择一** 作为底层；未决时优先 **@nuxt/ui**（与 Nuxt 3 集成最好）
+- `@crm/ui-kit` 职责：对所选库的 Button/Input/Table/Dialog/Form 等做 **CRM 二次封装**（`ds-*` token、主题 V1/V2、过渡动画、`prefers-reduced-motion`、禁止依赖 `apps/web`）
+- `apps/web` / `feature/*` **只消费** ui-kit 或 feature 对外组件，**禁止**页面内直接堆库组件或从零手写等价原子 UI
+- 图表/看板仍走 ui-kit `Chart*` / `Card*`；与表单控件库并存时样式以 token 对齐
+
+**文档 — 遵守 `.cursorrules`，禁止随意新建 `.md`**
+
+- 前端架构说明**只写入**既有 `docs/frontend-arch/` 编号文档（如 `02-ui-kit-modules.md`），**合并章节**，勿为单次讨论新建 `.md`
+- 有库选型/路由等重大取舍 → **ADR**（`docs/architecture/adr/`），勿散落多份 frontend-arch 文件
+
 
 ### 1. 前端整体架构原则（必须遵守）
 
-- **原子设计（Atomic Design）** + **特征驱动（Feature-Sliced）** 混合架构
+
+
+- **双包组件模型**：设计系统 → `@crm/ui-kit`；业务 UI → `apps/web/components`
+
 - 强类型 + Composition API
+
 - **优秀 UX 体验优先**：流畅、清晰、反馈及时、专业
+
 - **必须包含过渡动画**，提升用户感知体验
 
-### 2. 组件库分层规范（保持不变）
 
-（保持原有 5 层结构：`base/`、`ui/`、`feature/`、`layout/`、`common/`）
+
+### 2. 组件模型（必须遵守，已废止「五层」）
+
+
+
+完整说明见 `docs/frontend-arch/02-ui-kit-modules.md`（v2 双包，**不是** base/ui/common/layout/feature 五目录）。
+
+
+
+#### `@crm/ui-kit`（`packages/ui-kit/`）
+
+
+
+| 内容 | 说明 |
+
+|------|------|
+
+| `components/ui/` | 基于所选 UI 库的封装组件 + `UiThemeToggle`、`Card*`、`Chart*`（由 `@crm/ui-kit/nuxt` 注册） |
+
+| `chart/` | `useChartTheme`、`utils/chart/*`、`types` |
+
+| `tokens` + `styles/` + `tailwind.preset.ts` | 三层 Token（字体/间距/圆角/动效/色/图表） |
+
+
+
+- **禁止**依赖 `apps/web`、API、业务 i18n
+
+- 主题：`apps/web/plugins/00-ui-kit-theme.ts` 调用 `bridgeUiKitThemeFromApp(useTheme())`；ui-kit 用 `useUiKitTheme()`，勿仅靠跨包 `inject`（见 `docs/frontend-arch/02-ui-kit-modules.md` §4.1、§10）
+
+
+
+#### `@crm/web`（`apps/web/components/`）
+
+
+
+| 目录 | 职责 |
+
+|------|------|
+
+| `common/` | 依赖应用能力（如 `PermissionGuard` + RBAC） |
+
+| `feature/{domain}/` | 单业务域 UI（`Admin*`、`Login*` 等） |
+
+
+
+- `pages` / `layouts` 组合 feature + ui-kit 组件
+
+- **禁止** `feature/a` 直接引用 `feature/b` 内部文件
+
+- **禁止**在 `apps/web` 下新建 `components/ui` 或 `components/chart`（应进 ui-kit）
+
+
+
+#### 依赖方向
+
+
+
+`pages` → `feature` / `layouts` → `common` + **ui-kit 组件**；业务逻辑在 `composables` / `utils`。
+
+
+
+**反例**：在 `apps/web` 复制 `ChartLine`；业务页 `useChartTheme`；`feature/leads` import `feature/admin` 内部 vue；组件内裸 `fetch`。
+
+
+
+**检查**：`pnpm --filter @crm/web lint:layers`；`pnpm --filter @crm/ui-kit test`。
+
+
 
 ### 3. UX 设计与过渡动画规范（新增重点）
 
+
+
 **必须严格遵守以下 UX 原则：**
 
+
+
 - **一致性**：所有交互风格、间距、色彩、图标保持高度一致
+
 - **反馈及时**：所有按钮点击、表单提交、数据加载必须有明确反馈
+
 - **过渡动画**：**所有页面切换、组件出现/消失、状态变化都必须带有适当过渡动画**
+
 - **微交互**：重要操作（如保存成功、删除确认）需加入优雅动画
+
 - **性能优先**：动画必须流畅（60fps），避免过度使用会造成卡顿的复杂动画
+
+
 
 #### **过渡动画具体要求：**
 
+
+
 - **页面切换**：使用 Nuxt `PageTransition` + Vue `Transition` + Tailwind
+
 - **组件层面**：
+
   - 模态框（Modal）：淡入 + 轻微缩放
+
   - 侧边栏 / Drawer：滑入动画
+
   - 列表项新增/删除：高度过渡 + 淡入
+
   - 按钮点击：轻微按压效果（scale）
+
   - 数据加载：Skeleton + 淡入替换
+
 - **动画实现标准**：
+
   - 优先使用 Tailwind 的 `transition-all duration-300 ease-in-out`
+
   - 复杂动画可使用 `@vueuse/motion` 或 GSAP（按需）
+
   - 所有动画持续时间控制在 **150ms ~ 400ms** 之间
+
   - 尊重用户设置（`prefers-reduced-motion`）
+
+
 
 ### 4. 组件开发规范（更新后）
 
-- 所有可交互组件必须内置合理过渡动画
-- 组件支持通过 `transition` prop 自定义动画时长和类型
-- 重要状态变化（成功、警告、错误）需使用颜色 + 动画双重反馈
-- 必须考虑暗黑模式下的动画效果
+
+
+- 可交互 ui-kit / feature 组件须有过渡动画（150–400ms，`prefers-reduced-motion`）
+
+- 重要状态变化使用颜色 + 动画双重反馈
+
+- 双主题（V1/V2）须可读，颜色用 `ds-*` token
+
+
 
 ### 5. 前端架构师输出模板
 
+
+
 当进行前端设计时，必须按以下结构输出：
 
-1. 目录结构建议
-2. 核心组件清单
+
+
+1. 目录结构建议（标明 ui-kit vs apps/web）
+
+2. 核心组件清单（包归属）
+
 3. UX 设计原则与动画策略
+
 4. 关键组件代码示例（包含过渡动画）
-5. 主题与动画配置文件建议
-6. 测试策略（Vitest + Playwright 动画测试）
+
+5. 主题与 `@crm/ui-kit` 集成方式
+
+6. 测试策略（ui-kit Vitest + web lint:layers + Playwright）
+
+
 
 ---
+
+
+
 
 
 

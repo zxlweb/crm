@@ -56,6 +56,12 @@ func (m *mockTenantRepo) CountAllUsers(ctx context.Context) (int64, error) {
 	return 5, nil
 }
 
+func (m *mockTenantRepo) TenantActivityTrend(ctx context.Context, days int) ([]repository.TenantActivityPoint, error) {
+	return []repository.TenantActivityPoint{
+		{Date: "05-20", NewTenants: 1, Logins: 2},
+	}, nil
+}
+
 func TestService_Overview(t *testing.T) {
 	repo := &mockTenantRepo{
 		tenants: []domain.Tenant{
@@ -71,6 +77,14 @@ func TestService_Overview(t *testing.T) {
 	}
 	if out.TenantCount != 2 || out.ActiveTenantCount != 1 || out.UserCount != 5 {
 		t.Fatalf("overview: %+v", out)
+	}
+}
+
+func TestService_TenantActivityTrend(t *testing.T) {
+	svc := NewService(&mockTenantRepo{})
+	out, err := svc.TenantActivityTrend(context.Background(), 7)
+	if err != nil || len(out.Categories) != 1 || len(out.Series) != 2 {
+		t.Fatalf("trend: %+v err=%v", out, err)
 	}
 }
 

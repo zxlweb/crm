@@ -43,10 +43,17 @@ func (m *mockSuperTenantRepo) CountAllUsers(ctx context.Context) (int64, error) 
 	return 1, nil
 }
 
+func (m *mockSuperTenantRepo) TenantActivityTrend(ctx context.Context, days int) ([]repository.TenantActivityPoint, error) {
+	return []repository.TenantActivityPoint{
+		{Date: "05-20", NewTenants: 1, Logins: 3},
+		{Date: "05-21", NewTenants: 0, Logins: 5},
+	}, nil
+}
+
 func TestSuperAdminOverview_ForbiddenForNonAdmin(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	svc := superadmin.NewService(&mockSuperTenantRepo{})
-	h := NewSuperAdminHandlers(svc)
+	h := NewSuperAdminHandlers(svc, nil)
 
 	r := gin.New()
 	r.Use(func(c *gin.Context) {
@@ -67,7 +74,7 @@ func TestSuperAdminOverview_ForbiddenForNonAdmin(t *testing.T) {
 func TestSuperAdminOverview_Success(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	svc := superadmin.NewService(&mockSuperTenantRepo{})
-	h := NewSuperAdminHandlers(svc)
+	h := NewSuperAdminHandlers(svc, nil)
 
 	r := gin.New()
 	r.Use(func(c *gin.Context) {

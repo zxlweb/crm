@@ -22,7 +22,7 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
-      command: 'cd ../frontend && npm run dev',
+      command: 'cd .. && pnpm --filter @crm/web dev',
       url: webBase,
       reuseExistingServer: true,
       timeout: 120_000,

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crm-backend/internal/application/account"
+	"crm-backend/internal/application/audit"
 	"crm-backend/internal/application/auth"
+	leadapp "crm-backend/internal/application/lead"
 	rbacapp "crm-backend/internal/application/rbac"
 	"crm-backend/internal/application/superadmin"
 	"crm-backend/internal/config"
@@ -22,21 +25,32 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	tenantRepo := repository.NewTenantRepository(db)
+	auditRepo := repository.NewAuditRepository(db)
+	auditRec := audit.NewRecorder(auditRepo)
 
 	authSvc := auth.NewService(
 		userRepo,
 		cfg.JWTSecret,
 		cfg.AccessTokenTTL(),
 		cfg.RefreshTokenTTL(),
+		&auth.ServiceDeps{DB: db, Enforcer: enforcer, Audit: auditRec},
 	)
 	authHTTP := httphandler.NewAuthHandlers(authSvc)
 
 	superAdminSvc := superadmin.NewService(tenantRepo)
-	superAdminHTTP := httphandler.NewSuperAdminHandlers(superAdminSvc)
+	superAdminHTTP := httphandler.NewSuperAdminHandlers(superAdminSvc, auditRec)
 
 	rbacRepo := repository.NewRBACRepository(db)
 	rbacSvc := rbacapp.NewService(rbacRepo, db, enforcer)
-	rbacHTTP := httphandler.NewRBACHandlers(rbacSvc)
+	rbacHTTP := httphandler.NewRBACHandlers(rbacSvc, auditRec)
+
+	accountRepo := repository.NewAccountRepository(db)
+	accountSvc := account.NewService(accountRepo, enforcer)
+	accountHTTP := httphandler.NewAccountHandlers(accountSvc, auditRec)
+
+	leadRepo := repository.NewLeadRepository(db)
+	leadSvc := leadapp.NewService(leadRepo, accountRepo, enforcer)
+	leadHTTP := httphandler.NewLeadHandlers(leadSvc, auditRec)
 
 	r := gin.New()
 	r.Use(gin.Recovery())
@@ -49,6 +63,7 @@ func main() {
 	{
 		authGroup := public.Group("/auth")
 		authGroup.POST("/login", authHTTP.Login)
+		authGroup.POST("/register", authHTTP.Register)
 		authGroup.POST("/refresh", authHTTP.Refresh)
 	}
 
@@ -65,6 +80,7 @@ func main() {
 	superAdmin.Use(middleware.SuperAdminMiddleware())
 	{
 		superAdmin.GET("/overview", superAdminHTTP.Overview)
+		superAdmin.GET("/stats/tenant-activity", superAdminHTTP.TenantActivityTrend)
 		superAdmin.GET("/tenants", superAdminHTTP.ListTenants)
 		superAdmin.GET("/tenants/:id", superAdminHTTP.GetTenant)
 		superAdmin.PATCH("/tenants/:id", superAdminHTTP.PatchTenant)
@@ -86,6 +102,24 @@ func main() {
 		protected.GET("/rbac/users/:id/roles", rbacHTTP.ListUserRoles)
 		protected.POST("/rbac/users/:id/roles", rbacHTTP.AssignUserRoles)
 		protected.POST("/rbac/check", rbacHTTP.Check)
+
+		protected.GET("/accounts", accountHTTP.List)
+		protected.POST("/accounts", accountHTTP.Create)
+		protected.GET("/accounts/:id", accountHTTP.Get)
+		protected.PUT("/accounts/:id", accountHTTP.Put)
+		protected.PATCH("/accounts/:id", accountHTTP.Patch)
+		protected.DELETE("/accounts/:id", accountHTTP.Delete)
+		protected.GET("/accounts/:id/emotion-journey", accountHTTP.EmotionJourney)
+		protected.POST("/accounts/:id/insights/evaluate", accountHTTP.EvaluateInsights)
+
+		protected.GET("/leads", leadHTTP.List)
+		protected.POST("/leads", leadHTTP.Create)
+		protected.GET("/leads/:id", leadHTTP.Get)
+		protected.PUT("/leads/:id", leadHTTP.Put)
+		protected.PATCH("/leads/:id", leadHTTP.Patch)
+		protected.DELETE("/leads/:id", leadHTTP.Delete)
+		protected.POST("/leads/:id/convert", leadHTTP.Convert)
+		protected.GET("/leads/:id/emotion-journey", leadHTTP.EmotionJourney)
 	}
 
 	log.Printf("🚀 CRM Backend started on :%s (env=%s)", cfg.Port, cfg.Env)

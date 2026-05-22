@@ -10,7 +10,20 @@ import (
 	"gorm.io/gorm"
 )
 
-var ErrUserNotFound = errors.New("user not found")
+var (
+	ErrUserNotFound  = errors.New("user not found")
+	ErrEmailExists   = errors.New("email already exists")
+	ErrDomainExists  = errors.New("domain already exists")
+)
+
+// RegisterInput 自助注册：创建租户 + 管理员用户 + 默认角色
+type RegisterInput struct {
+	Email        string
+	PasswordHash string
+	Name         string
+	CompanyName  string
+	Domain       string
+}
 
 type TenantBrief struct {
 	ID     uuid.UUID
@@ -23,6 +36,7 @@ type UserRepository interface {
 	FindByID(ctx context.Context, userID uuid.UUID) (*domain.User, error)
 	ListActiveTenantsForUser(ctx context.Context, userID uuid.UUID) ([]TenantBrief, error)
 	UserBelongsToTenant(ctx context.Context, userID, tenantID uuid.UUID) (bool, error)
+	RegisterWithTenant(ctx context.Context, in RegisterInput) (*domain.User, uuid.UUID, error)
 }
 
 type GormUserRepository struct {
@@ -76,4 +90,75 @@ func (r *GormUserRepository) UserBelongsToTenant(ctx context.Context, userID, te
 		Where("ut.user_id = ? AND ut.tenant_id = ? AND t.is_active = ?", userID, tenantID, true).
 		Count(&count).Error
 	return count > 0, err
+}
+
+func (r *GormUserRepository) RegisterWithTenant(ctx context.Context, in RegisterInput) (*domain.User, uuid.UUID, error) {
+	var user domain.User
+	var tenantID uuid.UUID
+
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var emailCount int64
+		if err := tx.Model(&domain.User{}).Where("email = ?", in.Email).Count(&emailCount).Error; err != nil {
+			return err
+		}
+		if emailCount > 0 {
+			return ErrEmailExists
+		}
+
+		var domainCount int64
+		if err := tx.Model(&domain.Tenant{}).Where("domain = ?", in.Domain).Count(&domainCount).Error; err != nil {
+			return err
+		}
+		if domainCount > 0 {
+			return ErrDomainExists
+		}
+
+		tenant := domain.Tenant{Name: in.CompanyName, Domain: in.Domain, IsActive: true}
+		if err := tx.Create(&tenant).Error; err != nil {
+			return err
+		}
+		tenantID = tenant.ID
+
+		user = domain.User{
+			Email:        in.Email,
+			PasswordHash: in.PasswordHash,
+			Name:         in.Name,
+		}
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&domain.UserTenant{UserID: user.ID, TenantID: tenant.ID}).Error; err != nil {
+			return err
+		}
+
+		role := domain.Role{
+			TenantID:    tenant.ID,
+			Name:        "Tenant Admin",
+			Description: "租户管理员",
+			IsSystem:    true,
+		}
+		if err := tx.Create(&role).Error; err != nil {
+			return err
+		}
+
+		var perms []domain.Permission
+		if err := tx.Find(&perms).Error; err != nil {
+			return err
+		}
+		for _, p := range perms {
+			if err := tx.Create(&domain.RolePermission{RoleID: role.ID, PermissionID: p.ID}).Error; err != nil {
+				return err
+			}
+		}
+
+		if err := tx.Create(&domain.UserRole{UserID: user.ID, RoleID: role.ID, TenantID: tenant.ID}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, uuid.Nil, err
+	}
+	return &user, tenantID, nil
 }

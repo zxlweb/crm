@@ -3,20 +3,31 @@ package auth
 import (
 	"context"
 	"errors"
+	"regexp"
+	"strings"
 	"time"
 
+	"crm-backend/internal/application/audit"
 	"crm-backend/internal/domain"
+	"crm-backend/internal/infrastructure/persistence"
 	"crm-backend/internal/pkg/jwtutil"
 	"crm-backend/internal/pkg/password"
 	"crm-backend/internal/repository"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrTenantForbidden    = errors.New("tenant forbidden")
+	ErrEmailExists        = errors.New("email already exists")
+	ErrDomainExists       = errors.New("domain already exists")
+	ErrInvalidDomain      = errors.New("invalid domain")
 )
+
+var domainPattern = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]{0,48}[a-z0-9])?$`)
 
 type TenantDTO struct {
 	ID     string `json:"id"`
@@ -40,23 +51,82 @@ type LoginResult struct {
 	CurrentTenant *TenantDTO  `json:"current_tenant,omitempty"`
 }
 
+type ServiceDeps struct {
+	DB       *gorm.DB
+	Enforcer *casbin.Enforcer
+	Audit    *audit.Recorder
+}
+
 type Service struct {
 	users           repository.UserRepository
 	jwtSecret       string
 	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
+	db              *gorm.DB
+	enforcer        *casbin.Enforcer
+	audit           *audit.Recorder
 }
 
-func NewService(users repository.UserRepository, jwtSecret string, accessTTL, refreshTTL time.Duration) *Service {
-	return &Service{
+func NewService(users repository.UserRepository, jwtSecret string, accessTTL, refreshTTL time.Duration, deps *ServiceDeps) *Service {
+	s := &Service{
 		users:           users,
 		jwtSecret:       jwtSecret,
 		accessTokenTTL:  accessTTL,
 		refreshTokenTTL: refreshTTL,
 	}
+	if deps != nil {
+		s.db = deps.DB
+		s.enforcer = deps.Enforcer
+		s.audit = deps.Audit
+	}
+	return s
 }
 
-func (s *Service) Login(ctx context.Context, email, plainPassword string) (*LoginResult, error) {
+type RegisterInput struct {
+	Email       string
+	Password    string
+	Name        string
+	CompanyName string
+	Domain      string
+}
+
+func (s *Service) Register(ctx context.Context, in RegisterInput, clientIP string) (*LoginResult, error) {
+	domainSlug := normalizeDomain(in.Domain, in.CompanyName)
+	if !domainPattern.MatchString(domainSlug) {
+		return nil, ErrInvalidDomain
+	}
+	hash, err := password.Hash(in.Password)
+	if err != nil {
+		return nil, err
+	}
+	user, tenantID, err := s.users.RegisterWithTenant(ctx, repository.RegisterInput{
+		Email:        strings.TrimSpace(strings.ToLower(in.Email)),
+		PasswordHash: hash,
+		Name:         strings.TrimSpace(in.Name),
+		CompanyName:  strings.TrimSpace(in.CompanyName),
+		Domain:       domainSlug,
+	})
+	if err != nil {
+		if errors.Is(err, repository.ErrEmailExists) {
+			return nil, ErrEmailExists
+		}
+		if errors.Is(err, repository.ErrDomainExists) {
+			return nil, ErrDomainExists
+		}
+		return nil, err
+	}
+	if s.db != nil && s.enforcer != nil {
+		if err := persistence.SyncCasbinPolicies(s.db, s.enforcer); err != nil {
+			return nil, err
+		}
+	}
+	s.recordAuth(ctx, tenantID, &user.ID, "auth.register", map[string]string{
+		"email": user.Email, "domain": domainSlug,
+	}, clientIP)
+	return s.issueTokensForTenant(ctx, user, &tenantID)
+}
+
+func (s *Service) Login(ctx context.Context, email, plainPassword, clientIP string) (*LoginResult, error) {
 	user, err := s.users.FindByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
@@ -67,7 +137,12 @@ func (s *Service) Login(ctx context.Context, email, plainPassword string) (*Logi
 	if !password.Verify(user.PasswordHash, plainPassword) {
 		return nil, ErrInvalidCredentials
 	}
-	return s.issueTokens(ctx, user)
+	result, err := s.issueTokens(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	s.auditLoginWithIP(ctx, user.ID, result, clientIP)
+	return result, nil
 }
 
 func (s *Service) Profile(ctx context.Context, userID uuid.UUID) (*UserDTO, error) {
@@ -86,7 +161,7 @@ func (s *Service) ListTenants(ctx context.Context, userID uuid.UUID) ([]TenantDT
 	return mapTenants(rows), nil
 }
 
-func (s *Service) SwitchTenant(ctx context.Context, userID uuid.UUID, email string, isSuperAdmin bool, tenantID uuid.UUID) (*LoginResult, error) {
+func (s *Service) SwitchTenant(ctx context.Context, userID uuid.UUID, email string, isSuperAdmin bool, tenantID uuid.UUID, clientIP string) (*LoginResult, error) {
 	ok, err := s.users.UserBelongsToTenant(ctx, userID, tenantID)
 	if err != nil {
 		return nil, err
@@ -99,7 +174,14 @@ func (s *Service) SwitchTenant(ctx context.Context, userID uuid.UUID, email stri
 		Email:        email,
 		IsSuperAdmin: isSuperAdmin,
 	}
-	return s.issueTokensForTenant(ctx, user, &tenantID)
+	result, err := s.issueTokensForTenant(ctx, user, &tenantID)
+	if err != nil {
+		return nil, err
+	}
+	s.recordAuth(ctx, tenantID, &userID, "auth.switch_tenant", map[string]string{
+		"tenant_id": tenantID.String(),
+	}, clientIP)
+	return result, nil
 }
 
 func (s *Service) Refresh(ctx context.Context, refreshToken string) (*LoginResult, error) {
@@ -171,6 +253,68 @@ func mapUser(user *domain.User) *UserDTO {
 		Name:         user.Name,
 		IsSuperAdmin: user.IsSuperAdmin,
 	}
+}
+
+func normalizeDomain(domain, companyName string) string {
+	d := strings.TrimSpace(strings.ToLower(domain))
+	if d != "" {
+		return d
+	}
+	d = strings.ToLower(companyName)
+	d = strings.ReplaceAll(d, " ", "-")
+	var b strings.Builder
+	for _, r := range d {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
+			b.WriteRune(r)
+		}
+	}
+	out := strings.Trim(b.String(), "-")
+	if out == "" {
+		return "org"
+	}
+	if len(out) > 50 {
+		out = out[:50]
+	}
+	return out
+}
+
+func (s *Service) auditLoginWithIP(ctx context.Context, userID uuid.UUID, result *LoginResult, ip string) {
+	if result == nil {
+		return
+	}
+	tenantID := firstTenantID(result)
+	if tenantID == uuid.Nil {
+		return
+	}
+	s.recordAuth(ctx, tenantID, &userID, "auth.login", map[string]string{"email": result.User.Email}, ip)
+}
+
+func firstTenantID(result *LoginResult) uuid.UUID {
+	if result.CurrentTenant != nil {
+		if id, err := uuid.Parse(result.CurrentTenant.ID); err == nil {
+			return id
+		}
+	}
+	if len(result.Tenants) > 0 {
+		if id, err := uuid.Parse(result.Tenants[0].ID); err == nil {
+			return id
+		}
+	}
+	return uuid.Nil
+}
+
+func (s *Service) recordAuth(ctx context.Context, tenantID uuid.UUID, userID *uuid.UUID, action string, newValue any, ip string) {
+	if s.audit == nil {
+		return
+	}
+	s.audit.Record(ctx, audit.Entry{
+		TenantID:     tenantID,
+		UserID:       userID,
+		Action:       action,
+		ResourceType: "auth",
+		NewValue:     newValue,
+		IPAddress:    ip,
+	})
 }
 
 func mapTenants(rows []repository.TenantBrief) []TenantDTO {

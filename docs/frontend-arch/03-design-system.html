@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>设计系统（Design System） · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html" style="color:var(--accent);font-weight:600">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../frontend-arch\03-design-system.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>设计系统（Design System）</h1>
+<p>EnterpriseFlow 使用 <strong>三层 Token 逻辑</strong> + <strong>CSS 变量</strong> + <strong>Tailwind 语义类</strong>，由 <code>@crm/ui-kit</code> 统一提供，应用在 <code>apps/web</code> 消费。</p>
+<blockquote>
+<p>体验原则：<a href="./04-ux-design-guidelines.md">04-ux-design-guidelines.md</a> · Token 预览：<code>/design</code> · <strong>场景手册</strong>：<a href="./05-component-scenarios.md">05-component-scenarios.md</a>（Chart + Card）</p>
+</blockquote>
+<hr>
+<h2>1. 三层逻辑（必读）</h2>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│  Component  组件层                                       │
+│  .ds-card / .ds-input / .ds-btn-primary                 │
+│  --ds-input-height / --ds-button-height-md              │
+├─────────────────────────────────────────────────────────┤
+│  Semantic  语义层（随 data-theme=&quot;v1&quot;|&quot;v2&quot; 切换）          │
+│  --ds-bg / --ds-fg / --ds-brand / --ds-chart-*          │
+│  --ds-shadow-sm|md|lg（明暗主题不同阴影）                  │
+├─────────────────────────────────────────────────────────┤
+│  Foundation  基础层（:root，与主题无关）                   │
+│  --ds-font-* / --ds-text-* / --ds-space-*               │
+│  --ds-radius-* / --ds-duration-* / --ds-z-*             │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>定义位置</th>
+<th>是否随 V1/V2 变化</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Foundation</strong></td>
+<td><code>:root</code></td>
+<td>否</td>
+<td>字号、间距、圆角、动效、z-index</td>
+</tr>
+<tr>
+<td><strong>Semantic</strong></td>
+<td><code>:root</code> + <code>[data-theme]</code></td>
+<td><strong>是</strong></td>
+<td>背景、文字、边框、品牌、状态、图表色、阴影</td>
+</tr>
+<tr>
+<td><strong>Component</strong></td>
+<td>CSS 工具类 + 尺寸 token</td>
+<td>部分（继承 semantic 色）</td>
+<td>按钮、输入、卡片、导航</td>
+</tr>
+</tbody></table>
+<p><strong>规则</strong>：页面与 feature 组件只使用 <code>ds-*</code> / <code>var(--ds-*)</code>，禁止硬编码 <code>#7c3aed</code>、<code>rounded-xl</code>（应 <code>rounded-ds-xl</code>）等脱离 token 的值。</p>
+<hr>
+<h2>2. 主题（Semantic 色彩）</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>v1</code></td>
+<td>浅色紫 SaaS</td>
+<td><strong>默认</strong>，白底卡片、浅紫渐变</td>
+</tr>
+<tr>
+<td><code>v2</code></td>
+<td>深色 Optrixx</td>
+<td>深灰底、紫色图表强调</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Cookie：<code>crm-theme</code>（365 天）</li>
+<li>HTML：<code>document.documentElement[data-theme=&quot;v1&quot;|&quot;v2&quot;]</code></li>
+<li>切换：<code>useTheme()</code> / <code>&lt;UiThemeToggle /&gt;</code>；桥接与排障见 <a href="./02-ui-kit-modules.md#41-%E4%B8%BB%E9%A2%98%E6%A1%A5%E6%8E%A5%E5%BF%85%E9%A1%BB">02-ui-kit-modules.md</a></li>
+<li>预览：<code>/design</code>，或 <code>?theme=v2</code></li>
+</ul>
+<hr>
+<h2>3. Foundation Token 一览</h2>
+<h3>3.1 字体 Typography</h3>
+<table>
+<thead>
+<tr>
+<th>CSS 变量</th>
+<th>说明</th>
+<th>Tailwind</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--ds-font-sans</code></td>
+<td>主字体 Plus Jakarta Sans</td>
+<td><code>font-sans</code></td>
+</tr>
+<tr>
+<td><code>--ds-font-mono</code></td>
+<td>等宽</td>
+<td><code>font-mono</code></td>
+</tr>
+<tr>
+<td><code>--ds-text-xs</code> … <code>--ds-text-4xl</code></td>
+<td>字号</td>
+<td><code>text-ds-xs</code> … <code>text-ds-4xl</code></td>
+</tr>
+<tr>
+<td><code>--ds-leading-*</code></td>
+<td>行高（与字号配对）</td>
+<td>随 <code>text-ds-*</code></td>
+</tr>
+<tr>
+<td><code>--ds-font-normal</code> … <code>--ds-font-bold</code></td>
+<td>字重 400–700</td>
+<td><code>font-ds-medium</code> 等</td>
+</tr>
+</tbody></table>
+<p>工具类：<code>.ds-text-body</code>、<code>.ds-text-caption</code>、<code>.ds-text-heading</code></p>
+<h3>3.2 间距 Spacing（4px 基准）</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--ds-space-1</code></td>
+<td>4px</td>
+</tr>
+<tr>
+<td><code>--ds-space-2</code></td>
+<td>8px</td>
+</tr>
+<tr>
+<td><code>--ds-space-4</code></td>
+<td>16px</td>
+</tr>
+<tr>
+<td><code>--ds-space-6</code></td>
+<td>24px</td>
+</tr>
+<tr>
+<td><code>--ds-space-8</code></td>
+<td>32px</td>
+</tr>
+</tbody></table>
+<p>Tailwind：<code>p-ds-4</code>、<code>gap-ds-3</code>、<code>m-ds-6</code> 等。</p>
+<h3>3.3 圆角 Radius</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>值</th>
+<th>Tailwind</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--ds-radius-sm</code></td>
+<td>6px</td>
+<td><code>rounded-ds-sm</code></td>
+</tr>
+<tr>
+<td><code>--ds-radius-lg</code></td>
+<td>12px</td>
+<td><code>rounded-ds-lg</code></td>
+</tr>
+<tr>
+<td><code>--ds-radius-xl</code></td>
+<td>16px</td>
+<td><code>rounded-ds-xl</code></td>
+</tr>
+<tr>
+<td><code>--ds-radius-2xl</code></td>
+<td>20px</td>
+<td><code>rounded-ds-2xl</code></td>
+</tr>
+<tr>
+<td><code>--ds-radius-full</code></td>
+<td>药丸形</td>
+<td><code>rounded-ds-full</code></td>
+</tr>
+</tbody></table>
+<h3>3.4 阴影 Shadow（随主题）</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--ds-shadow-sm</code></td>
+<td>卡片默认</td>
+</tr>
+<tr>
+<td><code>--ds-shadow-md</code></td>
+<td>浮层、下拉</td>
+</tr>
+<tr>
+<td><code>--ds-shadow-lg</code></td>
+<td>模态</td>
+</tr>
+<tr>
+<td><code>--ds-brand-shadow</code></td>
+<td>主按钮</td>
+</tr>
+<tr>
+<td><code>--ds-shadow-focus</code></td>
+<td>聚焦环</td>
+</tr>
+</tbody></table>
+<p>Tailwind：<code>shadow-ds-sm</code>、<code>shadow-ds-brand</code>、<code>shadow-ds-focus</code></p>
+<h3>3.5 动效 Motion</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>值</th>
+<th>Tailwind</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--ds-duration-fast</code></td>
+<td>150ms</td>
+<td><code>duration-ds-fast</code></td>
+</tr>
+<tr>
+<td><code>--ds-duration-normal</code></td>
+<td>200ms</td>
+<td><code>duration-ds-normal</code></td>
+</tr>
+<tr>
+<td><code>--ds-duration-slow</code></td>
+<td>300ms</td>
+<td><code>duration-ds-slow</code></td>
+</tr>
+<tr>
+<td><code>--ds-ease-default</code></td>
+<td>标准曲线</td>
+<td><code>ease-ds-default</code></td>
+</tr>
+</tbody></table>
+<p>工具类：<code>.ds-transition</code>（颜色/背景/边框/阴影过渡）</p>
+<h3>3.6 层级 Z-index</h3>
+<p><code>--ds-z-dropdown</code> (1000) → <code>--ds-z-toast</code> (1080)<br>Tailwind：<code>z-ds-modal</code>、<code>z-ds-dropdown</code> 等。</p>
+<h3>3.7 布局 Layout</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--ds-sidebar-width</code></td>
+<td>侧栏宽度 260px</td>
+</tr>
+<tr>
+<td><code>--ds-topbar-height</code></td>
+<td>顶栏 64px</td>
+</tr>
+<tr>
+<td><code>--ds-content-max</code></td>
+<td>内容区最大宽 1280px</td>
+</tr>
+<tr>
+<td><code>--ds-page-px</code> / <code>--ds-page-py</code></td>
+<td>页面内边距</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. Semantic Token 分组</h2>
+<table>
+<thead>
+<tr>
+<th>分组</th>
+<th>前缀示例</th>
+<th>Tailwind 示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Surface</td>
+<td><code>--ds-bg</code>, <code>--ds-bg-elevated</code>, <code>--ds-bg-muted</code></td>
+<td><code>bg-ds-bg</code>, <code>bg-ds-bg-elevated</code></td>
+</tr>
+<tr>
+<td>Foreground</td>
+<td><code>--ds-fg</code>, <code>--ds-fg-heading</code>, <code>--ds-fg-muted</code></td>
+<td><code>text-ds-fg-heading</code></td>
+</tr>
+<tr>
+<td>Border</td>
+<td><code>--ds-border</code>, <code>--ds-border-focus</code></td>
+<td><code>border-ds-border</code></td>
+</tr>
+<tr>
+<td>Brand</td>
+<td><code>--ds-brand</code>, <code>--ds-brand-hover</code></td>
+<td><code>bg-ds-brand</code></td>
+</tr>
+<tr>
+<td>Status</td>
+<td><code>--ds-success</code>, <code>--ds-danger</code></td>
+<td><code>text-ds-success</code></td>
+</tr>
+<tr>
+<td>Chart</td>
+<td><code>--ds-chart-line-end</code>, <code>--ds-chart-grid</code></td>
+<td>图表内部读取</td>
+</tr>
+</tbody></table>
+<p>完整列表见 <code>packages/ui-kit/src/tokens/catalog.ts</code> 或 <code>/design</code> 预览。</p>
+<hr>
+<h2>5. Card 组件（与 Chart 并列）</h2>
+<p>场景登记见 <a href="./05-component-scenarios.md">05-component-scenarios.md</a> Part A；<strong>新增风格只加场景行 + <code>Card*</code> 组件</strong>，不另开文档。</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>场景 id</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><code>CardMetric</code></strong></td>
+<td><code>dashboard</code></td>
+<td>看板 KPI：左圆标 + 主数值 + 底栏同比</td>
+</tr>
+<tr>
+<td><strong><code>CardShell</code></strong></td>
+<td><code>content</code></td>
+<td>标题 + 内容区（表/表单/详情）</td>
+</tr>
+</tbody></table>
+<h3>5.1 <code>CardMetric</code>（<code>dashboard</code> 场景）</h3>
+<table>
+<thead>
+<tr>
+<th>Prop</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>label</code></td>
+<td><code>string</code></td>
+<td>指标名</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>string | number</code></td>
+<td>主数值（自动千分位）</td>
+</tr>
+<tr>
+<td><code>compareLabel</code></td>
+<td><code>string?</code></td>
+<td>底栏左</td>
+</tr>
+<tr>
+<td><code>trend</code></td>
+<td><code>string?</code></td>
+<td>底栏右，如 <code>12%</code></td>
+</tr>
+<tr>
+<td><code>trendDirection</code></td>
+<td><code>&#39;up&#39; | &#39;down&#39; | &#39;flat&#39;</code></td>
+<td>绿↑ / 红↓</td>
+</tr>
+<tr>
+<td><code>iconTone</code></td>
+<td><code>&#39;info&#39; | &#39;calendar&#39; | &#39;accent&#39; | &#39;brand&#39; | &#39;neutral&#39;</code></td>
+<td>圆标底色</td>
+</tr>
+</tbody></table>
+<pre><code class="language-vue">&lt;CardMetric
+  label=&quot;租户总数&quot;
+  :value=&quot;12&quot;
+  compare-label=&quot;累计&quot;
+  trend=&quot;+2&quot;
+  trend-direction=&quot;up&quot;
+  icon-tone=&quot;brand&quot;
+&gt;
+  &lt;template #icon&gt;&lt;!-- SVG --&gt;&lt;/template&gt;
+&lt;/CardMetric&gt;
+</code></pre>
+<h3>5.2 <code>CardShell</code>（<code>content</code> 场景）</h3>
+<table>
+<thead>
+<tr>
+<th>Prop</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>title</code> / <code>subtitle</code></td>
+<td>可选标题区</td>
+</tr>
+<tr>
+<td><code>noPadding</code></td>
+<td>内容区是否去掉 <code>p-ds-5</code></td>
+</tr>
+<tr>
+<td>默认 slot</td>
+<td>表格、表单等</td>
+</tr>
+</tbody></table>
+<h3>5.3 类型</h3>
+<pre><code class="language-ts">import { CARD_SCENARIOS, type CardScenarioId } from &#39;@crm/ui-kit&#39;
+// CARD_SCENARIOS.dashboard.component === &#39;CardMetric&#39;
+</code></pre>
+<hr>
+<h2>6. Component Token 与工具类</h2>
+<table>
+<thead>
+<tr>
+<th>尺寸 Token</th>
+<th>值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--ds-input-height</code></td>
+<td>40px</td>
+<td>输入框 <code>h-ds-input</code></td>
+</tr>
+<tr>
+<td><code>--ds-button-height-md</code></td>
+<td>40px</td>
+<td>按钮 <code>h-ds-btn-md</code></td>
+</tr>
+<tr>
+<td><code>--ds-icon-md</code></td>
+<td>20px</td>
+<td>图标</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>工具类</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>.ds-card</code></td>
+<td>标准卡片（surface + 圆角 + 阴影）</td>
+</tr>
+<tr>
+<td><code>.ds-input</code></td>
+<td>表单输入</td>
+</tr>
+<tr>
+<td><code>.ds-btn-primary</code></td>
+<td>主按钮</td>
+</tr>
+<tr>
+<td><code>.ds-nav-active</code></td>
+<td>侧栏激活</td>
+</tr>
+<tr>
+<td><code>.ds-focus-ring</code></td>
+<td>统一 focus-visible</td>
+</tr>
+<tr>
+<td><code>.ds-panel-brand</code></td>
+<td>登录品牌区背景</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 文件结构（Monorepo）</h2>
+<pre><code>packages/ui-kit/
+├── src/styles/design-system.css   # 全部 --ds-* 变量 + .ds-* 工具类
+├── src/tokens/
+│   ├── theme.ts                   # ThemeId、applyThemeToDocument
+│   ├── foundation.ts              # 尺度元数据（文档/工具）
+│   ├── catalog.ts                 # DS_TOKEN_GROUPS 目录
+│   └── index.ts
+├── tailwind.preset.ts             # Tailwind 扩展（apps/web 引用）
+
+apps/web/
+├── tailwind.config.ts             # presets: [ui-kit/tailwind.preset]
+├── composables/use-theme.ts
+├── plugins/00-ui-kit-theme.ts
+└── pages/design.vue               # Token 全量预览
+</code></pre>
+<hr>
+<h2>8. 使用方式</h2>
+<h3>切换主题</h3>
+<pre><code class="language-vue">&lt;UiThemeToggle /&gt;
+</code></pre>
+<pre><code class="language-ts">const { id, isDark, setTheme } = useTheme()
+setTheme(&#39;v2&#39;)
+</code></pre>
+<h3>Tailwind 示例（推荐）</h3>
+<pre><code class="language-vue">&lt;article class=&quot;rounded-ds-xl border border-ds-border bg-ds-bg-elevated p-ds-6 shadow-ds-sm&quot;&gt;
+  &lt;h2 class=&quot;text-ds-2xl font-ds-semibold text-ds-fg-heading&quot;&gt;标题&lt;/h2&gt;
+  &lt;p class=&quot;mt-ds-2 text-ds-sm text-ds-fg-muted&quot;&gt;说明文字&lt;/p&gt;
+  &lt;button class=&quot;ds-btn-primary ds-transition mt-ds-4 h-ds-btn-md rounded-ds-lg px-ds-4 text-ds-sm&quot;&gt;
+    提交
+  &lt;/button&gt;
+&lt;/article&gt;
+</code></pre>
+<h3>读取 Token 目录（工具/文档）</h3>
+<pre><code class="language-ts">import { DS_TOKEN_GROUPS, DS_TOKEN_LAYERS } from &#39;@crm/ui-kit/tokens&#39;
+</code></pre>
+<h3>新增页面约定</h3>
+<ol>
+<li>色彩、阴影、圆角、间距、字号均使用 <code>ds-*</code> token</li>
+<li>图表颜色读 <code>--ds-chart-*</code>（<code>useChartTheme</code>）</li>
+<li>条件插画可用 <code>isDark</code>：<code>v-if=&quot;!isDark&quot;</code> / <code>v-else</code></li>
+<li>动效使用 <code>ds-transition</code> + <code>duration-ds-*</code>，避免随意 <code>duration-300</code></li>
+</ol>
+<hr>
+<h2>9. 图表组件（ECharts）</h2>
+<p>基于 <code>echarts</code> + <code>vue-echarts</code>，颜色从 <code>--ds-chart-*</code> 读取，随 V1/V2 自动切换。</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ChartShell</code></td>
+<td>卡片外壳：标题、主指标、图例</td>
+</tr>
+<tr>
+<td><code>ChartLine</code></td>
+<td>折线图</td>
+</tr>
+<tr>
+<td><code>ChartBar</code></td>
+<td>柱状图（横/纵）</td>
+</tr>
+<tr>
+<td><code>ChartFunnel</code></td>
+<td>漏斗图</td>
+</tr>
+</tbody></table>
+<p>展示页：<code>/charts</code><br>场景手册：<a href="./05-component-scenarios.md">05-component-scenarios.md</a>；Phase 交付勾选：<a href="../tasks/00-mvp-task-breakdown.md">../tasks/00-mvp-task-breakdown.md</a>。</p>
+<hr>
+<h2>10. 路由</h2>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/login</code></td>
+<td>统一登录</td>
+</tr>
+<tr>
+<td><code>/admin</code></td>
+<td>Super Admin</td>
+</tr>
+<tr>
+<td><code>/design</code></td>
+<td><strong>全量 Token 预览</strong>（三层目录）</td>
+</tr>
+<tr>
+<td><code>/charts</code></td>
+<td>Chart 组件展示</td>
+</tr>
+<tr>
+<td><code>/cards</code></td>
+<td>Card 场景展示（<code>dashboard</code> / <code>content</code>）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>11. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2025-05</td>
+<td>初版：双主题色彩</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td>补齐 Foundation/Semantic/Component 三层；typography/spacing/radius/shadow/motion/z-index；tailwind.preset；/design 目录</td>
+</tr>
+<tr>
+<td>2026-05-22</td>
+<td><code>CardMetric</code> / <code>CardShell</code>；场景表 <code>CARD_SCENARIOS</code></td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../frontend-arch\03-design-system.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

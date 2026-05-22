@@ -54,16 +54,40 @@ article a { color: var(--accent); }
 </head>
 <body>
   <div class="layout">
-    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/README.html" style="color:var(--accent);font-weight:600">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html" style="color:var(--accent);font-weight:600">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
     <main>
       <div class="toolbar">
         <button type="button" id="theme-toggle">🌓 切换主题</button>
-        <a href="../frontend-arch/README.md" target="_blank">查看 Markdown 源码</a>
+        <a href="../frontend-arch\README.md" target="_blank">查看 Markdown 源码</a>
       </div>
       <article class="markdown-body"><h1>前端架构文档</h1>
-<p>Nuxt 3 前端实现约定，与 <code>frontend/</code> 代码目录对应。</p>
-<h2>当前状态</h2>
-<p>脚手架已就绪（Phase 0），详细规范随 Phase 1 补充。</p>
+<p>Nuxt 3 前端实现约定；应用在 <code>apps/web/</code>，组件库在 <code>packages/ui-kit/</code>。</p>
+<h2>命名规范</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>格式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>索引</td>
+<td><code>README.md</code>（无编号）</td>
+<td>本文件</td>
+</tr>
+<tr>
+<td>正文</td>
+<td><code>NN-{主题}.md</code></td>
+<td><code>02-ui-kit-modules.md</code></td>
+</tr>
+<tr>
+<td>HTML</td>
+<td>与 md 同名（<code>make docs-html</code> 生成）</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p><code>NN</code> 为两位序号，表示<strong>推荐阅读顺序</strong>。新增文档占用下一空闲序号并更新下表。</p>
 <h2>技术栈</h2>
 <table>
 <thead>
@@ -97,58 +121,74 @@ article a { color: var(--accent); }
 <td>表单与 API 校验（Phase 1+）</td>
 </tr>
 </tbody></table>
-<h2>目录结构</h2>
-<pre><code>frontend/
-├── app.vue
-├── pages/
-├── components/          # base / ui / layout / feature
-├── composables/
-│   ├── use-api.ts       # API + JWT + X-Tenant-ID
-│   ├── use-auth.ts
-│   ├── use-tenant.ts
-│   └── use-permission.ts
-├── i18n/locales/        # zh-CN.json, en-US.json
-└── nuxt.config.ts
+<h2>Monorepo 目录</h2>
+<pre><code>apps/web/                 # @crm/web
+packages/ui-kit/          # @crm/ui-kit
 </code></pre>
-<h2>核心约定（草案）</h2>
+<p>根目录：<code>pnpm install</code> → <code>pnpm dev</code></p>
+<h2>文档索引（按阅读顺序）</h2>
 <table>
 <thead>
 <tr>
-<th>主题</th>
-<th>约定</th>
+<th>序号</th>
+<th>文档</th>
+<th>说明</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>多租户</td>
-<td><code>useTenant</code> 管理当前租户；<code>useApi</code> 自动带 <code>X-Tenant-ID</code></td>
+<td>01</td>
+<td><a href="./01-directory-structure.md">01-directory-structure.md</a></td>
+<td>应用目录速览</td>
 </tr>
 <tr>
-<td>权限</td>
-<td><code>usePermission().can(resource, action)</code> + <code>&lt;PermissionGuard&gt;</code></td>
+<td>02</td>
+<td><a href="./02-ui-kit-modules.md">02-ui-kit-modules.md</a></td>
+<td><strong>ui-kit 模块、双包模型、依赖、主题 bridge、排障</strong></td>
 </tr>
 <tr>
-<td>i18n</td>
-<td>key 使用英文；默认 <code>zh</code></td>
+<td>03</td>
+<td><a href="./03-design-system.md">03-design-system.md</a></td>
+<td>Token、主题、Chart/Card API</td>
 </tr>
 <tr>
-<td>命名</td>
-<td>组件 PascalCase；composables <code>useXxx</code>；文件 kebab-case</td>
+<td>04</td>
+<td><a href="./04-ux-design-guidelines.md">04-ux-design-guidelines.md</a></td>
+<td>UX、动效、检查清单</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="./05-component-scenarios.md">05-component-scenarios.md</a></td>
+<td>Card/Chart 场景登记</td>
 </tr>
 </tbody></table>
-<h2>待补充文档</h2>
-<ul>
-<li><input disabled="" type="checkbox"> <code>01-directory-structure.md</code></li>
-<li><input disabled="" type="checkbox"> <code>02-state-and-api.md</code></li>
-<li><input disabled="" type="checkbox"> <code>03-rbac-frontend.md</code></li>
-</ul>
+<h2>待补充（预留序号）</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>计划文档</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>06</td>
+<td><code>06-state-and-api.md</code></td>
+<td>前端状态与 API 封装</td>
+</tr>
+<tr>
+<td>07</td>
+<td><code>07-rbac-frontend.md</code></td>
+<td>权限 UI 与路由守卫</td>
+</tr>
+</tbody></table>
 <h2>相关文档</h2>
 <ul>
+<li><a href="../tasks/00-mvp-task-breakdown.md">MVP 任务清单</a></li>
 <li><a href="../api/00-api-design.md">API 设计</a></li>
-<li><a href="../architecture/01-multi-tenancy.md">多租户架构</a></li>
-<li><a href="../architecture/02-rbac-design.md">RBAC 设计</a></li>
+<li><a href="../architecture/01-multi-tenancy.md">多租户</a> · <a href="../architecture/02-rbac-design.md">RBAC</a></li>
 </ul>
 </article>
-      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../frontend-arch/README.md</p>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../frontend-arch\README.md</p>
     </main>
   </div>
   <script>

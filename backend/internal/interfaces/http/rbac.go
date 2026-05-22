@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 
+	"crm-backend/internal/application/audit"
 	rbacapp "crm-backend/internal/application/rbac"
 	"crm-backend/internal/pkg/response"
 	"crm-backend/internal/pkg/tenant"
@@ -11,12 +12,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewRBACHandlers(svc *rbacapp.Service) *RBACHandlers {
-	return &RBACHandlers{svc: svc}
+func NewRBACHandlers(svc *rbacapp.Service, rec *audit.Recorder) *RBACHandlers {
+	return &RBACHandlers{svc: svc, audit: rec}
 }
 
 type RBACHandlers struct {
-	svc *rbacapp.Service
+	svc   *rbacapp.Service
+	audit *audit.Recorder
 }
 
 func (h *RBACHandlers) ListPermissions(c *gin.Context) {
@@ -92,6 +94,9 @@ func (h *RBACHandlers) CreateRole(c *gin.Context) {
 		response.InternalError(c, "创建角色失败")
 		return
 	}
+	if rid, err := uuid.Parse(role.ID); err == nil {
+		recordAudit(c, h.audit, tenantID, "rbac.role.create", "role", &rid, role, nil)
+	}
 	response.Created(c, role)
 }
 
@@ -159,6 +164,7 @@ func (h *RBACHandlers) AssignRolePermissions(c *gin.Context) {
 		response.InternalError(c, "分配权限失败")
 		return
 	}
+	recordAudit(c, h.audit, tenantID, "rbac.role.set_permissions", "role", &roleID, role, nil)
 	response.Success(c, role)
 }
 
@@ -213,6 +219,7 @@ func (h *RBACHandlers) AssignUserRoles(c *gin.Context) {
 		response.InternalError(c, "分配角色失败")
 		return
 	}
+	recordAudit(c, h.audit, tenantID, "rbac.user.set_roles", "user", &userID, data, nil)
 	response.Success(c, data)
 }
 

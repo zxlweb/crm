@@ -1,0 +1,63 @@
+{
+  "name": "@crm/ui-kit",
+  "version": "0.1.0",
+  "description": "EnterpriseFlow CRM design system and chart components",
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": [
+    "**/*.css",
+    "**/*.vue"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/ui-kit.css",
+    "./tokens": {
+      "types": "./dist/tokens/index.d.ts",
+      "development": "./src/tokens/index.ts",
+      "import": "./dist/tokens/index.js"
+    },
+    "./nuxt": "./src/nuxt/module.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "echarts": "^6.0.0",
+    "nuxt": "^3.16.0",
+    "vue": "^3.5.0",
+    "vue-echarts": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "nuxt": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@nuxt/kit": "^3.16.2",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "echarts": "^6.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4",
+    "vue": "^3.5.13",
+    "vue-echarts": "^8.0.1",
+    "vue-tsc": "^2.2.10"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

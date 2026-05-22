@@ -12,6 +12,10 @@ Go + Gin + GORM + PostgreSQL + Casbin 多租户 CRM 后端。
 
 ## 快速开始
 
+### Windows：Go 与 PATH
+
+安装 [Go](https://go.dev/dl/) 后，将 `C:\Program Files\Go\bin` 加入**用户**或**系统**环境变量 `Path`（设置 → 系统 → 关于 → 高级系统设置 → 环境变量）。修改 PATH 后需**完全退出并重新打开 Cursor**（仅新开终端有时仍读不到旧环境）。也可在 `backend` 目录执行 `.\run.ps1` 启动，无需依赖全局 `go` 命令。若 `8080` 被占用，用 `netstat -ano | findstr :8080` 查 PID 后 `taskkill /PID <pid> /F` 再启动。
+
 ### 1. 环境变量
 
 ```bash
@@ -33,6 +37,12 @@ make migrate-status
 make run
 # 或
 go run ./cmd/api/
+```
+
+Windows（终端找不到 `go` 时）：
+
+```powershell
+.\run.ps1
 ```
 
 ### 4. 健康检查

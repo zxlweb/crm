@@ -1,10 +1,16 @@
 # 前端架构文档
 
-Nuxt 3 前端实现约定，与 `frontend/` 代码目录对应。
+Nuxt 3 前端实现约定；应用在 `apps/web/`，组件库在 `packages/ui-kit/`。
 
-## 当前状态
+## 命名规范
 
-脚手架已就绪（Phase 0），详细规范随 Phase 1 补充。
+| 类型 | 格式 | 示例 |
+|------|------|------|
+| 索引 | `README.md`（无编号） | 本文件 |
+| 正文 | `NN-{主题}.md` | `02-ui-kit-modules.md` |
+| HTML | 与 md 同名（`make docs-html` 生成） | — |
+
+`NN` 为两位序号，表示**推荐阅读顺序**。新增文档占用下一空闲序号并更新下表。
 
 ## 技术栈
 
@@ -17,46 +23,34 @@ Nuxt 3 前端实现约定，与 `frontend/` 代码目录对应。
 | Nuxt I18n | 中/英 |
 | Zod | 表单与 API 校验（Phase 1+） |
 
-## 目录结构
+## Monorepo 目录
 
 ```
-frontend/
-├── app.vue
-├── pages/
-├── components/          # base / ui / layout / feature
-├── composables/
-│   ├── use-api.ts       # API + JWT + X-Tenant-ID
-│   ├── use-auth.ts
-│   ├── use-tenant.ts
-│   └── use-permission.ts
-├── i18n/locales/        # zh-CN.json, en-US.json
-└── nuxt.config.ts
+apps/web/                 # @crm/web
+packages/ui-kit/          # @crm/ui-kit
 ```
 
-## 核心约定（草案）
+根目录：`pnpm install` → `pnpm dev`
 
-| 主题 | 约定 |
-|------|------|
-| 多租户 | `useTenant` 管理当前租户；`useApi` 自动带 `X-Tenant-ID` |
-| 权限 | `usePermission().can(resource, action)` + `<PermissionGuard>` |
-| i18n | key 使用英文；默认 `zh` |
-| 命名 | 组件 PascalCase；composables `useXxx`；文件 kebab-case |
+## 文档索引（按阅读顺序）
 
-## 文档索引
+| 序号 | 文档 | 说明 |
+|------|------|------|
+| 01 | [01-directory-structure.md](./01-directory-structure.md) | 应用目录速览 |
+| 02 | [02-ui-kit-modules.md](./02-ui-kit-modules.md) | **ui-kit 模块、双包模型、依赖、主题 bridge、排障** |
+| 03 | [03-design-system.md](./03-design-system.md) | Token、主题、Chart/Card API |
+| 04 | [04-ux-design-guidelines.md](./04-ux-design-guidelines.md) | UX、动效、检查清单 |
+| 05 | [05-component-scenarios.md](./05-component-scenarios.md) | Card/Chart 场景登记 |
 
-| 文档 | 说明 |
-|------|------|
-| [ux-design-guidelines.md](./ux-design-guidelines.md) | **UX 设计交互规范**（原则、布局、组件、动效、无障碍） |
-| [design-system.md](./design-system.md) | 设计系统 Token、双主题、图表组件 |
-| [01-directory-structure.md](./01-directory-structure.md) | 目录结构 |
+## 待补充（预留序号）
 
-## 待补充文档
-
-- [ ] `02-state-and-api.md`
-- [ ] `03-rbac-frontend.md`
+| 序号 | 计划文档 | 说明 |
+|------|----------|------|
+| 06 | `06-state-and-api.md` | 前端状态与 API 封装 |
+| 07 | `07-rbac-frontend.md` | 权限 UI 与路由守卫 |
 
 ## 相关文档
 
+- [MVP 任务清单](../tasks/00-mvp-task-breakdown.md)
 - [API 设计](../api/00-api-design.md)
-- [多租户架构](../architecture/01-multi-tenancy.md)
-- [RBAC 设计](../architecture/02-rbac-design.md)
+- [多租户](../architecture/01-multi-tenancy.md) · [RBAC](../architecture/02-rbac-design.md)

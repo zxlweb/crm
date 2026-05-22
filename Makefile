@@ -16,7 +16,8 @@ backend-test:
 	cd backend && make test
 
 frontend-test:
-	cd frontend && npm run test
+	pnpm --filter @crm/ui-kit test
+	pnpm --filter @crm/web test
 
 e2e-test:
 	cd e2e && npm install && npx playwright install chromium && npm test

@@ -1,7 +1,13 @@
 # Phase 1 笔记
 
 **时间**：2026-05-22  
-**当前**：1.1–1.3 已完成
+**当前**：1.1–1.5 实现完成；**QA 补测**见 [phase-1-qa.md](../qa/phase-1-qa.md)
+
+## 验收说明（重要）
+
+- **Phase 0 QA 通过** ≠ Phase 1 全量 E2E 通过；Phase 0 将 Casbin 端到端留给 Phase 1。
+- 此前本地验证以 **demo Super Admin 登录 → `/admin`** 为主，**未覆盖新用户注册进首页**。
+- 2026-05-22 补测发现注册链路三处缺陷（见 QA Bug #1–#4），已修；Casbin 全路由 Enforce 仍为技术债（QA Bug #3）。
 
 ## 1.1 登录 / Refresh（已完成）
 
@@ -40,10 +46,6 @@ curl -s -X POST http://localhost:8080/api/auth/login \
 # 平台概览（用返回的 access_token）
 curl -s http://localhost:8080/api/super-admin/overview \
   -H "Authorization: Bearer <token>" | jq
-
-# 租户列表
-curl -s "http://localhost:8080/api/super-admin/tenants?page=1&page_size=20" \
-  -H "Authorization: Bearer <token>" | jq
 ```
 
 前端：访问 `http://localhost:3000/login`，用 demo 账号登录后进入 `/admin`。
@@ -60,8 +62,19 @@ curl -s "http://localhost:8080/api/super-admin/tenants?page=1&page_size=20" \
 
 - `useRbac`、`PermissionGuard`、Super Admin 绕过
 - `/settings/roles` 角色管理页
-- 登录后加载 `my-permissions`
+- 登录/注册后加载 `my-permissions`（`finishSession`）
 
-### 下一步（1.6）
+### 注册链路修复（2026-05-22）
 
-- 审计日志基础记录
+| 项 | 文件 |
+|----|------|
+| `domain` 可选校验 | `apps/web/schemas/register.ts` |
+| `my-permissions` 403 | `backend/internal/interfaces/middleware/rbac.go`（GET 放行） |
+| 权限加载失败不阻断跳转 | `apps/web/pages/login.vue` |
+| E2E | `e2e/tests/phase1-auth.spec.ts` |
+
+### 下一步
+
+- [ ] Casbin 新租户 `Enforce` 根因（替代长期白名单）
+- [ ] 1.6 审计日志扩展（若未全覆盖写操作）
+- [ ] `docs/reviews/phase-1-review.md`

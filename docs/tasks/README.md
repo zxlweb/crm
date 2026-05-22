@@ -6,7 +6,7 @@
 
 | 文件 | 用途 |
 |------|------|
-| [00-mvp-task-breakdown.md](./00-mvp-task-breakdown.md) | **主清单**：Phase 0–4 勾选（唯一进度源） |
+| [00-mvp-task-breakdown.md](./00-mvp-task-breakdown.md) | **主清单**：Phase 0–4 勾选 + Chart/Card 与业务同步矩阵（唯一进度源） |
 
 ## 相关目录
 

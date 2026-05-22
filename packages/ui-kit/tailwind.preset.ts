@@ -1,0 +1,125 @@
+import type { Config } from 'tailwindcss'
+
+/**
+ * EnterpriseFlow 设计系统 Tailwind 预设
+ * 消费 packages/ui-kit/src/styles/design-system.css 中的 --ds-* 变量
+ */
+export default {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['var(--ds-font-sans)'],
+        mono: ['var(--ds-font-mono)'],
+      },
+      fontSize: {
+        'ds-xs': ['var(--ds-text-xs)', { lineHeight: 'var(--ds-leading-xs)' }],
+        'ds-sm': ['var(--ds-text-sm)', { lineHeight: 'var(--ds-leading-sm)' }],
+        'ds-base': ['var(--ds-text-base)', { lineHeight: 'var(--ds-leading-base)' }],
+        'ds-lg': ['var(--ds-text-lg)', { lineHeight: 'var(--ds-leading-lg)' }],
+        'ds-xl': ['var(--ds-text-xl)', { lineHeight: 'var(--ds-leading-xl)' }],
+        'ds-2xl': ['var(--ds-text-2xl)', { lineHeight: 'var(--ds-leading-2xl)' }],
+        'ds-3xl': ['var(--ds-text-3xl)', { lineHeight: 'var(--ds-leading-3xl)' }],
+        'ds-4xl': ['var(--ds-text-4xl)', { lineHeight: 'var(--ds-leading-4xl)' }],
+      },
+      fontWeight: {
+        'ds-normal': 'var(--ds-font-normal)',
+        'ds-medium': 'var(--ds-font-medium)',
+        'ds-semibold': 'var(--ds-font-semibold)',
+        'ds-bold': 'var(--ds-font-bold)',
+      },
+      spacing: {
+        'ds-0': 'var(--ds-space-0)',
+        'ds-1': 'var(--ds-space-1)',
+        'ds-2': 'var(--ds-space-2)',
+        'ds-3': 'var(--ds-space-3)',
+        'ds-4': 'var(--ds-space-4)',
+        'ds-5': 'var(--ds-space-5)',
+        'ds-6': 'var(--ds-space-6)',
+        'ds-8': 'var(--ds-space-8)',
+        'ds-10': 'var(--ds-space-10)',
+        'ds-12': 'var(--ds-space-12)',
+        'ds-16': 'var(--ds-space-16)',
+      },
+      borderRadius: {
+        'ds-none': 'var(--ds-radius-none)',
+        'ds-sm': 'var(--ds-radius-sm)',
+        'ds-md': 'var(--ds-radius-md)',
+        'ds-lg': 'var(--ds-radius-lg)',
+        'ds-xl': 'var(--ds-radius-xl)',
+        'ds-2xl': 'var(--ds-radius-2xl)',
+        'ds-full': 'var(--ds-radius-full)',
+      },
+      boxShadow: {
+        'ds-sm': 'var(--ds-shadow-sm)',
+        'ds-md': 'var(--ds-shadow-md)',
+        'ds-lg': 'var(--ds-shadow-lg)',
+        'ds-xl': 'var(--ds-shadow-xl)',
+        'ds-brand': 'var(--ds-brand-shadow)',
+        'ds-focus': 'var(--ds-shadow-focus)',
+      },
+      transitionDuration: {
+        'ds-fast': 'var(--ds-duration-fast)',
+        'ds-normal': 'var(--ds-duration-normal)',
+        'ds-slow': 'var(--ds-duration-slow)',
+        'ds-slower': 'var(--ds-duration-slower)',
+      },
+      transitionTimingFunction: {
+        'ds-default': 'var(--ds-ease-default)',
+        'ds-in': 'var(--ds-ease-in)',
+        'ds-out': 'var(--ds-ease-out)',
+        'ds-in-out': 'var(--ds-ease-in-out)',
+      },
+      zIndex: {
+        'ds-dropdown': 'var(--ds-z-dropdown)',
+        'ds-sticky': 'var(--ds-z-sticky)',
+        'ds-fixed': 'var(--ds-z-fixed)',
+        'ds-modal-backdrop': 'var(--ds-z-modal-backdrop)',
+        'ds-modal': 'var(--ds-z-modal)',
+        'ds-popover': 'var(--ds-z-popover)',
+        'ds-tooltip': 'var(--ds-z-tooltip)',
+        'ds-toast': 'var(--ds-z-toast)',
+      },
+      maxWidth: {
+        'ds-content': 'var(--ds-content-max)',
+      },
+      width: {
+        'ds-sidebar': 'var(--ds-sidebar-width)',
+      },
+      height: {
+        'ds-topbar': 'var(--ds-topbar-height)',
+        'ds-input': 'var(--ds-input-height)',
+        'ds-btn-sm': 'var(--ds-button-height-sm)',
+        'ds-btn-md': 'var(--ds-button-height-md)',
+        'ds-btn-lg': 'var(--ds-button-height-lg)',
+      },
+      colors: {
+        ds: {
+          bg: 'var(--ds-bg)',
+          'bg-elevated': 'var(--ds-bg-elevated)',
+          'bg-muted': 'var(--ds-bg-muted)',
+          'bg-input': 'var(--ds-bg-input)',
+          'bg-sidebar': 'var(--ds-bg-sidebar)',
+          'bg-topbar': 'var(--ds-bg-topbar)',
+          'brand-subtle': 'var(--ds-bg-brand-subtle)',
+          'success-subtle': 'var(--ds-bg-success-subtle)',
+          'danger-subtle': 'var(--ds-bg-danger-subtle)',
+          fg: 'var(--ds-fg)',
+          'fg-heading': 'var(--ds-fg-heading)',
+          'fg-muted': 'var(--ds-fg-muted)',
+          'fg-subtle': 'var(--ds-fg-subtle)',
+          'fg-brand': 'var(--ds-fg-brand)',
+          'fg-nav': 'var(--ds-fg-nav)',
+          'fg-nav-active': 'var(--ds-fg-nav-active)',
+          'on-brand': 'var(--ds-fg-on-brand)',
+          border: 'var(--ds-border)',
+          'border-muted': 'var(--ds-border-muted)',
+          brand: 'var(--ds-brand)',
+          'brand-hover': 'var(--ds-brand-hover)',
+          'brand-muted': 'var(--ds-brand-muted)',
+          success: 'var(--ds-success)',
+          danger: 'var(--ds-danger)',
+        },
+      },
+    },
+  },
+} satisfies Partial<Config>

@@ -6,7 +6,7 @@ alwaysApply: true
 你正在开发一个企业级 B2B CRM 系统。
 
 **技术栈要求（必须严格遵守）：**
-- Frontend: Nuxt 3 (Vue 3 + Composition API), TypeScript, Tailwind CSS, Zod, Pinia, Nuxt I18n
+- Frontend: Nuxt 3 (Vue 3 + Composition API), TypeScript, Tailwind CSS, Zod, Pinia, Nuxt I18n；路由 **HTML5 History**（禁止 hash）；基础 UI 在 Element Plus / PrimeVue / @nuxt/ui 上由 `@crm/ui-kit` 二次封装
 - Backend: Go (最新版本), PostgreSQL, Gin / Fiber / Echo (推荐 Gin), GORM 或 sqlc + pgx，Casbin 作为权限引擎
 - 核心特性: 多租户 (Tenant)，RBAC 权限系统，i18n (支持中文/英文)
 
@@ -37,6 +37,12 @@ alwaysApply: true
 **文档协作规则：**
 - 新模块：**PRD → API → 编码**；有架构取舍则补 **ADR**（Accepted 后不可改正文）
 - 任务进度：**只改** `docs/tasks/00-mvp-task-breakdown.md`；阶段笔记写 `docs/meeting-notes/`
+
+**三轨并行（Implementation，防越轨）：**
+- 多对话框时首条消息必须声明轨道：`【BE】` / `【FE】` / `【QA】`（细则见 `docs/tasks/parallel-implementation.md`）
+- **任务表** `00-mvp-task-breakdown.md` 并行表 `[BE]|[FE]|[QA]`：**只改本轨那一列**的 `⬜/🟡/✅`；**禁止**替其他轨标完成、禁止擅自勾选「业务汇总」整行（除非用户明确要求或 PM 角色）
+- **代码目录**：BE → `backend/`；FE → `apps/web/`、`packages/ui-kit/`；QA → `e2e/`、`tests/` 与测试文件（勿改业务 Handler/Vue 实现）
+- 开工时 `@` 对应规则：`backend-developer` / `frontend-developer` / `qa-tester` + `development-workflow`
 - QA / Review：**从 templates 复制** → 分别写入 `docs/qa/`、`docs/reviews/`（勿放在 tasks/）
 - 子目录新增文档时，**同步更新该目录 README.md 索引表**
 
@@ -61,11 +67,12 @@ alwaysApply: true
   - 重要决策记录（ADR → `docs/architecture/adr/`，使用 `0000-template.md`）
   - 执行 `make docs-html` 同步 HTML 预览
 - **禁止**：代码大规模开发完成后再补文档（避免文档债务）
+- **一功能一文档（每类仅一个 `.md`）**：每个功能/模块在 `docs/` 各子目录（`prd/`、`api/`、`frontend-arch/`、`backend-arch/`、`qa/`、`reviews/` 等）下，**每种文档类型只保留一个** Markdown，以模块 slug 命名（如 `{模块}-prd.md`、`{模块}-api.md`、`{模块}-qa.md`）；增量内容**合并进该唯一文件**（用章节区分），**禁止**同一功能在同类目录下拆成多个 `.md`。例外：`00-*` 总览、`README.md`、ADR 编号系列、`templates/`、按日期/阶段的 `meeting-notes/`。
 
 ### 2. 迭代开发节奏
 1. Product Manager → 模块详细 PRD
 2. Software Architect / Frontend Architect → 必要设计补充
-3. Backend Developer + Frontend Developer → 实现
+3. Backend Developer + Frontend Developer → 实现（可三轨并行，见上「三轨并行」）
 4. QA Tester → Review + 测试点
 5. 文档更新 & Lessons Learned
 
