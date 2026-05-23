@@ -1,7 +1,7 @@
 <template>
   <aside class="hidden w-64 shrink-0 flex-col border-r border-ds-border bg-ds-bg-sidebar lg:flex">
     <div class="flex h-16 items-center gap-2.5 border-b border-ds-border-muted px-6">
-      <div class="ds-brand-gradient flex h-9 w-9 items-center justify-center rounded-xl ds-brand-shadow">
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-ds-brand shadow-ds-sm">
         <svg class="h-5 w-5 text-ds-on-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
@@ -13,6 +13,17 @@
     </div>
 
     <nav class="flex-1 space-y-1 p-4">
+      <NuxtLink
+        to="/"
+        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200"
+        :class="isHomeActive ? 'ds-nav-active' : 'text-ds-fg-nav hover:bg-ds-bg-muted hover:text-ds-fg-nav-active'"
+      >
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        {{ $t('crmNavDashboard') }}
+      </NuxtLink>
+
       <NuxtLink
         to="/leads"
         class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200"
@@ -50,15 +61,6 @@
       <div class="px-1">
         <UiThemeToggle />
       </div>
-      <NuxtLink
-        to="/"
-        class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-ds-fg-nav transition-colors hover:bg-ds-bg-muted hover:text-ds-fg-nav-active"
-      >
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        {{ $t('backToApp') }}
-      </NuxtLink>
     </div>
   </aside>
 </template>
@@ -66,6 +68,7 @@
 <script setup lang="ts">
 const route = useRoute()
 
+const isHomeActive = computed(() => route.path === '/')
 const isLeadsActive = computed(() => route.path.startsWith('/leads'))
 const isAccountsActive = computed(() => route.path.startsWith('/accounts'))
 </script>

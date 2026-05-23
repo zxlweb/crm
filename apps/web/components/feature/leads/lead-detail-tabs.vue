@@ -1,11 +1,14 @@
 <template>
   <div>
-    <UiTabs
-      :model-value="modelValue"
-      :items="tabs"
-      class="mb-6"
-      @update:model-value="$emit('update:modelValue', $event as LeadDetailTab)"
-    />
+    <div
+      class="sticky top-0 z-10 -mx-1 mb-4 rounded-xl border border-ds-border/80 bg-ds-bg/90 px-1 py-2 backdrop-blur-md supports-[backdrop-filter]:bg-ds-bg/75"
+    >
+      <UiTabs
+        :model-value="modelValue"
+        :items="tabs"
+        @update:model-value="$emit('update:modelValue', $event as LeadDetailTab)"
+      />
+    </div>
 
     <div class="py-2" role="tabpanel">
       <Transition
@@ -17,10 +20,7 @@
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
       >
-        <div v-if="modelValue === 'overview'" key="overview">
-          <slot name="overview" />
-        </div>
-        <div v-else-if="modelValue === 'timeline'" key="timeline">
+        <div v-if="modelValue === 'timeline'" key="timeline">
           <slot name="timeline" />
         </div>
         <div v-else-if="modelValue === 'emotion'" key="emotion">
@@ -45,10 +45,7 @@ defineEmits<{
 const { t } = useI18n()
 
 const tabs = computed(() => [
-  { id: 'overview' as const, label: t('leadsTabOverview') },
   { id: 'timeline' as const, label: t('leadsTabTimeline') },
   { id: 'emotion' as const, label: t('leadsTabEmotion') },
 ])
-
-/** QA: emotion tab — pages/leads/[id].vue 内保留 data-testid="tab-emotion-journey" 于 slot */
 </script>

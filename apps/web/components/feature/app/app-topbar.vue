@@ -1,7 +1,7 @@
 <template>
   <header class="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-ds-border bg-ds-bg-topbar px-6 backdrop-blur-md lg:px-8">
     <div class="min-w-0">
-      <p class="text-xs font-medium text-ds-fg-brand">{{ $t('crmBreadcrumb') }}</p>
+      <p class="text-xs font-medium uppercase tracking-wide text-ds-fg-muted">{{ $t('crmBreadcrumb') }}</p>
       <h1 class="truncate text-lg font-semibold text-ds-fg-heading">{{ pageTitle }}</h1>
     </div>
     <div class="flex items-center gap-3">
@@ -21,6 +21,9 @@ const auth = useAuth()
 const leads = useLeads()
 
 const pageTitle = computed(() => {
+  if (route.path === '/') {
+    return t('dashboardPageTitle')
+  }
   if (route.path.startsWith('/accounts/') && route.params.id) {
     return t('accountsDetailTitle')
   }

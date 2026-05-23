@@ -1,14 +1,16 @@
 <template>
   <PermissionGuard resource="accounts" action="view">
-    <div class="space-y-6" data-testid="accounts-page">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="text-xs font-medium text-ds-fg-brand">{{ $t('accountsPageLabel') }}</p>
-          <h2 class="text-xl font-bold text-ds-fg-heading">{{ $t('accountsPageTitle') }}</h2>
-          <p class="mt-1 text-sm text-ds-fg-muted">{{ $t('accountsPageDescApi') }}</p>
-        </div>
+    <div class="space-y-4" data-testid="accounts-page">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="max-w-2xl text-sm text-ds-fg-muted">
+          {{ $t('accountsPageDescApi') }}
+        </p>
         <UiButton
           v-if="canCreate"
+          variant="secondary"
+          size="sm"
+          class="shrink-0"
+          icon="i-heroicons-plus-20-solid"
           data-testid="account-create-btn"
           :loading="saving"
           @click="openCreate"
@@ -24,37 +26,47 @@
       <UAlert v-else-if="loadError" color="red" variant="soft" :title="loadError" />
 
       <template v-else>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <UiInput
-            v-model="search"
-            type="search"
-            class="flex-1"
-            :placeholder="$t('accountsSearchPlaceholder')"
-            @keyup.enter="reload"
-          />
-          <UiSelect
-            v-model="lifecycleFilter"
-            class="sm:w-48"
-            :items="lifecycleSelectItems"
-            :placeholder="$t('accountsFilterAllLifecycle')"
-          />
-          <UiSelect
-            v-model="healthFilter"
-            class="sm:w-48"
-            :items="healthSelectItems"
-            :placeholder="$t('accountsFilterAllHealth')"
-          />
-        </div>
-
         <AccountsListTable
           :items="items"
           :can-edit="canUpdate"
           @edit="openEdit"
-        />
-
-        <p v-if="pagination" class="text-xs text-ds-fg-muted">
-          {{ $t('adminShowing', { count: items.length, total: pagination.total }) }}
-        </p>
+        >
+          <template #toolbar>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <UiInput
+                v-model="search"
+                search
+                type="search"
+                class="flex-1"
+                :placeholder="$t('accountsSearchPlaceholder')"
+                @keyup.enter="onSearch"
+              />
+              <UiSelect
+                v-model="lifecycleFilter"
+                class="sm:w-48"
+                :items="lifecycleSelectItems"
+                :placeholder="$t('accountsFilterAllLifecycle')"
+              />
+              <UiSelect
+                v-model="healthFilter"
+                class="sm:w-48"
+                :items="healthSelectItems"
+                :placeholder="$t('accountsFilterAllHealth')"
+              />
+            </div>
+          </template>
+          <template v-if="pagination && pagination.total > 0" #footer>
+            <UiTablePagination
+              :page="page"
+              :page-size="pagination.page_size"
+              :total="pagination.total"
+              :range-text="tableRangeLabel"
+              :prev-label="$t('paginationPrev')"
+              :next-label="$t('paginationNext')"
+              @update:page="onPageChange"
+            />
+          </template>
+        </AccountsListTable>
       </template>
 
       <UiModal v-model:open="formOpen" :title="formTitle">
@@ -107,8 +119,11 @@ const accountsApi = useAccounts()
 const lifecycleOptions: LifecycleStage[] = ['acquire', 'activate', 'grow', 'retain', 'revive']
 const healthOptions: RelationshipHealth[] = ['high', 'medium', 'low']
 
+const LIST_PAGE_SIZE = 10
+
+const page = ref(1)
 const items = ref<Account[]>([])
-const pagination = ref<{ total: number } | null>(null)
+const pagination = ref<{ page: number; page_size: number; total: number } | null>(null)
 const pending = ref(true)
 const loadError = ref('')
 const search = ref('')
@@ -185,6 +200,24 @@ function formatLoadError(e: unknown): string {
   return msg
 }
 
+const tableRangeLabel = computed(() => {
+  if (!pagination.value?.total) return ''
+  const { page: p, page_size: size, total } = pagination.value
+  const start = (p - 1) * size + 1
+  const end = Math.min(p * size, total)
+  return t('tableShowingRange', { start, end, total })
+})
+
+function onSearch() {
+  page.value = 1
+  reload()
+}
+
+function onPageChange(next: number) {
+  page.value = next
+  reload()
+}
+
 async function reload() {
   const tenant = useTenant()
   if (!tenant.currentTenantId.value) {
@@ -196,13 +229,16 @@ async function reload() {
   pending.value = true
   loadError.value = ''
   try {
-    const { data, pagination: page } = await accountsApi.fetchList({
+    const { data, pagination: pageMeta } = await accountsApi.fetchList({
+      page: page.value,
+      page_size: LIST_PAGE_SIZE,
       search: search.value || undefined,
       lifecycle_stage: (lifecycleFilter.value || undefined) as LifecycleStage | undefined,
       relationship_health: (healthFilter.value || undefined) as RelationshipHealth | undefined,
     })
     items.value = data.items
-    pagination.value = page
+    pagination.value = pageMeta
+    page.value = pageMeta.page
   } catch (e) {
     loadError.value = formatLoadError(e)
   } finally {
@@ -237,7 +273,19 @@ async function submitForm() {
   }
 }
 
-watch([lifecycleFilter, healthFilter], () => reload())
+watch([lifecycleFilter, healthFilter], () => {
+  page.value = 1
+  reload()
+})
 
-onMounted(reload)
+function applyRouteQuery() {
+  if (route.query.create === '1' && canCreate.value) {
+    openCreate()
+  }
+}
+
+onMounted(() => {
+  applyRouteQuery()
+  reload()
+})
 </script>

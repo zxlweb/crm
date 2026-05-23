@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6" data-testid="emotion-journey-map">
+  <div class="space-y-6" :class="embedded ? 'space-y-4' : 'space-y-6'" data-testid="emotion-journey-map">
     <div v-if="pending" class="flex justify-center py-16">
       <UIcon name="i-heroicons-arrow-path" class="h-8 w-8 animate-spin text-primary" />
     </div>
@@ -7,48 +7,84 @@
     <UAlert v-else-if="loadError" color="red" variant="soft" :title="loadError" />
 
     <template v-else-if="journey">
-      <div class="flex flex-wrap items-center gap-3">
-        <span
-          v-if="journey.summary.current_sentiment"
-          class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
-          :class="sentimentTone(journey.summary.current_sentiment)"
-        >
-          <UiSentimentEmoji
-            :sentiment="journey.summary.current_sentiment"
-            size="md"
-            :label="$t(`sentiment.${journey.summary.current_sentiment}`)"
-          />
-          {{ $t('emotionCurrentSentiment') }}：{{ $t(`sentiment.${journey.summary.current_sentiment}`) }}
-        </span>
-        <span class="inline-flex items-center rounded-full bg-ds-bg-muted px-3 py-1 text-xs font-medium text-ds-fg-muted">
-          {{ $t('emotionTrendLabel') }}：{{ $t(`emotionTrend.${journey.summary.trend}`) }}
-        </span>
-        <span
-          v-if="journey.summary.days_since_positive != null"
-          class="text-xs text-ds-fg-muted"
-        >
-          {{ $t('emotionDaysSincePositive', { days: journey.summary.days_since_positive }) }}
-        </span>
-        <UBadge v-if="showDemoBadge" color="amber" variant="subtle" size="sm">
-          {{ $t('emotionDemoData') }}
-        </UBadge>
-      </div>
-
-      <div v-if="journey.lifecycle_bands.length" class="space-y-2">
-        <p class="text-xs font-medium uppercase tracking-wide text-ds-fg-muted">{{ $t('emotionLifecycleBands') }}</p>
-        <div class="flex h-2 overflow-hidden rounded-full bg-ds-bg-muted">
-          <div
-            v-for="(band, idx) in journey.lifecycle_bands"
-            :key="`${band.stage}-${idx}`"
-            class="h-full min-w-[2rem] flex-1"
-            :class="lifecycleBandClass(band.stage)"
-            :title="$t(`lifecycle.${band.stage}`)"
-          />
-        </div>
-        <div class="flex flex-wrap gap-2 text-xs text-ds-fg-subtle">
-          <span v-for="band in journey.lifecycle_bands" :key="band.stage">
-            {{ $t(`lifecycle.${band.stage}`) }}
+      <div
+        class="gap-3"
+        :class="
+          embedded
+            ? 'flex flex-col sm:flex-row sm:items-center sm:gap-4'
+            : 'flex flex-col gap-4'
+        "
+      >
+        <div class="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0">
+          <span
+            v-if="journey.summary.current_sentiment"
+            class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+            :class="sentimentTone(journey.summary.current_sentiment)"
+          >
+      
+            {{ $t('emotionCurrentSentiment') }}：{{ $t(`sentiment.${journey.summary.current_sentiment}`) }}
           </span>
+          <span class="inline-flex items-center rounded-full bg-ds-bg-muted px-3 py-1 text-xs font-medium text-ds-fg-muted">
+            {{ $t('emotionTrendLabel') }}：{{ $t(`emotionTrend.${journey.summary.trend}`) }}
+          </span>
+          <span
+            v-if="journey.summary.days_since_positive != null"
+            class="text-xs text-ds-fg-muted"
+          >
+            {{ $t('emotionDaysSincePositive', { days: journey.summary.days_since_positive }) }}
+          </span>
+     
+        </div>
+
+        <div
+          v-if="journey.lifecycle_bands.length"
+          class="min-w-0 space-y-1.5"
+          :class="embedded ? 'flex-1 sm:border-l sm:border-ds-border sm:pl-4' : 'w-full'"
+        >
+          <div class="flex items-center gap-2">
+            <p
+              class="shrink-0 text-xs font-medium text-ds-fg-muted"
+              :class="embedded ? '' : 'uppercase tracking-wide'"
+            >
+              {{ $t('emotionLifecycleBands') }}
+            </p>
+            <div
+              class="flex h-3 min-w-0 flex-1 overflow-hidden rounded-full bg-ds-bg-muted"
+              role="img"
+              :aria-label="$t('emotionLifecycleBands')"
+            >
+              <div
+                v-for="(band, idx) in proportionalBands"
+                :key="`${band.stage}-${idx}`"
+                class="h-full shrink-0 transition-all duration-300"
+                :class="lifecycleBandClass(band.stage)"
+                :style="{ width: `${band.percent}%` }"
+                :title="bandTooltip(band)"
+              />
+            </div>
+            <span
+              v-if="embedded && proportionalBands.length === 1"
+              class="inline-flex shrink-0 items-center gap-1 text-xs text-ds-fg-subtle"
+            >
+              <span class="h-2 w-2 rounded-full" :class="lifecycleBandClass(proportionalBands[0].stage)" />
+              {{ $t(`lifecycle.${proportionalBands[0].stage}`) }}
+              <span class="text-ds-fg-muted">({{ proportionalBands[0].percent }}%)</span>
+            </span>
+          </div>
+          <div
+            v-if="!embedded || proportionalBands.length > 1"
+            class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-ds-fg-subtle"
+          >
+            <span
+              v-for="band in proportionalBands"
+              :key="`legend-${band.stage}-${band.from}`"
+              class="inline-flex items-center gap-1.5"
+            >
+              <span class="h-2 w-2 rounded-full" :class="lifecycleBandClass(band.stage)" />
+              {{ $t(`lifecycle.${band.stage}`) }}
+              <span class="text-ds-fg-muted">({{ band.percent }}%)</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -58,19 +94,23 @@
       </div>
 
       <template v-else>
-        <CardShell :title="$t('emotionJourneyChartTitle')" class="rounded-2xl">
+        <div :class="embedded ? '' : ''">
+          <p v-if="!embedded" class="mb-3 text-sm font-semibold text-ds-fg-heading">
+            {{ $t('emotionJourneyChartTitle') }}
+          </p>
           <ChartLine
             :categories="chartCategories"
             :series="chartSeries"
-            :height="240"
+            :height="chartHeight"
             :y-formatter="yAxisLabelFormatter"
             :y-min="-2"
             :y-max="2"
             :y-interval="1"
             :point-emojis="chartPointEmojis"
             :point-labels="chartPointLabels"
+            :show-area="true"
           />
-        </CardShell>
+        </div>
 
         <section v-if="!hideTouchpoints">
           <h4 class="mb-3 text-sm font-semibold text-ds-fg-heading">{{ $t('emotionTouchpoints') }}</h4>
@@ -129,8 +169,15 @@ const props = withDefaults(
     subjectId: string
     /** 与时间线合并展示时隐藏触点列表，避免重复 */
     hideTouchpoints?: boolean
+    chartHeight?: number
+    /** 仅 Preview / 演示租户显示「演示数据」标签 */
+    demoBadgeOnlyWhenPreview?: boolean
+    /** 嵌入决策面板：不包 Chart CardShell */
+    embedded?: boolean
+    /** 时间范围，变更时重新拉取 */
+    range?: '30d' | '90d' | 'all'
   }>(),
-  { hideTouchpoints: false },
+  { hideTouchpoints: false, chartHeight: 280, demoBadgeOnlyWhenPreview: true, embedded: false },
 )
 
 const { t, locale } = useI18n()
@@ -141,9 +188,37 @@ const pending = ref(true)
 const loadError = ref('')
 const usingDemoFixture = ref(false)
 
-const showDemoBadge = computed(
-  () => usingDemoFixture.value || emotionApi.isPreview.value,
-)
+const showDemoBadge = computed(() => {
+  if (!props.demoBadgeOnlyWhenPreview) {
+    return usingDemoFixture.value
+  }
+  return usingDemoFixture.value && emotionApi.isPreview.value
+})
+
+type BandWithPercent = EmotionJourney['lifecycle_bands'][number] & { percent: number }
+
+const proportionalBands = computed<BandWithPercent[]>(() => {
+  if (!journey.value?.lifecycle_bands.length) return []
+  const bands = journey.value.lifecycle_bands
+  const spans = bands.map((b) => {
+    const ms = Math.max(new Date(b.to).getTime() - new Date(b.from).getTime(), 86400000)
+    return ms
+  })
+  const total = spans.reduce((a, b) => a + b, 0) || 1
+  const raw = bands.map((band, i) => ({
+    ...band,
+    percent: Math.round((spans[i] / total) * 100),
+  }))
+  const sum = raw.reduce((a, b) => a + b.percent, 0) || 1
+  return raw.map((band) => ({
+    ...band,
+    percent: Math.max(6, Math.round((band.percent / sum) * 100)),
+  }))
+})
+
+function bandTooltip(band: BandWithPercent) {
+  return `${t(`lifecycle.${band.stage}`)} · ${formatAt(band.from, true)} – ${formatAt(band.to, true)}`
+}
 
 const sortedPoints = computed(() => {
   if (!journey.value) return []
@@ -234,6 +309,7 @@ async function load() {
     const { journey: data, fromFixture } = await emotionApi.fetchJourney(
       props.subjectType,
       props.subjectId,
+      { range: props.range ?? '90d' },
     )
     journey.value = data
     usingDemoFixture.value = fromFixture
@@ -244,5 +320,5 @@ async function load() {
   }
 }
 
-watch(() => [props.subjectType, props.subjectId], load, { immediate: true })
+watch(() => [props.subjectType, props.subjectId, props.range], load, { immediate: true })
 </script>

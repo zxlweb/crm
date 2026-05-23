@@ -73,5 +73,11 @@ export type LeadUpdateInput = Partial<LeadCreateInput> & {
   status?: LeadStatus
 }
 
-/** @deprecated 线索详情已合并为 lead-relationship-hub；账户详情仍可能使用 */
-export type LeadDetailTab = 'overview' | 'timeline' | 'emotion'
+export type LeadConvertInput = {
+  account_id?: string
+  contact_id?: string
+  create_account?: { name: string }
+}
+
+/** 线索详情 Tab（无概览，信息集中在头部 + KPI） */
+export type LeadDetailTab = 'timeline' | 'emotion'

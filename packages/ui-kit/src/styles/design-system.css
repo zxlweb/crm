@@ -102,6 +102,12 @@
   --ds-metric-tint-calendar-fg: #0891b2;
   --ds-metric-tint-accent-bg: #fef9c3;
   --ds-metric-tint-accent-fg: #ca8a04;
+
+  /* AI 模块专属色（与主品牌分离，Phase 1 起保留紫系） */
+  --ds-ai-brand: #7c3aed;
+  --ds-ai-brand-hover: #6d28d9;
+  --ds-ai-brand-subtle: #ede9fe;
+  --ds-ai-gradient: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
 }
 
 /* ─── V1 浅色紫（默认） ─── */
@@ -114,11 +120,13 @@
   --ds-bg-sidebar: #ffffff;
   --ds-bg-topbar: rgba(255, 255, 255, 0.8);
   --ds-bg-brand-panel: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 50%, #fdf4ff 100%);
-  --ds-bg-insight: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  --ds-bg-insight: var(--ds-ai-gradient);
   --ds-bg-active-nav: #f5f3ff;
   --ds-bg-brand-subtle: #ede9fe;
+  --ds-bg-info-subtle: #f0f9ff;
+  --ds-bg-warning-subtle: #fffbeb;
   --ds-bg-success-subtle: #ecfdf5;
-  --ds-bg-danger-subtle: #fef2f2;
+  --ds-bg-danger-subtle: #fff1f2;
 
   --ds-fg: #1e293b;
   --ds-fg-heading: #2e1065;
@@ -127,7 +135,7 @@
   --ds-fg-on-brand: #ffffff;
   --ds-fg-brand: #6d28d9;
   --ds-fg-success: #059669;
-  --ds-fg-danger: #b91c1c;
+  --ds-fg-danger: #e11d48;
   --ds-fg-nav: #475569;
   --ds-fg-nav-active: #6d28d9;
 
@@ -141,8 +149,10 @@
   --ds-brand-gradient: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
   --ds-brand-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.25);
 
+  --ds-info: #0284c7;
+  --ds-warning: #d97706;
   --ds-success: #059669;
-  --ds-danger: #b91c1c;
+  --ds-danger: #e11d48;
 
   --ds-chart-grid: #f5f3ff;
   --ds-chart-area-start: rgba(167, 139, 250, 0.28);
@@ -167,7 +177,6 @@
   --ds-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
   --ds-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
   --ds-shadow-xl: 0 20px 48px rgba(124, 58, 237, 0.12);
-  /* 输入 focus 环：2px + 低透明度，避免过重紫晕 */
   --ds-shadow-focus: 0 0 0 2px color-mix(in srgb, var(--ds-brand) 12%, transparent);
 
   --ds-metric-tint-info-bg: #eff6ff;
@@ -192,8 +201,10 @@
   --ds-bg-insight: linear-gradient(135deg, rgba(88, 28, 135, 0.5) 0%, rgba(46, 16, 101, 0.8) 100%);
   --ds-bg-active-nav: rgba(124, 58, 237, 0.1);
   --ds-bg-brand-subtle: rgba(124, 58, 237, 0.15);
+  --ds-bg-info-subtle: rgba(14, 165, 233, 0.12);
+  --ds-bg-warning-subtle: rgba(245, 158, 11, 0.12);
   --ds-bg-success-subtle: rgba(16, 185, 129, 0.15);
-  --ds-bg-danger-subtle: rgba(239, 68, 68, 0.1);
+  --ds-bg-danger-subtle: rgba(251, 113, 133, 0.12);
 
   --ds-fg: #f4f4f5;
   --ds-fg-heading: #ffffff;
@@ -202,7 +213,7 @@
   --ds-fg-on-brand: #ffffff;
   --ds-fg-brand: #c4b5fd;
   --ds-fg-success: #34d399;
-  --ds-fg-danger: #f87171;
+  --ds-fg-danger: #fb7185;
   --ds-fg-nav: #a1a1aa;
   --ds-fg-nav-active: #c4b5fd;
 
@@ -216,8 +227,10 @@
   --ds-brand-gradient: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
   --ds-brand-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.35);
 
+  --ds-info: #38bdf8;
+  --ds-warning: #fbbf24;
   --ds-success: #34d399;
-  --ds-danger: #f87171;
+  --ds-danger: #fb7185;
 
   --ds-chart-grid: rgba(255, 255, 255, 0.05);
   --ds-chart-area-start: rgba(124, 58, 237, 0.38);
@@ -302,6 +315,24 @@
   background-color: var(--ds-brand-hover);
 }
 
+.ds-btn-secondary {
+  background-color: var(--ds-bg-elevated);
+  color: var(--ds-fg-muted);
+  border: 1px solid var(--ds-border);
+}
+
+.ds-btn-secondary:hover:not(:disabled) {
+  background-color: var(--ds-bg-muted);
+  color: var(--ds-fg);
+}
+
+.ds-panel-ai {
+  background-color: var(--ds-bg-elevated);
+  border: 1px solid var(--ds-border);
+  border-left-width: 3px;
+  border-left-color: var(--ds-ai-brand);
+}
+
 .ds-card {
   background-color: var(--ds-bg-elevated);
   border: var(--ds-border-width) solid var(--ds-border);
@@ -343,11 +374,30 @@
   transition-timing-function: var(--ds-ease-default);
 }
 
-/* ─── Card · dashboard 场景（CardMetric：左圆标 + 底栏同比） ─── */
+/* ─── Card · dashboard 场景（CardMetric：左方标 + 底栏同比） ─── */
 .ds-card-metric {
   display: flex;
   flex-direction: column;
-  gap: var(--ds-space-4);
+  border-color: color-mix(in srgb, var(--ds-border) 80%, transparent);
+}
+
+.ds-card-metric__body {
+  flex: 1 1 auto;
+}
+
+.ds-card-metric__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ds-space-2);
+  margin-top: var(--ds-space-3);
+  padding-top: var(--ds-space-3);
+  border-top: 1px solid var(--ds-border-muted);
+}
+
+.ds-card-metric--compact .ds-card-metric__footer {
+  margin-top: var(--ds-space-2);
+  padding-top: var(--ds-space-2);
 }
 
 .ds-card-metric__icon {
@@ -357,42 +407,78 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: var(--ds-radius-full);
+  border-radius: var(--ds-radius-xl);
+  border: 1px solid transparent;
+}
+
+.ds-card-metric__icon--sm {
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: var(--ds-radius-lg);
+}
+
+.ds-card-metric__icon--sm :deep(svg) {
+  height: 1.125rem;
+  width: 1.125rem;
 }
 
 .ds-card-metric__icon[data-tone='info'] {
   background: var(--ds-metric-tint-info-bg);
   color: var(--ds-metric-tint-info-fg);
+  border-color: color-mix(in srgb, var(--ds-metric-tint-info-fg) 18%, transparent);
 }
 
 .ds-card-metric__icon[data-tone='calendar'] {
   background: var(--ds-metric-tint-calendar-bg);
   color: var(--ds-metric-tint-calendar-fg);
+  border-color: color-mix(in srgb, var(--ds-metric-tint-calendar-fg) 18%, transparent);
 }
 
 .ds-card-metric__icon[data-tone='accent'] {
   background: var(--ds-metric-tint-accent-bg);
   color: var(--ds-metric-tint-accent-fg);
+  border-color: color-mix(in srgb, var(--ds-metric-tint-accent-fg) 18%, transparent);
 }
 
 .ds-card-metric__icon[data-tone='brand'] {
-  background: var(--ds-bg-brand-subtle);
-  color: var(--ds-fg-brand);
+  background: var(--ds-brand-gradient);
+  color: var(--ds-fg-on-brand);
+  border-color: transparent;
+  box-shadow: var(--ds-brand-shadow);
 }
 
 .ds-card-metric__icon[data-tone='neutral'] {
   background: var(--ds-bg-muted);
   color: var(--ds-fg-muted);
+  border-color: var(--ds-border);
+}
+
+.ds-card-metric__trend {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--ds-radius-full);
+  padding: 0.125rem 0.5rem;
+  font-size: var(--ds-text-xs);
+  font-weight: var(--ds-font-semibold);
+  line-height: 1.25;
+}
+
+.ds-card-metric__trend--compact {
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.625rem;
 }
 
 .ds-card-metric__trend--up {
+  background: var(--ds-bg-success-subtle);
   color: var(--ds-success);
 }
 
 .ds-card-metric__trend--down {
+  background: var(--ds-bg-danger-subtle);
   color: var(--ds-danger);
 }
 
 .ds-card-metric__trend--flat {
+  background: var(--ds-bg-muted);
   color: var(--ds-fg-muted);
 }

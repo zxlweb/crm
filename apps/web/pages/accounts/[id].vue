@@ -159,7 +159,9 @@ const lifecycleOptions: LifecycleStage[] = ['acquire', 'activate', 'grow', 'reta
 const account = ref<Account | null>(null)
 const pending = ref(true)
 const loadError = ref('')
-const activeTab = ref<AccountDetailTab>('overview')
+const activeTab = ref<AccountDetailTab>(
+  route.query.tab === 'timeline' || route.query.tab === 'emotion' ? route.query.tab : 'overview',
+)
 const editOpen = ref(false)
 const saving = ref(false)
 

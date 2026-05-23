@@ -12,7 +12,11 @@ export function useEmotionJourney() {
   const api = useApi()
   const route = useRoute()
 
-  const isPreview = computed(() => route.query.preview === '1')
+  const isPreview = computed(
+    () =>
+      route.query.preview === '1' ||
+      tenantCookie.value === DEMO_TENANT_ID,
+  )
   const tenantCookie = useCookie('crm.tenant_id')
 
   function shouldUseFixture(subjectId: string, query: EmotionJourneyQuery) {

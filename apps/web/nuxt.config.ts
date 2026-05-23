@@ -57,6 +57,7 @@ export default defineNuxtConfig({
     { path: '~/components/feature/crm', prefix: 'Crm', pathPrefix: false },
     { path: '~/components/feature/leads', prefix: 'Leads', pathPrefix: false },
     { path: '~/components/feature/accounts', prefix: 'Accounts', pathPrefix: false },
+    { path: '~/components/feature/dashboard', prefix: 'Dashboard', pathPrefix: false },
     { path: '~/components/feature/ai', prefix: 'Ai', pathPrefix: false },
     { path: '~/components/feature/design', pathPrefix: false },
   ],

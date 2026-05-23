@@ -1,4 +1,5 @@
 import {
+  mockConvertLead,
   mockCreateLead,
   mockDeleteLead,
   mockGetLead,
@@ -7,6 +8,7 @@ import {
 } from '~/utils/leads-mock-store'
 import type {
   Lead,
+  LeadConvertInput,
   LeadCreateInput,
   LeadListQuery,
   LeadUpdateInput,
@@ -104,6 +106,18 @@ export function useLeads() {
     await api.request<void>(`/api/leads/${id}`, { method: 'DELETE' })
   }
 
+  async function convert(id: string, input: LeadConvertInput): Promise<Lead> {
+    if (useMock.value) {
+      const row = mockConvertLead(id, input)
+      if (!row) throw new Error('lead_not_found')
+      return row
+    }
+    return api.request<Lead>(`/api/leads/${id}/convert`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    })
+  }
+
   return {
     useMock,
     fetchList,
@@ -111,5 +125,6 @@ export function useLeads() {
     create,
     update,
     remove,
+    convert,
   }
 }

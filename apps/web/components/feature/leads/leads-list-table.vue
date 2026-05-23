@@ -1,63 +1,82 @@
 <template>
-  <div class="ds-card overflow-hidden rounded-2xl shadow-sm">
-    <div class="overflow-x-auto">
-      <table class="w-full min-w-[720px] text-left text-sm">
-        <thead>
-          <tr class="border-b border-ds-border-muted bg-ds-bg-muted text-xs font-medium uppercase tracking-wide text-ds-fg-brand">
-            <th class="px-5 py-3">{{ $t('leadsColTitle') }}</th>
-            <th class="px-5 py-3">{{ $t('status') }}</th>
-            <th class="px-5 py-3">{{ $t('leadsColLifecycle') }}</th>
-            <th class="px-5 py-3">{{ $t('leadsColHealth') }}</th>
-            <th class="px-5 py-3">{{ $t('leadsColEngagement') }}</th>
-            <th class="px-5 py-3">{{ $t('leadsColSource') }}</th>
-            <th class="px-5 py-3 text-right">{{ $t('actions') }}</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-ds-border-muted">
-          <tr
-            v-for="row in items"
-            :key="row.id"
-            class="transition-colors duration-200 hover:bg-ds-bg-muted"
-          >
-            <td class="px-5 py-4">
-              <NuxtLink
-                :to="`/leads/${row.id}`"
-                class="font-medium text-ds-fg-heading transition-colors hover:text-ds-fg-brand"
-              >
-                {{ row.title }}
-              </NuxtLink>
-            </td>
-            <td class="px-5 py-4">
-              <CrmLeadStatusBadge :status="row.status" />
-            </td>
-            <td class="px-5 py-4">
-              <CrmLifecycleBadge :stage="row.lifecycle_stage" />
-            </td>
-            <td class="px-5 py-4">
-              <CrmRelationshipHealthBadge :health="row.relationship_health" />
-            </td>
-            <td class="px-5 py-4 text-ds-fg-muted">{{ row.engagement_score }}</td>
-            <td class="px-5 py-4 text-ds-fg-muted">{{ row.source || '—' }}</td>
-            <td class="px-5 py-4 text-right">
-              <NuxtLink
-                :to="`/leads/${row.id}`"
-                class="text-xs font-medium text-ds-fg-brand transition-colors hover:text-ds-brand-hover"
-              >
-                {{ $t('leadsViewDetail') }}
-              </NuxtLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p v-if="items.length === 0" class="py-12 text-center text-sm text-ds-fg-muted">{{ $t('leadsEmpty') }}</p>
-  </div>
+  <UiTable
+    :rows="items"
+    :columns="columns"
+    :empty-state="{ label: $t('leadsEmpty') }"
+    data-testid="leads-list-table"
+  >
+    <template v-if="$slots.toolbar" #toolbar>
+      <slot name="toolbar" />
+    </template>
+
+    <template #title-data="{ row }">
+      <NuxtLink
+        :to="`/leads/${row.id}`"
+        class="cursor-pointer font-medium text-ds-fg-heading underline-offset-2 transition-colors duration-200 hover:text-ds-fg hover:underline"
+      >
+        {{ row.title }}
+      </NuxtLink>
+    </template>
+
+    <template #status-data="{ row }">
+      <CrmLeadStatusBadge variant="plain" muted-dot :status="row.status" />
+    </template>
+
+    <template #lifecycle_stage-data="{ row }">
+      <CrmLifecycleBadge variant="plain" muted-dot :stage="row.lifecycle_stage" />
+    </template>
+
+    <template #relationship_health-data="{ row }">
+      <CrmRelationshipHealthBadge variant="plain" muted-dot :health="row.relationship_health" />
+    </template>
+
+    <template #engagement_score-data="{ row }">
+      <span class="tabular-nums text-ds-fg">{{ row.engagement_score }}</span>
+    </template>
+
+    <template #source-data="{ row }">
+      <span class="text-ds-fg-muted">{{ formatSource(row.source) }}</span>
+    </template>
+
+    <template #actions-data="{ row }">
+      <div class="flex items-center justify-end gap-0.5">
+        <CrmTableIconAction
+          :to="`/leads/${row.id}`"
+          icon="i-heroicons-eye-20-solid"
+          :label="$t('leadsViewDetail')"
+        />
+      </div>
+    </template>
+
+    <template v-if="$slots.footer" #footer>
+      <slot name="footer" />
+    </template>
+  </UiTable>
 </template>
 
 <script setup lang="ts">
+import type { UiTableColumn } from '@crm/ui-kit'
 import type { Lead } from '~/types/lead'
 
 defineProps<{
   items: Lead[]
 }>()
+
+const { t } = useI18n()
+
+const columns = computed<UiTableColumn[]>(() => [
+  { key: 'title', label: t('leadsColTitle'), sortable: true },
+  { key: 'status', label: t('status'), sortable: true },
+  { key: 'lifecycle_stage', label: t('leadsColLifecycle'), sortable: true },
+  { key: 'relationship_health', label: t('leadsColHealth'), sortable: true },
+  { key: 'engagement_score', label: t('leadsColEngagement'), sortable: true, class: 'text-right' },
+  { key: 'source', label: t('leadsColSource'), sortable: true },
+  { key: 'actions', label: t('actions'), class: 'text-right w-16' },
+])
+
+function formatSource(source: string) {
+  const key = `leadSource.${source}`
+  const translated = t(key)
+  return translated === key ? source || '—' : translated
+}
 </script>

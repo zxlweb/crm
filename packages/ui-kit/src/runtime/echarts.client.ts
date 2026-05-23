@@ -1,7 +1,7 @@
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { BarChart, FunnelChart, LineChart } from 'echarts/charts'
-import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
+import { BarChart, FunnelChart, HeatmapChart, LineChart } from 'echarts/charts'
+import { GridComponent, LegendComponent, TooltipComponent, VisualMapComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
 
 use([
@@ -9,9 +9,11 @@ use([
   LineChart,
   BarChart,
   FunnelChart,
+  HeatmapChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
+  VisualMapComponent,
 ])
 
 export default defineNuxtPlugin((nuxtApp) => {

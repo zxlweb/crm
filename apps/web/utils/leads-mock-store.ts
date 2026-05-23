@@ -1,6 +1,7 @@
 import { MOCK_LEADS_SEED } from '~/fixtures/leads.mock'
 import type {
   Lead,
+  LeadConvertInput,
   LeadCreateInput,
   LeadListQuery,
   LeadUpdateInput,
@@ -101,4 +102,30 @@ export function mockDeleteLead(id: string): boolean {
   const before = getStore().length
   store = getStore().filter((row) => row.id !== id)
   return store.length < before
+}
+
+export function mockConvertLead(id: string, input: LeadConvertInput): Lead | null {
+  const idx = getStore().findIndex((row) => row.id === id)
+  if (idx < 0) return null
+  const current = getStore()[idx]
+  if (current.status !== 'qualified') {
+    throw new Error('convert_not_allowed')
+  }
+  const accountId =
+    input.account_id ??
+    `acc-${Date.now().toString(36)}`
+  const accountName = input.create_account?.name?.trim() || current.title
+  const updated: Lead = {
+    ...current,
+    status: 'converted',
+    lifecycle_stage: 'retain',
+    converted_account_id: accountId,
+    converted_contact_id: input.contact_id ?? null,
+    tags: [...current.tags, accountName !== current.title ? `公司:${accountName}` : '已转化'].filter(
+      (tag, i, arr) => arr.indexOf(tag) === i,
+    ),
+    updated_at: new Date().toISOString(),
+  }
+  getStore()[idx] = updated
+  return updated
 }

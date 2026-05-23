@@ -84,7 +84,7 @@ EnterpriseFlow 以 **紫色为品牌主色**（非蓝色）。实现时优先用
 | **Primary** | `#7c3aed` (Violet-600) | `--ds-brand`、`--ds-fg-brand`、`bg-ds-brand`、`text-ds-fg-brand` | 主按钮、文字链接、侧栏激活、图表主线、输入框聚焦环、品牌渐变区 |
 | **Success** | `#059669` (Emerald-600) | `--ds-success`、`bg-ds-success-subtle`、`text-ds-fg-success` | 保存成功、启用/活跃状态、正向 KPI 趋势、完成类 Toast、表格「活跃」圆点 |
 | **Warning** | `#ca8a04` (Amber-600) | *待接入* `--ds-warning`（规划） | 待审批、即将到期、配额将满、非阻断性提示条、需关注但不紧急的标签 |
-| **Danger** | `#b91c1c` (Red-700) | `--ds-danger`、`bg-ds-danger-subtle`、`text-ds-fg-danger` | 删除/停用确认、表单校验错误、API 失败提示、破坏性主操作、失败状态 |
+| **Danger** | `#e11d48` (Rose-600) | `--ds-danger`、`bg-ds-danger-subtle`、`text-ds-fg-danger` | 删除/停用确认、表单校验错误、API 失败提示、破坏性主操作、失败状态 |
 | **Neutral** | `#64748b` (Slate-500) | `--ds-fg-muted`、`--ds-fg`、`--ds-border`、`bg-ds-bg-muted` | 正文辅助说明、表头/轴标签、分割线、占位符、禁用态文案、次要按钮 |
 
 #### 各角色使用说明
@@ -126,7 +126,7 @@ EnterpriseFlow 以 **紫色为品牌主色**（非蓝色）。实现时优先用
 Primary   ████  #7c3aed  →  V2: #9333ea
 Success   ████  #059669  →  V2: #34d399
 Warning   ████  #ca8a04  →  两主题共用（待 Token 化）
-Danger    ████  #b91c1c  →  V2: #f87171
+Danger    ████  #e11d48  →  V2: #fb7185
 Neutral   ████  #64748b  →  V2: #71717a（文案）；边框为半透明白
 ```
 

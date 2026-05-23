@@ -1,3 +1,4 @@
+<!-- @deprecated Use lead-detail-header + lead-detail-metrics + lead-detail-tabs on pages/leads/[id].vue -->
 <template>
   <CardShell
     :title="$t('leadsDecisionHubTitle')"

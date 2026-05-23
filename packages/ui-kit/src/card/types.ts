@@ -15,7 +15,7 @@ export interface CardScenarioMeta {
   pages: string[]
 }
 
-/** 看板 KPI：左圆标 + 主数值 + 底栏同比（设计偏好图1） */
+/** 看板 KPI：左方标 + 主数值 + 底栏同比 */
 export const CARD_SCENARIOS: Record<CardScenarioId, CardScenarioMeta> = {
   dashboard: {
     id: 'dashboard',

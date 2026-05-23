@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QA 测试计划 — Phase 2.3 Leads CRUD + 状态 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><a href="../api/phase-2-crm-ai.html">phase-2-crm-ai</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch/03-design-system.html">03-design-system</a><a href="../frontend-arch/04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch/05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes/phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes/phase-2-notes.html">phase-2-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><a href="../prd/phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><a href="../qa/phase-1-qa.html">phase-1-qa</a><a href="../qa/phase-2-2.3-leads-qa-plan.html" style="color:var(--accent);font-weight:600">phase-2-2.3-leads-qa-plan</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><a href="../tasks/parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../qa/phase-2-2.3-leads-qa-plan.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>QA 测试计划 — Phase 2.3 Leads CRUD + 状态</h1>
+<p><strong>子任务 ID</strong>：<code>2.3</code>（<code>[QA]</code> 轨）<br><strong>测试日期</strong>：待执行<br><strong>测试人</strong>：待填<br><strong>输入</strong>：<a href="../prd/phase-2-relationship-crm-prd.md">phase-2-relationship-crm-prd.md</a> §4.5、§5 · <a href="../api/phase-2-crm-ai.md">phase-2-crm-ai.md</a> §6 · <a href="../meeting-notes/phase-2-notes.md">phase-2-notes.md</a> §2.5<br><strong>关联任务</strong>：<a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> 表行 <code>2.3</code></p>
+<hr>
+<h2>1. 测试范围</h2>
+<h3>1.1 本计划覆盖（2.3 Done 条件）</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>API 集成测</strong></td>
+<td><code>GET/POST /api/leads</code>、<code>GET/PUT/PATCH/DELETE /api/leads/:id</code>；Query 筛选；状态合法/非法迁移；<code>POST .../convert</code>（最小路径）；租户隔离；RBAC <code>leads:*</code></td>
+</tr>
+<tr>
+<td><strong>E2E（冒烟）</strong></td>
+<td>登录 → <code>/leads</code> 列表 → 新建线索 → 详情可见 → 改状态 → 列表/详情一致</td>
+</tr>
+<tr>
+<td><strong>契约</strong></td>
+<td>响应包 <code>{ code, message, data, pagination? }</code>；禁止 body 传 <code>tenant_id</code>；只读字段不可写</td>
+</tr>
+<tr>
+<td><strong>审计</strong></td>
+<td><code>lead.convert</code>（convert 用例）；状态/owner 变更建议抽 1 条查 <code>audit_logs</code></td>
+</tr>
+</tbody></table>
+<h3>1.2 不在 2.3（由后续子任务领）</h3>
+<table>
+<thead>
+<tr>
+<th>子任务</th>
+<th>内容</th>
+<th>QA 文档</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.4–2.6</td>
+<td><code>GET /api/leads/stats/*</code>、报表 Tab、Chart 数据</td>
+<td>本计划 §8 仅列依赖用例 ID</td>
+</tr>
+<tr>
+<td>2.7</td>
+<td><code>import</code>、<code>assign</code></td>
+<td><code>L-INT-07x</code> / <code>L-E2E-07</code> 占位</td>
+</tr>
+<tr>
+<td>2.8+</td>
+<td>Activity 时间线、洞察、情绪旅程、AI Preview</td>
+<td><code>2.E2E</code> / <code>2.13</code> 专项计划</td>
+</tr>
+<tr>
+<td>2.10</td>
+<td>分群下拉 + URL</td>
+<td>列表 <code>segment</code> Query 可在 2.3 做 API 单测，UI 归 2.10</td>
+</tr>
+</tbody></table>
+<h3>1.3 前置与环境</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BE</td>
+<td>迁移 <code>00006</code> + Leads 路由注册完成</td>
+</tr>
+<tr>
+<td>FE</td>
+<td><code>/leads</code>、<code>/leads/:id</code> 可访问；<code>data-testid</code> 见 §6</td>
+</tr>
+<tr>
+<td>账号</td>
+<td>Demo 租户 <code>admin@demo.com</code> / <code>password123</code>（Super Admin，绕过 Casbin）；<strong>另需</strong> 种子 <code>Sales</code> + <code>Manager</code> 各一（见 §3）</td>
+</tr>
+<tr>
+<td>命令</td>
+<td><code>make backend-test</code>；<code>cd e2e &amp;&amp; npm test -- tests/phase2-leads.spec.ts</code>（待建）</td>
+</tr>
+<tr>
+<td>技术债</td>
+<td><a href="./phase-1-qa.md">phase-1-qa.md</a> Bug #3：新租户 Casbin — <strong>不阻塞</strong> 2.3 单接口 CRUD，但 <strong>阻塞</strong> Sales/Manager 越权矩阵全绿</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. PRD / 契约 → 验收追溯</h2>
+<table>
+<thead>
+<tr>
+<th>PRD / 契约要点</th>
+<th>验收标准摘要</th>
+<th>测试 ID</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>§4.5 Leads CRUD</td>
+<td>创建/读/改/删/搜索；关系字段可读</td>
+<td>L-INT-01～05</td>
+</tr>
+<tr>
+<td>§4.5 状态机</td>
+<td><code>new→contacted→qualified→unqualified|converted</code>；非法迁移 400</td>
+<td>L-INT-10～12</td>
+</tr>
+<tr>
+<td>§4.5 <code>converted</code></td>
+<td>须关联 Account/Contact；审计</td>
+<td>L-INT-13</td>
+</tr>
+<tr>
+<td>§2.3 只读字段</td>
+<td><code>engagement_score</code>、<code>relationship_health</code>、<code>last_activity_at</code> 不可 POST/PATCH 写入</td>
+<td>L-INT-06</td>
+</tr>
+<tr>
+<td>§5 RBAC</td>
+<td>Sales 本人；Manager <code>view_all</code>；<code>assign</code> 仅经理</td>
+<td>L-INT-20～23</td>
+</tr>
+<tr>
+<td>§5 租户</td>
+<td>强制 <code>tenant_id</code>；跨租户 404/403</td>
+<td>L-INT-30～31</td>
+</tr>
+<tr>
+<td>§7 性能</td>
+<td>列表默认 20 条；详情时间线首屏（2.8 后）</td>
+<td>L-PERF-01</td>
+</tr>
+<tr>
+<td>Must E2E（§8）</td>
+<td>Leads CRUD + 权限 + 1 条 Activity 洞察联动</td>
+<td><strong>2.3 仅 CRUD+权限</strong>；洞察归 <code>2.E2E</code></td>
+</tr>
+<tr>
+<td>任务 2.3 增强</td>
+<td>洞察侧栏、状态变更可选关联 Activity</td>
+<td>UI 冒烟占位 <code>L-E2E-04</code>（FE 就绪后启用）</td>
+</tr>
+<tr>
+<td>00-overview 用户故事</td>
+<td>销售新建线索；经理分配/漏斗</td>
+<td>分配归 2.7；漏斗归 2.6</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 测试数据与角色</h2>
+<h3>3.1 建议种子（BE 迁移或测试 helper）</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>邮箱建议</th>
+<th><code>data_scope</code></th>
+<th><code>leads</code> 权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sales_a</code></td>
+<td><code>sales-a@demo.com</code></td>
+<td><code>self</code></td>
+<td>view, create, update（无 assign）</td>
+</tr>
+<tr>
+<td><code>sales_b</code></td>
+<td><code>sales-b@demo.com</code></td>
+<td><code>self</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>manager</code></td>
+<td><code>manager@demo.com</code></td>
+<td><code>all</code></td>
+<td>view, create, update, assign</td>
+</tr>
+<tr>
+<td><code>viewer</code></td>
+<td><code>viewer@demo.com</code></td>
+<td><code>self</code></td>
+<td>view only</td>
+</tr>
+</tbody></table>
+<p>每个用户至少 1 条 <strong>本人</strong> <code>owner_id</code> 线索；<code>sales_b</code> 线索对 <code>sales_a</code> 不可见。</p>
+<h3>3.2 标准 Lead 载荷（集成测）</h3>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;QA Lead 华创科技&quot;,
+  &quot;status&quot;: &quot;new&quot;,
+  &quot;source&quot;: &quot;web&quot;,
+  &quot;amount&quot;: 50000,
+  &quot;lifecycle_stage&quot;: &quot;acquire&quot;,
+  &quot;tags&quot;: [&quot;qa&quot;, &quot;phase2&quot;]
+}
+</code></pre>
+<h3>3.3 状态迁移矩阵（集成测必跑）</h3>
+<table>
+<thead>
+<tr>
+<th>从 \ 到</th>
+<th>contacted</th>
+<th>qualified</th>
+<th>unqualified</th>
+<th>converted</th>
+<th>new</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>new</strong></td>
+<td>✅ 允许</td>
+<td>⬜ 契约未写清则按实现</td>
+<td>⬜</td>
+<td>❌</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>contacted</strong></td>
+<td>—</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌ 回退</td>
+</tr>
+<tr>
+<td><strong>qualified</strong></td>
+<td>❌</td>
+<td>—</td>
+<td>✅</td>
+<td>✅（+ convert body）</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>unqualified</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>—</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>converted</strong></td>
+<td>❌ 终态</td>
+<td>❌</td>
+<td>❌</td>
+<td>—</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<p>非法迁移统一断言：<code>HTTP 400</code>，<code>message</code> 含 <code>invalid_status_transition</code>（<a href="../api/phase-2-crm-ai.md">phase-2-crm-ai.md</a> §6.2）。</p>
+<hr>
+<h2>4. API 集成测试用例</h2>
+<p><strong>建议文件</strong>：<code>backend/internal/interfaces/http/leads_test.go</code>（或 <code>internal/application/leads/service_test.go</code> + HTTP 薄层）</p>
+<p><strong>运行</strong>：<code>cd backend &amp;&amp; go test ./internal/interfaces/http/... -run Leads -count=1</code><br><strong>模式</strong>：httptest + 测试 DB（与 <code>scope_test</code> 同库）或 testcontainers；请求头带 <code>Authorization</code> + <code>X-Tenant-ID</code>。</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>场景</th>
+<th>步骤</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L-INT-01</td>
+<td>创建</td>
+<td><code>POST /api/leads</code> 合法 body</td>
+<td><code>201/200</code>，<code>data.id</code> UUID，<code>tenant_id</code> 为当前租户，<code>owner_id</code> 默认当前用户</td>
+</tr>
+<tr>
+<td>L-INT-02</td>
+<td>列表分页</td>
+<td><code>GET /api/leads?page=1&amp;page_size=20</code></td>
+<td><code>pagination</code> 存在；仅本租户</td>
+</tr>
+<tr>
+<td>L-INT-03</td>
+<td>搜索</td>
+<td><code>GET /api/leads?search=华创</code></td>
+<td>命中 title 子串</td>
+</tr>
+<tr>
+<td>L-INT-04</td>
+<td>筛选</td>
+<td><code>?status=new&amp;source=web&amp;lifecycle_stage=acquire</code></td>
+<td>结果均匹配 Query</td>
+</tr>
+<tr>
+<td>L-INT-05</td>
+<td>详情/更新/软删</td>
+<td><code>GET</code> → <code>PATCH</code> title → <code>DELETE</code> → <code>GET</code></td>
+<td>更新生效；删除后列表不可见或 404</td>
+</tr>
+<tr>
+<td>L-INT-06</td>
+<td>只读字段</td>
+<td>PATCH <code>engagement_score: 99</code></td>
+<td>忽略或 400；DB 仍为系统值</td>
+</tr>
+<tr>
+<td>L-INT-10</td>
+<td>合法迁移</td>
+<td>new→contacted→qualified</td>
+<td>每次 200，<code>status</code> 递增</td>
+</tr>
+<tr>
+<td>L-INT-11</td>
+<td>非法迁移</td>
+<td>qualified→new</td>
+<td>400 + <code>invalid_status_transition</code></td>
+</tr>
+<tr>
+<td>L-INT-12</td>
+<td>终态</td>
+<td>converted 后再 PATCH status</td>
+<td>400</td>
+</tr>
+<tr>
+<td>L-INT-13</td>
+<td>转化</td>
+<td>qualified + <code>POST .../convert</code> 带 <code>create_account</code></td>
+<td><code>status=converted</code>，<code>converted_account_id</code> 非空；<code>audit_logs.action=lead.convert</code></td>
+</tr>
+<tr>
+<td>L-INT-14</td>
+<td>convert 缺关联</td>
+<td>converted 无 account/contact</td>
+<td>400（契约）</td>
+</tr>
+<tr>
+<td>L-INT-20</td>
+<td>Sales 越权读</td>
+<td>A 的 token 访问 B 的 <code>GET /api/leads/:id</code></td>
+<td>403 或 404（不泄露存在性）</td>
+</tr>
+<tr>
+<td>L-INT-21</td>
+<td>Sales 越权改</td>
+<td>A 改 B 的 lead</td>
+<td>403</td>
+</tr>
+<tr>
+<td>L-INT-22</td>
+<td>无 create</td>
+<td>viewer <code>POST /api/leads</code></td>
+<td>403</td>
+</tr>
+<tr>
+<td>L-INT-23</td>
+<td>Manager 全量</td>
+<td>manager <code>GET /api/leads</code></td>
+<td>含 A、B 线索条数 ≥ 2</td>
+</tr>
+<tr>
+<td>L-INT-30</td>
+<td>跨租户</td>
+<td>Tenant-A token + Tenant-B 的 <code>X-Tenant-ID</code></td>
+<td>403 或空列表</td>
+</tr>
+<tr>
+<td>L-INT-31</td>
+<td>无租户头</td>
+<td>缺 <code>X-Tenant-ID</code></td>
+<td>401/400</td>
+</tr>
+<tr>
+<td>L-INT-40</td>
+<td>参数校验</td>
+<td><code>title</code> 空、<code>status=invalid_enum</code></td>
+<td>400</td>
+</tr>
+<tr>
+<td>L-INT-41</td>
+<td>SQL 注入</td>
+<td><code>search=&#39; OR 1=1--</code></td>
+<td>无异常泄漏；结果为空或安全转义</td>
+</tr>
+<tr>
+<td>L-INT-42</td>
+<td>XSS 存储</td>
+<td>title <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></td>
+<td>存原文；列表 API 不执行（FE 转义归 2.E2E 可选）</td>
+</tr>
+</tbody></table>
+<p><strong>列表 Query <code>segment</code></strong>（若 2.3 已接筛选 DSL）：增加 L-INT-04b，与 <code>GET /api/segments/:code/count</code> 结果一致（完整分群归 2.10）。</p>
+<hr>
+<h2>5. E2E 测试用例（Playwright）</h2>
+<p><strong>建议文件</strong>：<code>e2e/tests/phase2-leads.spec.ts</code><br><strong>前置</strong>：<code>playwright.config.ts</code> 已起 backend + web；使用 <strong>Demo 或 seeds</strong> 登录（优先 <code>manager@demo.com</code> 测全列表）。</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>场景</th>
+<th>步骤</th>
+<th>预期</th>
+<th>testid / 路由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L-E2E-01</td>
+<td>进入列表</td>
+<td>登录 → <code>/leads</code></td>
+<td>表格或空态；无 500</td>
+<td>—</td>
+</tr>
+<tr>
+<td>L-E2E-02</td>
+<td>新建线索</td>
+<td>点 <code>lead-create-btn</code> → 填标题/来源 → 保存</td>
+<td>列表出现新行；URL 可进详情</td>
+<td><code>lead-create-btn</code></td>
+</tr>
+<tr>
+<td>L-E2E-03</td>
+<td>状态流转</td>
+<td>详情改状态 contacted → qualified</td>
+<td>UI 与刷新后 API 一致</td>
+<td>状态控件 testid 待 FE：<code>lead-status-select</code></td>
+</tr>
+<tr>
+<td>L-E2E-04</td>
+<td>侧栏占位</td>
+<td>打开 <code>/leads/:id</code></td>
+<td>宽屏可见洞察区或「暂无洞察」（2.9 前允许空）</td>
+<td><code>ai-relation-panel</code>（可选）</td>
+</tr>
+<tr>
+<td>L-E2E-05</td>
+<td>权限 UI</td>
+<td><code>sales_a</code> 登录，不见他人线索名</td>
+<td>列表无 B 的 title</td>
+<td>—</td>
+</tr>
+<tr>
+<td>L-E2E-06</td>
+<td>报表 Tab 不回归</td>
+<td>点报表 Tab</td>
+<td>2.3 允许 skeleton/空态；<strong>不断言图表数据</strong></td>
+<td><code>leads-tab-reports</code>（建议 FE 补充）</td>
+</tr>
+</tbody></table>
+<p><strong>同步检查点</strong>（<a href="../meeting-notes/phase-2-notes.md">phase-2-notes.md</a>）：FE 提交 <code>lead-create-btn</code> 等 testid 后 QA 再合入 <code>L-E2E-02</code>。</p>
+<hr>
+<h2>6. <code>data-testid</code> 约定（与 FE 对齐）</h2>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>testid</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>新建线索</td>
+<td><code>lead-create-btn</code></td>
+<td>已约定</td>
+</tr>
+<tr>
+<td>情绪 Tab</td>
+<td><code>tab-emotion-journey</code></td>
+<td>2.12</td>
+</tr>
+<tr>
+<td>AI 侧栏</td>
+<td><code>ai-relation-panel</code></td>
+<td>2.13</td>
+</tr>
+<tr>
+<td>采纳建议</td>
+<td><code>insight-adopt-btn</code></td>
+<td>2.9</td>
+</tr>
+<tr>
+<td><strong>建议 2.3 新增</strong></td>
+<td><code>lead-list-table</code>、<code>lead-form-title</code>、<code>lead-form-submit</code>、<code>lead-status-select</code>、<code>leads-tab-list</code>、<code>leads-tab-reports</code></td>
+<td>待 FE</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 安全 / i18n / 非功能（抽测）</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L-SEC-01</td>
+<td>认证</td>
+<td>无 token 访问 <code>/api/leads</code> → 401</td>
+</tr>
+<tr>
+<td>L-SEC-02</td>
+<td>租户</td>
+<td>见 L-INT-30/31</td>
+</tr>
+<tr>
+<td>L-I18N-01</td>
+<td>文案</td>
+<td><code>/leads</code> 切换 zh-CN / en-US，表头与空态键存在（无裸 key）</td>
+</tr>
+<tr>
+<td>L-PERF-01</td>
+<td>列表</td>
+<td><code>GET /api/leads</code> P95 &lt; 500ms（本地 20 条种子）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. 下游依赖用例（非 2.3 实现，仅登记）</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>子任务</th>
+<th>简述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L-STAT-01</td>
+<td>2.4</td>
+<td><code>GET /api/leads/stats/by-source</code> 与列表同源权限</td>
+</tr>
+<tr>
+<td>L-STAT-02</td>
+<td>2.5</td>
+<td><code>stats/trend</code></td>
+</tr>
+<tr>
+<td>L-STAT-03</td>
+<td>2.6</td>
+<td><code>stats/funnel</code> 与列表 count 误差 0</td>
+</tr>
+<tr>
+<td>L-INT-07a</td>
+<td>2.7</td>
+<td><code>POST /api/leads/import</code> multipart</td>
+</tr>
+<tr>
+<td>L-INT-07b</td>
+<td>2.7</td>
+<td><code>POST .../assign</code> + system Activity</td>
+</tr>
+<tr>
+<td>L-ACT-01</td>
+<td>2.8</td>
+<td><code>POST /api/activities</code> 后 <code>last_activity_at</code> 更新</td>
+</tr>
+<tr>
+<td>L-INS-01</td>
+<td>2.9</td>
+<td><code>POST .../insights/evaluate</code> INS-001 命中</td>
+</tr>
+<tr>
+<td>L-E2E-DEMO</td>
+<td>2.13 / 2.E2E</td>
+<td>§15.2 三分钟路径</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. 执行顺序与入口准则</h2>
+<pre><code class="language-mermaid">flowchart LR
+  A[BE 2.3 API 可用] --&gt; B[L-INT-01～13]
+  B --&gt; C[L-INT-20～31 RBAC]
+  C --&gt; D[FE testid 稳定]
+  D --&gt; E[L-E2E-01～03]
+  E --&gt; F[勾选任务表 2.3 QA]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开始集成测</td>
+<td><code>POST /api/leads</code> 在 Swagger/本地可 200</td>
+</tr>
+<tr>
+<td>开始 E2E</td>
+<td><code>lead-create-btn</code> 已合入 + 登录种子可用</td>
+</tr>
+<tr>
+<td><strong>2.3 QA 通过</strong></td>
+<td>§4 全部 <strong>Must</strong> ID 绿；§5 L-E2E-01～03 绿；无 P0/P1 开放 Bug</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>10. 自动化落点（实现时创建）</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Go 集成测</td>
+<td><code>backend/internal/interfaces/http/leads_test.go</code></td>
+</tr>
+<tr>
+<td>域/状态机单测</td>
+<td><code>backend/internal/application/leads/status_test.go</code></td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td><code>e2e/tests/phase2-leads.spec.ts</code></td>
+</tr>
+<tr>
+<td>测试辅助登录</td>
+<td><code>e2e/helpers/auth.ts</code>（复用 phase1 模式）</td>
+</tr>
+</tbody></table>
+<p><strong>Makefile 建议</strong>（可选）：<code>make test-phase2-leads</code> → 仅跑 Leads 相关 <code>-run</code>。</p>
+<hr>
+<h2>11. Bug 记录</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>描述</th>
+<th>严重程度</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>—</td>
+<td>（执行后填写）</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>12. 测试结论</h2>
+<p><strong>状态</strong>：⬜ 未执行（计划已评审）</p>
+<p><strong>正式关闭 2.3 <code>[QA]</code> 行条件</strong>：</p>
+<ul>
+<li><input disabled="" type="checkbox"> 本文档 §4 Must 用例已实现且 CI/本地通过  </li>
+<li><input disabled="" type="checkbox"> §5 L-E2E-01～03 通过  </li>
+<li><input disabled="" type="checkbox"> <a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> 表 <code>2.3</code> QA 列改 <code>✅</code>  </li>
+<li><input disabled="" type="checkbox"> 无 P0/P1；P2 记入 §11 并关联 BE/FE 子任务</li>
+</ul>
+<p><strong>说明</strong>：统计图（2.4–2.6）、导入分配（2.7）、洞察/情绪/演示（2.8–2.13、2.E2E）在各自 QA 计划中验收，不重复计入 2.3 通过条件。</p>
+<hr>
+<h2>修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-22</td>
+<td>首版：2.3 Leads 集成测 + E2E 计划，对齐 PRD §4.5/§5 与 API 契约 §6</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../qa/phase-2-2.3-leads-qa-plan.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>
