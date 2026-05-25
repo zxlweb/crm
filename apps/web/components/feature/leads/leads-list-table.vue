@@ -74,9 +74,9 @@ const columns = computed<UiTableColumn[]>(() => [
   { key: 'actions', label: t('actions'), class: 'text-right w-16' },
 ])
 
+const { leadSourceLabel } = useLeadLabels()
+
 function formatSource(source: string) {
-  const key = `leadSource.${source}`
-  const translated = t(key)
-  return translated === key ? source || '—' : translated
+  return leadSourceLabel(source) || '—'
 }
 </script>

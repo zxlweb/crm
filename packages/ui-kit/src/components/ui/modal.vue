@@ -1,13 +1,15 @@
 <template>
+  <!-- Nuxt UI v2 UModal 仅默认插槽，footer 需放在 panel 内 -->
   <UModal v-model="open" :title="title">
     <div class="space-y-4 p-4">
       <slot />
-    </div>
-    <template v-if="$slots.footer" #footer>
-      <div class="flex justify-end gap-2 p-4">
+      <div
+        v-if="$slots.footer"
+        class="flex justify-end gap-2 border-t border-ds-border pt-4"
+      >
         <slot name="footer" />
       </div>
-    </template>
+    </div>
   </UModal>
 </template>
 

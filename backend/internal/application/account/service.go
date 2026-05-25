@@ -17,15 +17,17 @@ import (
 var (
 	ErrNotFound         = repository.ErrAccountNotFound
 	ErrInvalidLifecycle = errors.New("invalid lifecycle_stage")
+	ErrInvalidSegment   = errors.New("invalid_segment_code")
 )
 
 type Service struct {
 	repo     repository.AccountRepository
+	tenants  repository.TenantRepository
 	enforcer *casbin.Enforcer
 }
 
-func NewService(repo repository.AccountRepository, enforcer *casbin.Enforcer) *Service {
-	return &Service{repo: repo, enforcer: enforcer}
+func NewService(repo repository.AccountRepository, tenants repository.TenantRepository, enforcer *casbin.Enforcer) *Service {
+	return &Service{repo: repo, tenants: tenants, enforcer: enforcer}
 }
 
 type AccountDTO struct {
@@ -49,6 +51,7 @@ type ListQuery struct {
 	Search             string
 	LifecycleStage     string
 	RelationshipHealth string
+	Segment            string
 	OwnerID            *uuid.UUID
 }
 
@@ -88,12 +91,17 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 	if size < 1 {
 		size = 20
 	}
+	if err := validateAccountSegment(q.Segment); err != nil {
+		return nil, err
+	}
 	items, total, err := s.repo.List(ctx, tenantID, repository.AccountListFilter{
 		Page:               page,
 		PageSize:           size,
 		Search:             q.Search,
 		LifecycleStage:     q.LifecycleStage,
 		RelationshipHealth: q.RelationshipHealth,
+		Segment:            q.Segment,
+		SegmentOpts:        s.segmentOpts(ctx, tenantID),
 		OwnerID:            q.OwnerID,
 		ViewAll:            viewAll,
 		UserID:             userID,
@@ -228,6 +236,31 @@ func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) er
 		return err
 	}
 	return s.repo.SoftDelete(ctx, tenantID, id)
+}
+
+func validateAccountSegment(code string) error {
+	if code == "" {
+		return nil
+	}
+	if !crm.ValidSegmentCode(code) {
+		return ErrInvalidSegment
+	}
+	return nil
+}
+
+func (s *Service) segmentOpts(ctx context.Context, tenantID uuid.UUID) crm.SegmentApplyOpts {
+	opts := crm.SegmentApplyOpts{DaysSilent: 7, HighValueAmount: 100000}
+	if s.tenants == nil {
+		return opts
+	}
+	t, err := s.tenants.FindByID(ctx, tenantID)
+	if err != nil || t == nil {
+		return opts
+	}
+	cfg := crm.ParseTenantCRMConfig(t.Config)
+	opts.DaysSilent = cfg.InsightThresholds.DaysSilent
+	opts.HighValueAmount = cfg.InsightThresholds.HighValueAmount
+	return opts
 }
 
 func (s *Service) viewAll(userID, tenantID string) bool {

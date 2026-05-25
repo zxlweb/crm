@@ -73,7 +73,7 @@
           </div>
           <div class="space-y-3 bg-ds-bg-elevated p-6">
             <div class="flex gap-2">
-              <span class="h-3 w-3 rounded-full bg-[#0D0D0D] ring-1 ring-ds-border" />
+              <span class="h-3 w-3 rounded-full bg-[#0a0b1e] ring-1 ring-ds-border" />
               <span class="h-3 w-3 rounded-full bg-purple-500" />
               <span class="h-3 w-3 rounded-full bg-emerald-500" />
               <span class="ml-2 text-xs text-ds-fg-muted">{{ $t('themeV2Palette') }}</span>

@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3 PRD：商机 Pipeline 与成交仪表盘 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><a href="../api/phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api/phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture/04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch/03-design-system.html">03-design-system</a><a href="../frontend-arch/04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch/05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes/phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes/phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes/phase-3-notes.html">phase-3-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><a href="../prd/phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd/phase-3-deals-dashboard-prd.html" style="color:var(--accent);font-weight:600">phase-3-deals-dashboard-prd</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><a href="../qa/phase-1-qa.html">phase-1-qa</a><a href="../qa/phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa/phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><a href="../tasks/parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../prd/phase-3-deals-dashboard-prd.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 3 PRD：商机 Pipeline 与成交仪表盘</h1>
+<p><strong>产品名称</strong>：EnterpriseFlow CRM<br><strong>版本</strong>：Phase 3 v0.1<br><strong>日期</strong>：2026-05-25<br><strong>状态</strong>：待评审（Architect 3.0 / Implementation 开工前必读）<br><strong>MVP 总览</strong>：<a href="./00-crm-overview.md">00-crm-overview.md</a><br><strong>前置依赖</strong>：Phase 0 架构、Phase 1 认证/RBAC、Phase 2 客户/线索/Activity/洞察主链（可有条件关闭）<br><strong>关联任务</strong>：<a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> § Phase 3<br><strong>API 契约（Accepted）</strong>：<a href="../api/phase-3-deals-dashboard-api.md">phase-3-deals-dashboard-api.md</a> v1.0<br><strong>数据模型</strong>：<a href="../architecture/04-phase-3-deals-dashboard-schema.md">04-phase-3-deals-dashboard-schema.md</a><br><strong>前端切面</strong>：<a href="../meeting-notes/phase-3-notes.md">phase-3-notes.md</a> §2b</p>
+<hr>
+<h2>0. 执行摘要（给决策者）</h2>
+<p>Phase 2 解决了 <strong>「谁是我的客户、关系健康吗、今天该跟进谁」</strong>。Phase 3 回答销售团队的下一问：<strong>「钱在哪、能不能赢、离目标还差多少」</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>范式问题</th>
+<th>Phase 2 答案</th>
+<th>Phase 3 目标答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>关系经营 vs 成交经营</td>
+<td>健康度、情绪、洞察、今日优先</td>
+<td><strong>Pipeline 可视化 + 阶段推进 + 金额预测</strong></td>
+</tr>
+<tr>
+<td>个人作战 vs 团队管理</td>
+<td>销售工作台 KPI（线索/公司）</td>
+<td><strong>个人/经理 Dashboard</strong>：赢单率、配额、排行</td>
+</tr>
+<tr>
+<td>Preview vs 生产</td>
+<td>Zone E 迷你漏斗为 fixtures</td>
+<td><strong>Zone E 接真实 Deals API</strong>；Preview 角标仅保留 AI 预测块</td>
+</tr>
+</tbody></table>
+<p><strong>结论</strong>：Phase 3 是 MVP <strong>Must Have</strong> 的最后一块业务拼图（MoSCoW：<code>Deals + Dashboard</code>）。交付标准不是「能录入商机」，而是 <strong>Pipeline 看板 + 至少 4 类图表接 API + 数据范围正确</strong>。</p>
+<hr>
+<h2>1. 背景与业务目标</h2>
+<h3>1.1 业务背景</h3>
+<p>B2B 销售在 Phase 2 已能管理线索与客户关系，但缺少：</p>
+<ol>
+<li><strong>成交管道</strong>：线索「合格」之后去哪？金额、阶段、预计关单日如何跟踪？  </li>
+<li><strong>管理视角</strong>：经理无法一眼看到团队 Pipeline 总额、阶段分布、赢单率与配额完成度。  </li>
+<li><strong>工作台闭环</strong>：首页 Zone E 的迷你漏斗仍是 Preview fixtures，无法支撑「从关系到成交」的完整叙事。</li>
+</ol>
+<h3>1.2 与 Phase 2 的衔接</h3>
+<table>
+<thead>
+<tr>
+<th>Phase 2 产出</th>
+<th>Phase 3 消费方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST /api/leads/:id/convert</code></td>
+<td>转化时可选 <code>create_deal</code>（写入 <code>lead_id</code> 关联）</td>
+</tr>
+<tr>
+<td><code>engagement_score</code>、情绪、洞察</td>
+<td>Dashboard「需关注」与 Deals 详情侧栏只读展示（不重复算）</td>
+</tr>
+<tr>
+<td>销售工作台 <code>/</code>（§11.5）</td>
+<td>KPI 行扩展 <strong>商机指标</strong>；Zone E 漏斗/热力 <strong>生产化</strong>（漏斗接 API，热力保留规则/Mock 至 L2 真算）</td>
+</tr>
+<tr>
+<td>Leads 报表 <code>ChartFunnel</code></td>
+<td>Deals Pipeline 复用组件，<strong>数据源切换</strong>为 Deals 统计 API</td>
+</tr>
+</tbody></table>
+<h3>1.3 Phase 3 业务目标（可度量）</h3>
+<table>
+<thead>
+<tr>
+<th>目标 ID</th>
+<th>描述</th>
+<th>指标（Phase 3 末）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G1</td>
+<td>销售能在 <strong>Pipeline 看板</strong> 管理商机阶段</td>
+<td><code>/deals</code> 看板可拖拽/变更阶段；CRUD 全链路</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>经理能在 <strong>Dashboard</strong> 看团队成交健康度</td>
+<td>经理视图：Pipeline 漏斗 + 赢单率 + 业绩排行接 API</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>个人销售能看 <strong>配额完成率</strong></td>
+<td><code>ChartGauge</code> 接配额 API；本人数据范围正确</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>首页 KPI <strong>含商机维度</strong></td>
+<td><code>GET /api/dashboard/summary</code> 替代客户端 N 次聚合</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>线索转化到商机 <strong>可追溯</strong></td>
+<td>从 Lead 详情可跳转关联 Deal；审计 <code>deal.create</code> / <code>lead.convert</code></td>
+</tr>
+<tr>
+<td>G6</td>
+<td>为 L2 预测铺路</td>
+<td>「关系降温」名单规则版上线（Should）；契约预留 <code>scores.predict</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. 用户角色 (Persona) 与场景</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>Phase 3 核心场景</th>
+<th>诉求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Sales</strong></td>
+<td>每日看 Pipeline、推进阶段、录入金额</td>
+<td>我的商机在哪一列、本月离配额还差多少</td>
+</tr>
+<tr>
+<td><strong>Sales Manager</strong></td>
+<td>晨会看团队 Pipeline 与排行</td>
+<td>谁卡在某个阶段、团队赢单率趋势</td>
+</tr>
+<tr>
+<td><strong>Tenant Admin</strong></td>
+<td>配置默认 Pipeline 阶段名（i18n）</td>
+<td>不改代码即可改显示文案</td>
+</tr>
+<tr>
+<td><strong>Viewer</strong></td>
+<td>只读 Pipeline 与 Dashboard</td>
+<td>无创建/阶段变更</td>
+</tr>
+</tbody></table>
+<h3>2.1 场景故事</h3>
+<p><strong>场景 A — 线索转商机</strong><br>销售在线索详情点击「转化」→ 创建 Account/Contact → <strong>勾选「同时创建商机」</strong> → 系统生成 Deal（阶段 <code>qualification</code>，金额可后填）→ 跳转 <code>/deals/:id</code>。</p>
+<p><strong>场景 B — Pipeline 推进</strong><br>销售打开 <code>/deals</code> 看板 → 将「北辰物流」从「方案报价」拖到「商务谈判」→ 系统写 <code>deal.stage_change</code> 审计 → 看板与漏斗图同步更新。</p>
+<p><strong>场景 C — 经理晨会</strong><br>经理打开 <code>/</code> Dashboard → 切换「团队视图」（<code>leads:view_all</code> 或等价数据范围）→ 看到团队 Pipeline 总额、阶段金额柱图、成员业绩排行、配额 Gauge。</p>
+<hr>
+<h2>3. 功能需求（User Story + Acceptance Criteria）</h2>
+<h3>3.1 模块映射：任务清单 ↔ 本 PRD</h3>
+<table>
+<thead>
+<tr>
+<th>任务 ID</th>
+<th>PRD 章节</th>
+<th>交付摘要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.0</td>
+<td>§10 架构师输入</td>
+<td><code>phase-3-deals-dashboard-api.md</code>、Schema 纲要、2b 评审</td>
+</tr>
+<tr>
+<td>3.UI</td>
+<td>§4.5、§5.2</td>
+<td><code>ChartSparkline</code>、<code>ChartGauge</code> + <code>/charts</code> 案例</td>
+</tr>
+<tr>
+<td>3.1</td>
+<td>§4.1–4.2</td>
+<td>Deals CRUD + Pipeline + <code>/deals</code></td>
+</tr>
+<tr>
+<td>3.2–3.3</td>
+<td>§4.3</td>
+<td>阶段金额、赢单率统计</td>
+</tr>
+<tr>
+<td>3.4–3.6</td>
+<td>§4.4–4.5</td>
+<td>Dashboard summary + 全图嵌入</td>
+</tr>
+<tr>
+<td>3.5</td>
+<td>§4.4.3</td>
+<td>配额 API + Gauge</td>
+</tr>
+<tr>
+<td>3.7</td>
+<td>§4.4.4</td>
+<td>经理业绩排行</td>
+</tr>
+<tr>
+<td>3.E2E</td>
+<td>§8</td>
+<td>E2E 冒烟路径</td>
+</tr>
+</tbody></table>
+<h3>4.1 商机 (Deals) — 数据模型</h3>
+<blockquote>
+<p><strong>字段与枚举以 <a href="../api/phase-3-deals-dashboard-api.md">phase-3-deals-dashboard-api.md</a> §2–§3 为准</strong>；下表为 PM 语义摘要。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>title</code>, <code>amount</code>, <code>currency</code></td>
+<td>商机名称与预计金额（默认 CNY，可选 USD）</td>
+</tr>
+<tr>
+<td><code>stage</code></td>
+<td>Pipeline 阶段，见下表</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>0–100；<code>won</code>=100、<code>lost</code>=0 建议</td>
+</tr>
+<tr>
+<td><code>expected_close_date</code></td>
+<td>预计关单日</td>
+</tr>
+<tr>
+<td><code>owner_id</code></td>
+<td>负责人，默认当前用户</td>
+</tr>
+<tr>
+<td><code>account_id</code> / <code>contact_id</code> / <code>lead_id</code></td>
+<td>关联公司、联系人、来源线索</td>
+</tr>
+<tr>
+<td><code>lost_reason</code>, <code>closed_at</code></td>
+<td>终态关单信息</td>
+</tr>
+<tr>
+<td><code>engagement_score</code>, <code>last_activity_at</code></td>
+<td>只读，规则同 Phase 2（可选）</td>
+</tr>
+</tbody></table>
+<h4>4.1.1 Pipeline 阶段枚举（Accepted 契约）</h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>中文默认</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>qualification</code></td>
+<td>需求确认</td>
+<td>默认阶段</td>
+</tr>
+<tr>
+<td><code>proposal</code></td>
+<td>方案报价</td>
+<td></td>
+</tr>
+<tr>
+<td><code>negotiation</code></td>
+<td>商务谈判</td>
+<td></td>
+</tr>
+<tr>
+<td><code>won</code></td>
+<td>赢单</td>
+<td><strong>终态</strong>；写 <code>closed_at</code></td>
+</tr>
+<tr>
+<td><code>lost</code></td>
+<td>输单</td>
+<td><strong>终态</strong>；建议 <code>lost_reason</code></td>
+</tr>
+</tbody></table>
+<p><strong>状态机</strong>：<code>qualification → proposal → negotiation → won | lost</code>；允许回退；非法迁移 → <code>invalid_stage_transition</code>（详见 phase-3-deals-dashboard-api §2.1）。</p>
+<h4>4.1.2 User Story — Deals CRUD</h4>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>以便</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DL-01</td>
+<td>销售</td>
+<td>新建商机并关联公司/联系人</td>
+<td>跟踪具体机会</td>
+<td>表单 Zod 校验；<code>deals:create</code>；写审计</td>
+</tr>
+<tr>
+<td>DL-02</td>
+<td>销售</td>
+<td>在列表/看板查看我的商机</td>
+<td>管理 Pipeline</td>
+<td>默认 <code>owner_id=me</code>；分页/筛选 stage、account</td>
+</tr>
+<tr>
+<td>DL-03</td>
+<td>销售</td>
+<td>编辑金额与预计关单日</td>
+<td>更新预测</td>
+<td><code>deals:update</code>；仅 owner 或经理（view_all）</td>
+</tr>
+<tr>
+<td>DL-04</td>
+<td>销售</td>
+<td>删除误建商机</td>
+<td>保持管道干净</td>
+<td><code>deals:delete</code>；软删或硬删由架构师定（须审计）</td>
+</tr>
+<tr>
+<td>DL-05</td>
+<td>销售</td>
+<td>从线索转化时可选创建商机</td>
+<td>convert Body 增 <code>create_deal</code>；写入 <code>lead_id</code>；响应含 <code>deal_id</code></td>
+<td></td>
+</tr>
+<tr>
+<td>DL-06</td>
+<td>销售</td>
+<td>在商机详情看到来源线索</td>
+<td>有 <code>lead_id</code> 时展示链接 <code>/leads/:id</code></td>
+<td></td>
+</tr>
+</tbody></table>
+<h4>4.1.3 User Story — Pipeline 看板</h4>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PL-01</td>
+<td>销售</td>
+<td>在 <code>/deals</code> 按阶段分列查看看板</td>
+<td>每列展示该阶段商机卡片（标题、金额、owner、预计关单）</td>
+</tr>
+<tr>
+<td>PL-02</td>
+<td>销售</td>
+<td>拖拽或菜单变更阶段</td>
+<td><code>PUT /api/deals/:id/stage</code>；乐观 UI 可失败回滚</td>
+</tr>
+<tr>
+<td>PL-03</td>
+<td>经理</td>
+<td>查看团队 Pipeline</td>
+<td><code>data_scope</code> 为 <code>department</code> 或 <code>all</code> 时生效</td>
+</tr>
+<tr>
+<td>PL-04</td>
+<td>系统</td>
+<td>看板顶部展示 Pipeline 漏斗</td>
+<td><code>GET /api/deals/pipeline</code> → <code>ChartFunnel</code></td>
+</tr>
+</tbody></table>
+<p><strong>UI 要求</strong>（FE）：</p>
+<ul>
+<li>看板 <code>data-testid=&quot;deals-pipeline&quot;</code>；新建 <code>deal-create-btn</code>  </li>
+<li>空列显示引导文案 + CTA  </li>
+<li>移动端：看板横向滚动或切换为列表+阶段筛选（Could）</li>
+</ul>
+<h3>4.2 Deals 详情页</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DD-01</td>
+<td>销售</td>
+<td>查看商机详情 Tab：概览 / 时间线</td>
+<td>时间线复用 Activity（<code>subject_type=deal</code> 或关联 account）</td>
+</tr>
+<tr>
+<td>DD-02</td>
+<td>销售</td>
+<td>快捷关单</td>
+<td>won/lost 按钮 + 确认 Modal</td>
+</tr>
+</tbody></table>
+<h3>4.3 Deals 分析区（<code>/deals</code> 报表 Tab 或分析区块）</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DS-01</td>
+<td>销售</td>
+<td>看各阶段 <strong>金额合计</strong> 柱图</td>
+<td><code>ChartBar</code> 接 <code>GET /api/deals/stats/by-stage</code></td>
+</tr>
+<tr>
+<td>DS-02</td>
+<td>经理</td>
+<td>看 <strong>赢单率</strong> 趋势</td>
+<td><code>ChartLine</code> 接 <code>GET /api/deals/stats/win-rate</code>；按周/月</td>
+</tr>
+<tr>
+<td>DS-03</td>
+<td>系统</td>
+<td>统计 API 遵守数据范围</td>
+<td>与列表相同 ABAC；集成测覆盖 tenant + scope</td>
+</tr>
+</tbody></table>
+<p><strong>赢单率定义（MVP）</strong>：</p>
+<pre><code>win_rate = closed_won_count / (closed_won_count + closed_lost_count)
+</code></pre>
+<p>分母为 0 时返回 <code>null</code>，前端显示「—」空态。</p>
+<h3>4.4 Dashboard（<code>/</code> 工作台升级）</h3>
+<p>Phase 2 工作台 IA（§11.5）保留；Phase 3 <strong>生产化</strong>以下能力：</p>
+<h4>4.4.1 汇总 API 替代客户端聚合</h4>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DB-01</td>
+<td>销售</td>
+<td>首页 KPI 一次加载</td>
+<td><code>GET /api/dashboard/summary</code> 返回 KPI + sparkline 序列</td>
+</tr>
+<tr>
+<td>DB-02</td>
+<td>系统</td>
+<td>避免 N+1</td>
+<td>禁止首页对 leads/accounts 全量 list 再算（现状 <code>use-dashboard</code> 应重构）</td>
+</tr>
+</tbody></table>
+<p><strong><code>summary</code> 响应语义</strong>：以 <a href="../api/phase-3-deals-dashboard-api.md">phase-3-deals-dashboard-api.md §4.1</a> 为准，含 <code>kpis</code>、<code>kpi_trends</code>、<code>sparklines</code>、<code>priorities</code>。</p>
+<h4>4.4.2 Dashboard 图表区（Must — 不得仅数字）</h4>
+<table>
+<thead>
+<tr>
+<th>图表</th>
+<th>组件</th>
+<th>数据 API</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>KPI sparklines</td>
+<td><code>ChartSparkline</code></td>
+<td><code>summary.sparklines</code></td>
+</tr>
+<tr>
+<td>赢单率趋势</td>
+<td><code>ChartLine</code></td>
+<td><code>GET /api/deals/stats/win-rate</code></td>
+</tr>
+<tr>
+<td>Pipeline 漏斗</td>
+<td><code>ChartFunnel</code></td>
+<td><code>GET /api/dashboard/funnel</code></td>
+</tr>
+<tr>
+<td>配额完成</td>
+<td><code>ChartGauge</code></td>
+<td><code>GET /api/dashboard/quota</code></td>
+</tr>
+<tr>
+<td>经理排行</td>
+<td><code>ChartBar</code></td>
+<td><code>GET /api/dashboard/team-ranking</code></td>
+</tr>
+<tr>
+<td>阶段金额</td>
+<td><code>ChartBar</code></td>
+<td><code>GET /api/deals/stats/by-stage</code>（Deals 页）</td>
+</tr>
+</tbody></table>
+<h4>4.4.3 配额（Quota）</h4>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>QT-01</td>
+<td>销售</td>
+<td>看本周期配额完成 %</td>
+<td>Gauge 0–100%；超额可 &gt;100 显示</td>
+</tr>
+<tr>
+<td>QT-02</td>
+<td>经理</td>
+<td>看团队汇总配额</td>
+<td><code>view_all</code> 时聚合下属</td>
+</tr>
+</tbody></table>
+<ul>
+<li>粒度：用户或租户（<code>tenants.config.sales_quota</code> JSONB）  </li>
+<li><code>target_amount</code> / <code>won_amount_mtd</code> / <code>completion_rate</code> 见 phase-3-deals-dashboard-api §4.4</li>
+</ul>
+<h4>4.4.4 经理视图 vs 个人视图</h4>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>视图差异</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认销售</td>
+<td><code>data_scope=self</code>：summary / funnel / quota 仅本人 <code>owner_id</code></td>
+</tr>
+<tr>
+<td><code>department</code></td>
+<td>本部门用户汇总</td>
+</tr>
+<tr>
+<td><code>all</code>（经理）</td>
+<td>全租户汇总 + <strong>team-ranking</strong> 展示</td>
+</tr>
+<tr>
+<td>Viewer</td>
+<td>只读；无新建 Deal 入口</td>
+</tr>
+</tbody></table>
+<p><strong>注意</strong>：Deals 与 Leads <strong>共用数据范围策略</strong>（ABAC 同一套 <code>view_own|department|all</code>），避免经理看 Leads 全量却看 Deals 仅本人。</p>
+<h4>4.4.5 Zone E 生产化策略</h4>
+<table>
+<thead>
+<tr>
+<th>区块</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>迷你商机漏斗</td>
+<td>fixtures + Preview 角标</td>
+<td><strong>真实</strong> <code>dashboard/funnel</code>；移除 Preview 角标</td>
+</tr>
+<tr>
+<td>团队关系热力</td>
+<td>fixtures Mock</td>
+<td><strong>Should</strong>：规则版（成员 × 平均 engagement）；<strong>Could</strong> 仍 Mock + 角标至 L2 真算</td>
+</tr>
+</tbody></table>
+<h3>4.5 ui-kit 组件（与业务同迭代）</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>场景</th>
+<th>DoD</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><code>ChartSparkline</code></strong></td>
+<td>KPI 卡内 7 点折线</td>
+<td><code>/charts</code> 案例 + i18n + Vitest 最小覆盖</td>
+</tr>
+<tr>
+<td><strong><code>ChartGauge</code></strong></td>
+<td>配额完成率</td>
+<td>同上</td>
+</tr>
+</tbody></table>
+<p>复用已有：<code>ChartFunnel</code>、<code>ChartLine</code>、<code>ChartBar</code>、<code>CardMetric</code>、<code>ChartShell</code>。</p>
+<h3>4.6 AI — 经理「关系降温」名单（Should Have）</h3>
+<p>接 Phase 2 情绪与 L2 规则，<strong>不做真 ML</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>作为</th>
+<th>我要</th>
+<th>AC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI-01</td>
+<td>经理</td>
+<td>在 Dashboard 看到「关系降温」列表</td>
+<td>规则：<code>engagement_score</code> 周环比下降 ≥ 阈值 或 连续 negative sentiment</td>
+</tr>
+<tr>
+<td>AI-02</td>
+<td>系统</td>
+<td>Preview 与规则分区</td>
+<td>真规则无角标；Mock 分数带 <code>AiPreviewBadge</code></td>
+</tr>
+<tr>
+<td>AI-03</td>
+<td>经理</td>
+<td>点击跳转客户/商机详情</td>
+<td>链接 <code>/leads/:id</code> 或 <code>/accounts/:id</code></td>
+</tr>
+</tbody></table>
+<p><strong>Out of Scope（Phase 3）</strong>：真 LLM 预测、自动阶段推荐、RAG。</p>
+<hr>
+<h2>5. 多租户与 RBAC 要求</h2>
+<h3>5.1 多租户</h3>
+<ul>
+<li>所有 <code>deals</code> 及 Dashboard 聚合查询 <strong>强制</strong> <code>tenant_id</code> 来自 JWT Context，禁止 body 传 tenant。  </li>
+<li>跨租户 Deal ID 访问返回 <code>404</code>（非 403，防枚举）。  </li>
+<li>Dashboard 汇总 <strong>不得</strong> 泄漏其他租户 KPI。</li>
+</ul>
+<h3>5.2 权限资源</h3>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>Actions</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>deals</code></td>
+<td><code>view</code>, <code>create</code>, <code>update</code>, <code>delete</code></td>
+<td>已 seed（00002）</td>
+</tr>
+<tr>
+<td><code>dashboard</code></td>
+<td><code>view</code></td>
+<td>访问 <code>/api/dashboard/*</code>（迁移新增）</td>
+</tr>
+</tbody></table>
+<h3>5.3 数据范围（ABAC）</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>self</code></td>
+<td>默认销售：仅 <code>owner_id = current_user</code></td>
+</tr>
+<tr>
+<td><code>department</code></td>
+<td>同部门 owner</td>
+</tr>
+<tr>
+<td><code>all</code></td>
+<td>租户内全部（经理）</td>
+</tr>
+</tbody></table>
+<p><strong>集成测试必须覆盖</strong>：租户 A 用户不可见租户 B 的 Deal；<code>self</code> scope 不可见他人 Pipeline。</p>
+<h3>5.4 审计</h3>
+<table>
+<thead>
+<tr>
+<th>action</th>
+<th>触发</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>deal.create</code> / <code>deal.update</code> / <code>deal.delete</code></td>
+<td>CRUD</td>
+</tr>
+<tr>
+<td><code>deal.stage_change</code></td>
+<td>阶段变更（含 from/to）</td>
+</tr>
+<tr>
+<td><code>deal.close_won</code> / <code>deal.close_lost</code></td>
+<td>关单（stage=won/lost）</td>
+</tr>
+<tr>
+<td><code>deal.convert_from_lead</code></td>
+<td>convert 时 create_deal</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. i18n 与本地化需求</h2>
+<ul>
+<li>所有用户可见文案走 <code>nuxt/i18n</code>，<strong>key 英文</strong>。  </li>
+<li>Pipeline 阶段：API 返回 <code>stage</code> code + 可选 <code>stage_label</code>；前端用 <code>deals.stage.{code}</code> 兜底。  </li>
+<li>金额：默认 <code>zh-CN</code> 显示 <code>¥1,234,567.00</code>；<code>en-US</code> 显示 <code>CNY 1,234,567.00</code>（MVP 单币种）。  </li>
+<li>Dashboard KPI label、Gauge 中心文案、空态、错误态双语齐全。</li>
+</ul>
+<hr>
+<h2>7. 非功能需求</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>性能</strong></td>
+<td><code>GET /api/dashboard/summary</code> P95 &lt; 300ms（单租户 200 用户、≤5k deals）；看板页首屏 &lt; 1.5s</td>
+</tr>
+<tr>
+<td><strong>安全</strong></td>
+<td>阶段变更、关单须鉴权 + 审计；禁止 IDOR</td>
+</tr>
+<tr>
+<td><strong>可用性</strong></td>
+<td>看板加载/空态/错误态；图表 API 失败单图降级不影响整页</td>
+</tr>
+<tr>
+<td><strong>兼容</strong></td>
+<td>现有 <code>/</code> 工作台布局不推翻；增量接 API</td>
+</tr>
+<tr>
+<td><strong>测试</strong></td>
+<td>BE 集成测（CRUD/scope/stats）；FE Vitest；QA E2E <code>phase3-deals</code> + Dashboard 冒烟</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. 验收与测试要点（QA 输入）</h2>
+<h3>8.1 核心 E2E 路径</h3>
+<ol>
+<li>登录 → 新建商机 → 看板可见 → 变更阶段 → 漏斗更新  </li>
+<li>线索 convert + <code>create_deal</code> → Deal 详情有 <code>lead_id</code>  </li>
+<li>Dashboard summary 一次加载（替代多列表聚合）→ KPI 下钻  </li>
+<li>经理账号：team-ranking 可见；销售账号：不可见他人 Deal  </li>
+<li>配额 Gauge 与本月 won 金额一致（seed 数据下）</li>
+</ol>
+<h3>8.2 图表 Done（与 task-breakdown 一致）</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Deals：<code>ChartFunnel</code> + <code>ChartBar</code> + <code>ChartLine</code> 接 API  </li>
+<li><input disabled="" type="checkbox"> Dashboard：<code>ChartSparkline</code>×KPI + <code>ChartLine</code> + <code>ChartFunnel</code> + <code>ChartGauge</code> + <code>ChartBar</code>（经理）  </li>
+<li><input disabled="" type="checkbox"> <code>/charts</code> 含 Sparkline、Gauge 案例区块</li>
+</ul>
+<hr>
+<h2>9. 优先级 (MoSCoW)</h2>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>Phase 3 范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Must</strong></td>
+<td>Deals CRUD + Pipeline + stage API + <code>/deals</code> 页</td>
+</tr>
+<tr>
+<td><strong>Must</strong></td>
+<td>Deals 统计（by-stage、win-rate、pipeline）</td>
+</tr>
+<tr>
+<td><strong>Must</strong></td>
+<td><code>GET /api/dashboard/summary</code> + KPI Sparkline</td>
+</tr>
+<tr>
+<td><strong>Must</strong></td>
+<td>Dashboard 至少 4 类图接 API（Sparkline/Line/Funnel/Gauge/Bar 取 4+）</td>
+</tr>
+<tr>
+<td><strong>Must</strong></td>
+<td>多租户 + RBAC + 数据范围集成测</td>
+</tr>
+<tr>
+<td><strong>Should</strong></td>
+<td>convert 时 <code>create_deal</code>；配额 API；经理 team-ranking</td>
+</tr>
+<tr>
+<td><strong>Should</strong></td>
+<td>关系降温名单（规则版）；Zone E 热力规则化</td>
+</tr>
+<tr>
+<td><strong>Could</strong></td>
+<td>看板移动端优化；独立 <code>/today</code></td>
+</tr>
+<tr>
+<td><strong>Won&#39;t</strong></td>
+<td>多币种、自定义 Pipeline 阶段（Phase 4）、真 ML 赢单预测、审批流</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>10. 成功指标</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Pipeline 可用性</td>
+<td>销售可在 3 分钟内完成「建商机 → 改阶段 → 看漏斗」</td>
+</tr>
+<tr>
+<td>Dashboard 加载</td>
+<td>summary 一次请求；较 Phase 2 减少 ≥50% 首页 API 调用次数</td>
+</tr>
+<tr>
+<td>数据隔离</td>
+<td>租户/scope 集成测 100% 通过</td>
+</tr>
+<tr>
+<td>图表验收</td>
+<td>task-breakdown「Phase 3 图表 Done」全勾选</td>
+</tr>
+<tr>
+<td>演示升级</td>
+<td>演示租户 Zone E 漏斗 <strong>无 Preview 角标</strong>（真实数据）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>11. 风险与依赖</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>影响</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Phase 2 convert 未带 <code>create_deal</code></td>
+<td>断链</td>
+<td>Phase 3 BE 扩展 convert；FE 转化 Modal 增勾选项</td>
+</tr>
+<tr>
+<td>首页 <code>use-dashboard</code> 重构量大</td>
+<td>延期</td>
+<td>3.4 优先 summary API；FE 分 PR 替换</td>
+</tr>
+<tr>
+<td>配额无设置 UI</td>
+<td>只能 seed</td>
+<td>MVP 文档说明；Phase 4 设置页</td>
+</tr>
+<tr>
+<td>ChartSparkline/Gauge 未就绪</td>
+<td>Dashboard 阻塞</td>
+<td>3.UI 与 3.1 并行，Week 1 必交付</td>
+</tr>
+<tr>
+<td>Phase 2.7 导入/分配未完成</td>
+<td>数据少</td>
+<td>不挡 Phase 3；QA 用 seed</td>
+</tr>
+</tbody></table>
+<p><strong>依赖</strong>：</p>
+<ul>
+<li>架构师：<code>docs/api/phase-3-deals-dashboard-api.md</code>（3.0 门禁）  </li>
+<li>Phase 2：<code>leads</code>、<code>accounts</code>、<code>activities</code> 表与权限  </li>
+<li>ui-kit：主题 bridge 已有</li>
+</ul>
+<hr>
+<h2>12. 架构师输入清单</h2>
+<blockquote>
+<p><strong>状态：已完成</strong>。Implementation 以 <a href="../api/phase-3-deals-dashboard-api.md">phase-3-deals-dashboard-api.md</a> v1.0 Accepted + <a href="../architecture/04-phase-3-deals-dashboard-schema.md">04-phase-3-deals-dashboard-schema.md</a> 为准，本节保留 PM→架构师原始输入追溯。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>能力</th>
+<th>契约章节</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Deals CRUD</td>
+<td>phase-3-deals-dashboard-api §3.2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Pipeline</td>
+<td>§3.3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Stage</td>
+<td>§3.4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Stats</td>
+<td>§3.5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Dashboard</td>
+<td>§4.1–4.5</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Convert 扩展</td>
+<td>§5</td>
+</tr>
+<tr>
+<td>7</td>
+<td>RBAC / 审计</td>
+<td>§6–§7</td>
+</tr>
+</tbody></table>
+<p>迁移：<code>00008_deals.sql</code>（见 Schema §5）。</p>
+<hr>
+<h2>13. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-25</td>
+<td>PM v0.1 初稿：Deals Pipeline、Dashboard 生产化、MoSCoW；对齐 phase-3-deals-dashboard-api v1.0 Accepted</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../prd/phase-3-deals-dashboard-prd.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

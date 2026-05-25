@@ -25,6 +25,11 @@ export interface ChartBarItem {
   value: number
 }
 
+export interface ChartDonutItem {
+  name: string
+  value: number
+}
+
 /** 热力图单格：row/col 为轴标签，value 为强度 */
 export interface ChartHeatmapPoint {
   row: string

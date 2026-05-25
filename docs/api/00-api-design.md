@@ -193,20 +193,16 @@
 
 见 [phase-2-crm-ai.md](./phase-2-crm-ai.md) §6–§11
 
-### Deals（商机，Phase 3）
+### Deals + Dashboard（商机与仪表盘，Phase 3）
 
-- `GET /api/deals`
-- `POST /api/deals`
-- `GET /api/deals/pipeline`
-- `PUT /api/deals/:id/stage`
+**详约**：[phase-3-deals-dashboard-api.md](./phase-3-deals-dashboard-api.md)（v1.0 Accepted）
 
----
-
-## 仪表盘（Phase 3）
-
-- `GET /api/dashboard/summary`
-- `GET /api/dashboard/funnel`
-- `GET /api/dashboard/todo`
+| 模块 | 代表路径 |
+|------|----------|
+| Deals CRUD | `GET/POST /api/deals`、`GET/PUT/PATCH/DELETE /api/deals/:id` |
+| Pipeline | `GET /api/deals/pipeline`、`PUT /api/deals/:id/stage` |
+| Deals 统计 | `GET /api/deals/stats/by-stage`、`GET /api/deals/stats/win-rate` |
+| Dashboard | `GET /api/dashboard/summary`、`/funnel`、`/todo`、`/quota`、`/team-ranking` |
 
 ---
 

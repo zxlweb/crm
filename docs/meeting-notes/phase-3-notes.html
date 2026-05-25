@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3 阶段笔记 — 商机与仪表盘 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><a href="../api/phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api/phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture/04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch/03-design-system.html">03-design-system</a><a href="../frontend-arch/04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch/05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes/phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes/phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes/phase-3-notes.html" style="color:var(--accent);font-weight:600">phase-3-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><a href="../prd/phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd/phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><a href="../qa/phase-1-qa.html">phase-1-qa</a><a href="../qa/phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa/phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><a href="../tasks/parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../meeting-notes/phase-3-notes.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 3 阶段笔记 — 商机与仪表盘</h1>
+<p><strong>日期</strong>：2026-05-24<br><strong>状态</strong>：PRD v0.1 + Architect 3.0 完成 → <strong>可开启 Implementation 三轨</strong><br><strong>PRD</strong>：<a href="../prd/phase-3-deals-dashboard-prd.md">phase-3-deals-dashboard-prd.md</a></p>
+<hr>
+<h2>1. 架构产出（3.0）</h2>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>路径</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Deals + Dashboard API 契约 v1.0</td>
+<td><a href="../api/phase-3-deals-dashboard-api.md">docs/api/phase-3-deals-dashboard-api.md</a></td>
+<td>✅ Accepted</td>
+</tr>
+<tr>
+<td>数据模型 / 迁移纲要</td>
+<td><a href="../architecture/04-phase-3-deals-dashboard-schema.md">docs/architecture/04-phase-3-deals-dashboard-schema.md</a></td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<p><strong>评审结论</strong>：契约覆盖并行表 3.1–3.7 路径；<code>deals</code> 五阶段 Pipeline + Dashboard <code>summary/funnel/quota/team-ranking</code>；BE 按 phase-3-deals-dashboard-api §9 实现顺序领任务。</p>
+<hr>
+<h2>2. 前端切面（2b）</h2>
+<h3>2.1 路由（<code>apps/web/pages/</code>）</h3>
+<table>
+<thead>
+<tr>
+<th>路由</th>
+<th>页面</th>
+<th>layout</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/deals</code></td>
+<td>Pipeline 看板 + 列表入口</td>
+<td><code>app</code></td>
+</tr>
+<tr>
+<td><code>/deals/[id]</code></td>
+<td>商机详情 / 编辑</td>
+<td><code>app</code></td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>工作台（<code>GET /api/dashboard/summary</code> 替代多列表聚合）</td>
+<td><code>app</code></td>
+</tr>
+</tbody></table>
+<p>权限：<code>deals:view|create|update|delete</code>；<code>dashboard:view</code>（汇总端点）。</p>
+<h3>2.2 Composables</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>use-deals</code></td>
+<td>CRUD + <code>fetchPipeline</code> + <code>updateStage</code></td>
+</tr>
+<tr>
+<td><code>use-deal-stats</code></td>
+<td><code>by-stage</code>、<code>win-rate</code>（3.2–3.3）</td>
+</tr>
+<tr>
+<td><code>use-dashboard-stats</code></td>
+<td><code>summary</code>、<code>funnel</code>、<code>quota</code>、<code>teamRanking</code>（3.4–3.7）</td>
+</tr>
+</tbody></table>
+<h3>2.3 组件落点</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Deals 看板</td>
+<td><code>components/feature/deals/deals-pipeline-board.vue</code>（建议）</td>
+</tr>
+<tr>
+<td>Pipeline 图</td>
+<td><code>ChartFunnel</code> @ <code>/deals</code></td>
+</tr>
+<tr>
+<td>KPI 行</td>
+<td><code>dashboard-kpi-row.vue</code> + <strong><code>ChartSparkline</code></strong>（<code>summary.sparklines</code>）</td>
+</tr>
+<tr>
+<td>配额</td>
+<td><strong><code>ChartGauge</code></strong> ← <code>GET /api/dashboard/quota</code></td>
+</tr>
+<tr>
+<td>经理排行</td>
+<td><code>ChartBar</code> ← <code>team-ranking</code></td>
+</tr>
+</tbody></table>
+<h3>2.4 <code>data-testid</code>（QA 约定）</h3>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>testid</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>新建商机</td>
+<td><code>deal-create-btn</code></td>
+</tr>
+<tr>
+<td>Pipeline 看板</td>
+<td><code>deals-pipeline</code></td>
+</tr>
+<tr>
+<td>阶段列</td>
+<td><code>deals-pipeline-stage-{stage}</code></td>
+</tr>
+<tr>
+<td>Dashboard KPI 行</td>
+<td><code>dashboard-kpi-row</code></td>
+</tr>
+<tr>
+<td>配额仪表</td>
+<td><code>dashboard-quota-gauge</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. BE 3.1–3.7 交付（2026-05-25 冲刺）</h2>
+<ul>
+<li>迁移：<code>00010</code>–<code>00012</code>（<code>deals</code> + <code>dashboard:view</code> + demo seed）</li>
+<li><strong>Deals</strong>：CRUD、pipeline、stage、<code>stats/by-stage</code>、<code>stats/win-rate</code></li>
+<li><strong>Dashboard</strong>：<code>summary</code>、<code>funnel</code>、<code>quota</code>、<code>team-ranking</code>；<code>todo</code> 返回 <code>items: []</code>（P2 stub）</li>
+<li>测试：<code>deals_integration_test.go</code>、<code>dashboard_integration_test.go</code>；<code>make backend-test</code> 通过</li>
+<li><strong>FE</strong>：<code>use-deals</code> / <code>use-dashboard-stats</code> 可接真 API；<code>make migrate-up</code> 后联调</li>
+</ul>
+<h2>4. FE 联调（2026-05-25）</h2>
+<ul>
+<li><strong>Mock 策略</strong>：默认走真实 API；仅 <code>NUXT_PUBLIC_USE_DEALS_MOCK=true</code> / <code>NUXT_PUBLIC_USE_DASHBOARD_MOCK=true</code> 时强制 fixture</li>
+<li><strong>已验证端点</strong>（Demo 租户 <code>admin@demo.com</code> / <code>password123</code>）：<ul>
+<li><code>GET /api/dashboard/summary</code> → KPI + sparklines + priorities</li>
+<li><code>GET /api/dashboard/quota|funnel</code> → Gauge + Funnel</li>
+<li><code>GET /api/deals/stats/by-stage</code> → Deals 分析 Tab</li>
+</ul>
+</li>
+<li><strong>经理排行</strong>：<code>data_scope=self</code> 时 BE 返回 403；FE 隐藏 <code>dashboard-team-ranking</code> 列，不阻断 quota/funnel</li>
+<li><strong>本地</strong>：BE <code>:8080</code> + FE <code>pnpm --filter @crm/web dev</code>；确认未设置 mock env</li>
+</ul>
+<h2>5. 三轨领任务指引</h2>
+<ul>
+<li><strong>BE</strong>：3.1–3.7 ✅</li>
+<li><strong>FE</strong>：<code>【FE】Phase 3 — 3.UI</code> 与 <code>3.1</code> 并行；<code>3.4</code> 接 <code>dashboard/summary</code></li>
+<li><strong>QA</strong>：<code>【QA】Phase 3 — [phase-3-deals-qa-plan.md](../qa/phase-3-deals-qa-plan.md)</code>（已就绪，按子任务 3.1→3.E2E 领测）</li>
+</ul>
+<p><strong>Week 1</strong>：3.1 BE + 3.UI FE + 3.4 summary；<strong>Week 2</strong>：3.2–3.7 + 3.E2E。</p>
+<hr>
+<h2>6. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-24</td>
+<td>初稿：Phase 3 开工切面</td>
+</tr>
+<tr>
+<td>2026-05-24</td>
+<td>3.0 完成：phase-3-deals-dashboard-api v1.0、04-phase-3 schema，开放 Implementation</td>
+</tr>
+<tr>
+<td>2026-05-25</td>
+<td>链 Phase 3 详细 PRD v0.1</td>
+</tr>
+<tr>
+<td>2026-05-25</td>
+<td>BE 3.1：Deals CRUD + Pipeline + stage + convert create_deal</td>
+</tr>
+<tr>
+<td>2026-05-25</td>
+<td>BE 3.1–3.7 一晚冲刺：Dashboard + Deals 统计全 API</td>
+</tr>
+<tr>
+<td>2026-05-25</td>
+<td>FE 联调：切真实 API，经理排行 403 降级，移除 silent mock fallback</td>
+</tr>
+<tr>
+<td>2026-05-25</td>
+<td>联调 polish：Casbin 域模型修复、Demo 销售配额、赢单率单点、文案清理</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../meeting-notes/phase-3-notes.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

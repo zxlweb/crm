@@ -5,6 +5,7 @@
       <h1 class="truncate text-lg font-semibold text-ds-fg-heading">{{ pageTitle }}</h1>
     </div>
     <div class="flex items-center gap-3">
+      <AppShellThemeSwitch />
       <AppTenantSwitcher :show-label="false" />
       <UBadge v-if="leads.useMock.value" color="amber" variant="subtle" size="sm">
         {{ $t('crmMockBadge') }}
@@ -35,6 +36,12 @@ const pageTitle = computed(() => {
   }
   if (route.path === '/leads') {
     return t('leadsPageTitle')
+  }
+  if (route.path.startsWith('/contacts')) {
+    return t('crmNavContacts')
+  }
+  if (route.path.startsWith('/deals')) {
+    return t('dealsPageTitle')
   }
   return t('crmBreadcrumb')
 })

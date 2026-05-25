@@ -1,15 +1,15 @@
-/** Nuxt UI UInput — 对齐 CRM design-system，弱化默认 gray ring + primary focus */
+/** Nuxt UI UInput — 对齐 CRM design-system（勿依赖 dark: 或 /opacity，由 .form-input 全局样式兜底） */
 export const crmInputUi = {
   rounded: 'rounded-lg',
   placeholder: 'placeholder:text-ds-fg-muted',
   color: {
     white: {
       outline:
-        'bg-ds-bg-elevated text-ds-fg shadow-none ring-1 ring-inset ring-ds-border focus:ring-2 focus:ring-ds-brand/12',
+        'bg-ds-bg-input text-ds-fg shadow-none ring-1 ring-inset ring-ds-border hover:ring-ds-border focus:ring-2 focus:ring-ds-brand/20',
     },
     gray: {
       outline:
-        'bg-ds-bg-muted/40 text-ds-fg shadow-none ring-1 ring-inset ring-transparent hover:bg-ds-bg-muted/70 focus:bg-ds-bg-elevated focus:ring-2 focus:ring-ds-brand/10',
+        'bg-ds-bg-input text-ds-fg shadow-none ring-1 ring-inset ring-ds-border hover:ring-ds-border focus:ring-2 focus:ring-ds-brand/20',
     },
   },
   icon: {

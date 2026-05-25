@@ -33,6 +33,14 @@
             <component :is="kpi.icon" class="h-5 w-5" aria-hidden="true" />
           </template>
         </CardMetric>
+        <ChartSparkline
+          v-if="kpi.sparkline?.length"
+          :values="kpi.sparkline"
+          :tone="kpi.sparklineTone ?? 'auto'"
+          :width="variant === 'hero' ? 72 : 56"
+          :height="28"
+          class="pointer-events-none absolute bottom-3 right-3 opacity-90"
+        />
         <UIcon
           v-if="variant !== 'hero'"
           name="i-heroicons-chevron-right-20-solid"
@@ -45,30 +53,37 @@
 </template>
 
 <script setup lang="ts">
-import type { DashboardKpiTrends } from '~/types/dashboard'
+import type { DashboardKpiTrends, DashboardSparklines } from '~/types/dashboard'
 import { h } from 'vue'
 
 type TrendDirection = 'up' | 'down' | 'flat'
+
+type SparklineTone = 'auto' | 'up' | 'down' | 'flat' | 'brand'
 
 const props = withDefaults(
   defineProps<{
     leadsTotal: number
     accountsTotal: number
+    dealsOpenCount: number
+    dealsOpenAmount: number
     avgEngagement: number
     atRiskTotal: number
     kpiTrends: DashboardKpiTrends
+    sparklines?: DashboardSparklines
     variant?: 'default' | 'hero'
   }>(),
   {
     variant: 'default',
+    sparklines: () => ({ leads: [], deals: [] }),
   },
 )
 
 const { t } = useI18n()
+const { formatDealAmount } = useDealLabels()
 
 const gridClass = computed(() => {
   if (props.variant === 'hero') {
-    return 'grid grid-cols-2 gap-3 sm:grid-cols-4 xl:gap-4'
+    return 'grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5 xl:gap-4'
   }
   return 'grid min-w-[36rem] grid-cols-4 gap-3 overflow-x-auto pb-0.5 sm:min-w-0'
 })
@@ -85,6 +100,10 @@ const kpis = computed(() => {
   const accountsTrend =
     props.kpiTrends.accountsWeeklyTouch > 0
       ? t('dashboardKpiTrendWeeklyActive', { count: props.kpiTrends.accountsWeeklyTouch })
+      : undefined
+  const dealsTrend =
+    (props.kpiTrends.dealsWeeklyNew ?? 0) > 0
+      ? t('dashboardKpiTrendDealsNew', { count: props.kpiTrends.dealsWeeklyNew })
       : undefined
 
   let engagementTrend: string | undefined
@@ -110,6 +129,8 @@ const kpis = computed(() => {
       trend: leadsTrend,
       trendDirection: 'flat' as TrendDirection,
       iconTone: 'info' as const,
+      sparkline: props.sparklines.leads,
+      sparklineTone: 'brand' as SparklineTone,
       icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75' }, [
         h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' }),
       ]),
@@ -128,16 +149,18 @@ const kpis = computed(() => {
       ]),
     },
     {
-      key: 'engagement',
-      label: t('dashboardKpiEngagement'),
-      value: props.avgEngagement,
-      hint: t('dashboardKpiEngagementHint'),
-      href: '/leads?tab=reports',
-      trend: engagementTrend,
-      trendDirection: engagementTrendDirection,
+      key: 'deals',
+      label: t('dashboardKpiDealsOpen'),
+      value: props.dealsOpenCount,
+      hint: formatDealAmount(props.dealsOpenAmount),
+      href: '/deals',
+      trend: dealsTrend,
+      trendDirection: 'up' as TrendDirection,
       iconTone: 'brand' as const,
+      sparkline: props.sparklines.deals,
+      sparklineTone: 'up' as SparklineTone,
       icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75' }, [
-        h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' }),
+        h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }),
       ]),
     },
     {
@@ -151,6 +174,19 @@ const kpis = computed(() => {
       iconTone: 'accent' as const,
       icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75' }, [
         h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' }),
+      ]),
+    },
+    {
+      key: 'engagement',
+      label: t('dashboardKpiEngagement'),
+      value: props.avgEngagement,
+      hint: t('dashboardKpiEngagementHint'),
+      href: '/leads?tab=reports',
+      trend: engagementTrend,
+      trendDirection: engagementTrendDirection,
+      iconTone: 'info' as const,
+      icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75' }, [
+        h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' }),
       ]),
     },
   ]

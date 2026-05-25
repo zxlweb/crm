@@ -15,6 +15,8 @@
 | 文件 | 说明 |
 |------|------|
 | [phase-0-notes.md](./phase-0-notes.md) | Phase 0 基础架构收尾笔记 |
+| [phase-2-notes.md](./phase-2-notes.md) | Phase 2 关系经营 / AI Preview 切面 |
+| [phase-3-notes.md](./phase-3-notes.md) | Phase 3 商机与仪表盘切面（开工） |
 
 ## 协作规则
 

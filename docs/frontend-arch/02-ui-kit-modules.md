@@ -240,6 +240,7 @@ Phase 交付勾选：[../tasks/00-mvp-task-breakdown.md](../tasks/00-mvp-task-br
 ## 9. 合并前检查清单
 
 - [ ] 新设计系统组件 → `packages/ui-kit`（非 `apps/web/components/ui`）
+- [ ] **新 `Chart*` / `Card*` / `Ui*` 已更新案例页**（`/charts`、`/cards`、`/design`）— [05-component-scenarios.md](./05-component-scenarios.md) §0.1
 - [ ] 新业务组件 → `apps/web/components/feature/{domain}/`
 - [ ] 跨 feature + RBAC → `apps/web/components/common/`
 - [ ] 页面用 `<Chart*>` / `import type { … } from '@crm/ui-kit'`，不调用 `useChartTheme`

@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"testing"
+	"time"
 
 	"crm-backend/internal/domain"
 	"crm-backend/internal/repository"
@@ -57,11 +58,36 @@ func (m *mockAccountRepo) SoftDelete(ctx context.Context, tenantID, id uuid.UUID
 	return nil
 }
 
+func (m *mockAccountRepo) UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error {
+	a, ok := m.items[id]
+	if !ok || a.TenantID != tenantID {
+		return repository.ErrAccountNotFound
+	}
+	a.LastActivityAt = last
+	a.EngagementScore = score
+	return nil
+}
+
+func (m *mockAccountRepo) CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error) {
+	_ = ctx
+	_ = viewAll
+	_ = userID
+	return int64(len(m.items)), nil
+}
+
+func (m *mockAccountRepo) CountLowEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error) {
+	_ = ctx
+	_ = tenantID
+	_ = viewAll
+	_ = userID
+	return 0, nil
+}
+
 func TestService_CreateDefaultsOwnerAndStage(t *testing.T) {
 	tenantID := uuid.New()
 	userID := uuid.New()
 	repo := &mockAccountRepo{items: map[uuid.UUID]*domain.Account{}}
-	svc := NewService(repo, nil)
+	svc := NewService(repo, nil, nil)
 
 	dto, err := svc.Create(context.Background(), tenantID, userID, CreateInput{Name: "Acme"})
 	if err != nil {

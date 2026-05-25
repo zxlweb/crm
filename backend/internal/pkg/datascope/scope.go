@@ -22,3 +22,35 @@ func OwnerScope(db *gorm.DB, userID uuid.UUID, viewAll bool) *gorm.DB {
 	}
 	return db.Where("(owner_id = ? OR owner_id IS NULL)", userID)
 }
+
+// ResolveDataScope maps Casbin policies to API data_scope (Phase 3).
+func ResolveDataScope(enforcer *casbin.Enforcer, userID, tenantID string) string {
+	if CanViewAllTenantData(enforcer, userID, tenantID) {
+		return "all"
+	}
+	return "self"
+}
+
+// CanViewTeamData reports manager-style scope for team-ranking (department stub = all).
+func CanViewTeamData(enforcer *casbin.Enforcer, userID, tenantID string) bool {
+	scope := ResolveDataScope(enforcer, userID, tenantID)
+	return scope == "all" || scope == "department"
+}
+
+// CanAccessDashboard reports dashboard:view or module view for summary.
+func CanAccessDashboard(enforcer *casbin.Enforcer, userID, tenantID string) bool {
+	if enforcer == nil {
+		return false
+	}
+	for _, pair := range [][2]string{
+		{"dashboard", "view"},
+		{"leads", "view"},
+		{"deals", "view"},
+	} {
+		ok, err := enforcer.Enforce(userID, tenantID, pair[0], pair[1])
+		if err == nil && ok {
+			return true
+		}
+	}
+	return false
+}

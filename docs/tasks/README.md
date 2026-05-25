@@ -25,4 +25,4 @@
 
 ## 当前建议下一步
 
-见主清单 **Phase 1**：[用户注册 / 登录 / Refresh Token](./00-mvp-task-breakdown.md)
+见主清单 **Phase 3**：[商机与仪表盘 · 并行表 §3.0–3.E2E](./00-mvp-task-breakdown.md#phase-3商机与仪表盘)

@@ -3,6 +3,7 @@ package lead
 import (
 	"context"
 	"testing"
+	"time"
 
 	"crm-backend/internal/domain"
 	"crm-backend/internal/repository"
@@ -53,6 +54,78 @@ func (m *mockLeadRepo) SoftDelete(ctx context.Context, tenantID, id uuid.UUID) e
 	return nil
 }
 
+func (m *mockLeadRepo) UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error {
+	l, ok := m.items[id]
+	if !ok || l.TenantID != tenantID {
+		return repository.ErrLeadNotFound
+	}
+	l.LastActivityAt = last
+	l.EngagementScore = score
+	return nil
+}
+
+func (m *mockLeadRepo) StatsBySource(ctx context.Context, tenantID uuid.UUID, f repository.LeadStatsFilter) ([]repository.LabelCount, int64, error) {
+	return nil, 0, nil
+}
+
+func (m *mockLeadRepo) StatsByStatus(ctx context.Context, tenantID uuid.UUID, f repository.LeadStatsFilter) ([]repository.LabelCount, int64, error) {
+	return nil, 0, nil
+}
+
+func (m *mockLeadRepo) StatsTrend(ctx context.Context, tenantID uuid.UUID, f repository.LeadStatsFilter, granularity string) ([]repository.TrendPoint, error) {
+	return nil, nil
+}
+
+func (m *mockLeadRepo) StatsFunnel(ctx context.Context, tenantID uuid.UUID, f repository.LeadStatsFilter) ([]repository.LabelCount, error) {
+	return nil, nil
+}
+
+func (m *mockLeadRepo) CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error) {
+	_ = viewAll
+	_ = userID
+	var n int64
+	for _, l := range m.items {
+		if l.TenantID == tenantID {
+			n++
+		}
+	}
+	return n, nil
+}
+
+func (m *mockLeadRepo) DailyCreatedCounts(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID, days int) ([]int64, error) {
+	_ = ctx
+	_ = tenantID
+	_ = viewAll
+	_ = userID
+	if days < 1 {
+		days = 7
+	}
+	return make([]int64, days), nil
+}
+
+func (m *mockLeadRepo) CountLowEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error) {
+	_ = ctx
+	_ = tenantID
+	_ = viewAll
+	_ = userID
+	return 0, nil
+}
+
+func (m *mockLeadRepo) AvgEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (float64, error) {
+	_ = ctx
+	_ = tenantID
+	_ = viewAll
+	_ = userID
+	return 0, nil
+}
+
+func (m *mockLeadRepo) ListPriorityCandidates(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID, limit int) ([]domain.Lead, error) {
+	_ = ctx
+	_ = limit
+	items, _, err := m.List(ctx, tenantID, repository.LeadListFilter{Page: 1, PageSize: 20, ViewAll: viewAll, UserID: userID})
+	return items, err
+}
+
 type mockAccountRepo struct {
 	items map[uuid.UUID]*domain.Account
 }
@@ -90,6 +163,31 @@ func (m *mockAccountRepo) SoftDelete(ctx context.Context, tenantID, id uuid.UUID
 	return nil
 }
 
+func (m *mockAccountRepo) UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error {
+	a, ok := m.items[id]
+	if !ok || a.TenantID != tenantID {
+		return repository.ErrAccountNotFound
+	}
+	a.LastActivityAt = last
+	a.EngagementScore = score
+	return nil
+}
+
+func (m *mockAccountRepo) CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error) {
+	_ = ctx
+	_ = viewAll
+	_ = userID
+	return int64(len(m.items)), nil
+}
+
+func (m *mockAccountRepo) CountLowEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error) {
+	_ = ctx
+	_ = tenantID
+	_ = viewAll
+	_ = userID
+	return 0, nil
+}
+
 func TestService_StatusTransition(t *testing.T) {
 	tenantID := uuid.New()
 	userID := uuid.New()
@@ -100,7 +198,7 @@ func TestService_StatusTransition(t *testing.T) {
 			Title: "L", Status: "new", LifecycleStage: "acquire",
 		},
 	}}
-	svc := NewService(repo, &mockAccountRepo{}, nil)
+	svc := NewService(repo, &mockAccountRepo{}, nil, nil, nil, nil)
 
 	status := "qualified"
 	_, err := svc.Update(context.Background(), tenantID, userID, leadID, UpdateInput{Status: &status}, false)
@@ -125,7 +223,7 @@ func TestService_ConvertCreatesAccount(t *testing.T) {
 		},
 	}}
 	accRepo := &mockAccountRepo{items: map[uuid.UUID]*domain.Account{}}
-	svc := NewService(leadRepo, accRepo, nil)
+	svc := NewService(leadRepo, accRepo, nil, nil, nil, nil)
 
 	dto, err := svc.Convert(context.Background(), tenantID, userID, leadID, ConvertInput{
 		CreateAccount: &ConvertAccountInput{Name: "Acme Corp"},
@@ -133,7 +231,7 @@ func TestService_ConvertCreatesAccount(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if dto.Status != "converted" || dto.ConvertedAccountID == nil {
+	if dto.LeadDTO.Status != "converted" || dto.ConvertedAccountID == nil {
 		t.Fatalf("convert result: %+v", dto)
 	}
 	if len(accRepo.items) != 1 {

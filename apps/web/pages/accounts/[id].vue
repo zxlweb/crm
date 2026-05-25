@@ -85,18 +85,49 @@
                 </div>
               </dl>
             </CardShell>
+
+            <ContactsAccountContactsPanel
+              :items="linkedContacts"
+              :pending="contactsPending"
+              :load-error="contactsError"
+              :can-create="canCreateContact"
+              @create="goCreateContact"
+            />
           </template>
 
           <template #timeline>
-            <CardShell :title="$t('leadsTabTimeline')" class="rounded-2xl">
-              <p class="text-sm text-ds-fg-muted">{{ $t('accountsTimelinePlaceholder') }}</p>
+            <CardShell :title="$t('leadsTabTimeline')" :subtitle="$t('leadsSectionTimelineHint')" class="rounded-2xl">
+              <template v-if="canCreateActivity" #header-extra>
+                <div class="mt-3 flex justify-end">
+                  <UiButton
+                    size="sm"
+                    variant="secondary"
+                    icon="i-heroicons-plus-20-solid"
+                    data-testid="activity-create-btn"
+                    @click="activityOpen = true"
+                  >
+                    {{ $t('activityCreateBtn') }}
+                  </UiButton>
+                </div>
+              </template>
+              <div class="space-y-6" data-testid="account-activity-timeline-section">
+                <div>
+                  <h3 class="mb-2 text-sm font-semibold text-ds-fg-heading">{{ $t('activitySummaryTitle') }}</h3>
+                  <p class="mb-3 text-xs text-ds-fg-muted">{{ $t('activitySummaryHint') }}</p>
+                  <CrmActivitySummaryChart ref="summaryRef" subject-type="account" :subject-id="account.id" />
+                </div>
+                <div>
+                  <h3 class="mb-3 text-sm font-semibold text-ds-fg-heading">{{ $t('activityTimelineTitle') }}</h3>
+                  <CrmActivityTimeline ref="timelineRef" subject-type="account" :subject-id="account.id" />
+                </div>
+              </div>
             </CardShell>
           </template>
 
           <template #emotion>
             <div data-testid="tab-emotion-journey">
               <CardShell :title="$t('leadsTabEmotion')" class="rounded-2xl">
-                <CrmEmotionJourneyMap subject-type="account" :subject-id="account.id" />
+                <CrmEmotionJourneyMap ref="emotionMapRef" subject-type="account" :subject-id="account.id" />
               </CardShell>
             </div>
           </template>
@@ -105,11 +136,25 @@
 
       <AiRelationPanel
         v-if="showAiPanel"
-        :show-preview="isPreviewMode"
-        :insights="stubInsights"
-        :engagement-score="account.engagement_score"
+        class="xl:sticky xl:top-4 xl:self-start"
+        :show-preview="aiPreview.isPreviewMode"
+        :insights="panelInsights"
+        :engagement-score="panelEngagementScore"
+        :churn-score="aiPreview.churnRiskScore"
+        :disclaimer="aiPreview.disclaimer"
+        :generate-copilot="aiPreview.generateCopilot"
       />
     </div>
+
+    <UiModal v-model:open="activityOpen" :title="$t('activityCreateTitle')">
+      <CrmActivityForm
+        subject-type="account"
+        :subject-id="account?.id ?? ''"
+        :loading="activitySaving"
+        @submit="submitActivity"
+        @cancel="activityOpen = false"
+      />
+    </UiModal>
 
     <UiModal v-model:open="editOpen" :title="$t('accountsEditTitle')">
       <form class="space-y-4" @submit.prevent="submitEdit">
@@ -145,7 +190,9 @@
 </template>
 
 <script setup lang="ts">
+import type { ActivityCreateInput } from '~/types/activity'
 import type { Account, AccountDetailTab, LifecycleStage } from '~/types/account'
+import type { Contact } from '~/types/contact'
 
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
@@ -153,6 +200,9 @@ const route = useRoute()
 const { t, locale } = useI18n()
 const permission = usePermission()
 const accountsApi = useAccounts()
+const contactsApi = useContacts()
+const activitiesApi = useActivities()
+const router = useRouter()
 
 const lifecycleOptions: LifecycleStage[] = ['acquire', 'activate', 'grow', 'retain', 'revive']
 
@@ -163,7 +213,12 @@ const activeTab = ref<AccountDetailTab>(
   route.query.tab === 'timeline' || route.query.tab === 'emotion' ? route.query.tab : 'overview',
 )
 const editOpen = ref(false)
+const activityOpen = ref(false)
 const saving = ref(false)
+const activitySaving = ref(false)
+const timelineRef = ref<{ reload: () => Promise<void> } | null>(null)
+const summaryRef = ref<{ reload: () => Promise<void> } | null>(null)
+const emotionMapRef = ref<{ reload: () => Promise<void> } | null>(null)
 
 const formName = ref('')
 const formIndustry = ref('')
@@ -171,9 +226,31 @@ const formWebsite = ref('')
 const formLifecycle = ref<LifecycleStage>('acquire')
 const formTagsText = ref('')
 
+const linkedContacts = ref<Contact[]>([])
+const contactsPending = ref(false)
+const contactsError = ref('')
+
 const canUpdate = computed(() => permission.can('accounts', 'update'))
-const isPreviewMode = computed(() => route.query.preview === '1')
+const canCreateContact = computed(() => permission.can('contacts', 'create'))
+const canCreateActivity = computed(() => permission.can('activities', 'create'))
 const showAiPanel = true
+
+const accountId = computed(() => account.value?.id ?? null)
+const aiPreview = useAiPreview(accountId)
+const fallbackEngagement = computed(() => account.value?.engagement_score ?? null)
+
+const previewInsights = aiPreview.previewInsights
+
+const {
+  insights: panelInsights,
+  engagementScore: panelEngagementScore,
+  reload: reloadInsights,
+} = useDetailInsights({
+  subjectType: 'account',
+  subjectId: accountId,
+  previewInsights,
+  fallbackEngagement,
+})
 
 const websiteHref = computed(() => {
   const w = account.value?.website?.trim()
@@ -184,14 +261,6 @@ const websiteHref = computed(() => {
 const lifecycleFormItems = computed(() =>
   lifecycleOptions.map((s) => ({ label: t(`lifecycle.${s}`), value: s })),
 )
-
-const stubInsights = computed(() => {
-  if (!isPreviewMode.value) return []
-  return [
-    { id: 'INS-A1', title: t('aiStubInsight1Title'), body: t('aiStubInsight1Body') },
-    { id: 'INS-A2', title: t('aiStubInsight2Title'), body: t('aiStubInsight2Body') },
-  ]
-})
 
 function parseTags(text: string): string[] {
   return text
@@ -213,17 +282,60 @@ function fillForm(row: Account) {
   formTagsText.value = (row.tags ?? []).join(', ')
 }
 
+function goCreateContact() {
+  if (!account.value) return
+  router.push({ path: '/contacts', query: { create: '1', account_id: account.value.id } })
+}
+
+async function loadLinkedContacts(accountId: string) {
+  contactsPending.value = true
+  contactsError.value = ''
+  try {
+    const { data } = await contactsApi.fetchByAccount(accountId, { page_size: 20 })
+    linkedContacts.value = data.items
+  } catch (e) {
+    contactsError.value = e instanceof Error ? e.message : t('loadFailed')
+    linkedContacts.value = []
+  } finally {
+    contactsPending.value = false
+  }
+}
+
 async function load() {
   pending.value = true
   loadError.value = ''
   const id = route.params.id as string
   try {
     account.value = await accountsApi.fetchById(id)
-    if (account.value) fillForm(account.value)
+    if (account.value) {
+      fillForm(account.value)
+      await loadLinkedContacts(account.value.id)
+    }
   } catch (e) {
     loadError.value = e instanceof Error ? e.message : t('loadFailed')
   } finally {
     pending.value = false
+  }
+}
+
+async function submitActivity(payload: ActivityCreateInput) {
+  if (!account.value) return
+  activitySaving.value = true
+  loadError.value = ''
+  try {
+    await activitiesApi.create(payload)
+    activityOpen.value = false
+    await Promise.all([
+      timelineRef.value?.reload(),
+      summaryRef.value?.reload(),
+      reloadInsights(),
+      emotionMapRef.value?.reload(),
+    ])
+    account.value = await accountsApi.fetchById(account.value.id)
+  } catch (e) {
+    loadError.value = e instanceof Error ? e.message : t('loadFailed')
+  } finally {
+    activitySaving.value = false
   }
 }
 

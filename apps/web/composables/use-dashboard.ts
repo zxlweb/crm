@@ -2,6 +2,7 @@ import { DEMO_LEAD_ID } from '~/fixtures/leads.mock'
 import { DASHBOARD_PREVIEW_WEEKLY_FOLLOWUPS } from '~/fixtures/dashboard-preview'
 import type { Account } from '~/types/account'
 import type { Lead } from '~/types/lead'
+import type { DashboardSummaryPriority } from '~/types/dashboard-stats'
 import type { DashboardInsightItem, DashboardKpiTrends, DashboardSnapshot, PriorityActionItem } from '~/types/dashboard'
 import {
   buildPriorityFromAccount,
@@ -24,6 +25,38 @@ function countRecentTouch(
     if (!row.last_activity_at) return false
     return new Date(row.last_activity_at).getTime() >= cutoff
   }).length
+}
+
+function buildSparklineFromScore(score: number): number[] {
+  const v = Math.min(100, Math.max(0, score))
+  return [Math.max(0, v - 24), Math.max(0, v - 16), Math.max(0, v - 7), v]
+}
+
+function mapSummaryPriority(p: DashboardSummaryPriority): PriorityActionItem {
+  const entityType = p.entity_type
+  const entityId = String(p.entity_id)
+  const urgency =
+    p.score >= 55 ? 'coral' : p.score >= 30 ? ('amber' as const) : ('neutral' as const)
+  const healthLabel =
+    p.score >= 55 ? 'alert' : p.score >= 30 ? ('watch' as const) : ('healthy' as const)
+
+  return {
+    id: `${entityType}-${entityId}`,
+    entityType,
+    entityId,
+    title: p.title,
+    reasons: p.reasons,
+    suggestion: p.suggestion,
+    insightTip: p.suggestion,
+    followHref: entityType === 'lead' ? `/leads/${p.entity_id}` : `/accounts/${p.entity_id}`,
+    urgency,
+    healthLabel,
+    isPreview: p.is_preview,
+    score: p.score,
+    engagementScore: p.engagement_score,
+    sparkline: buildSparklineFromScore(p.engagement_score),
+    daysSinceActivity: null,
+  }
 }
 
 function buildKpiTrends(
@@ -82,6 +115,7 @@ async function safeList<T extends { pagination: { total: number }; data: { items
 export function useDashboard() {
   const leadsApi = useLeads()
   const accountsApi = useAccounts()
+  const dashboardStats = useDashboardStats()
   const { t } = useI18n()
 
   function priorityLabels() {
@@ -100,7 +134,7 @@ export function useDashboard() {
     }
   }
 
-  async function loadSnapshot(isPreviewMode = false): Promise<DashboardSnapshot> {
+  async function loadSnapshotLegacy(isPreviewMode = false): Promise<DashboardSnapshot> {
     const emptyLeads = { data: { items: [] as Lead[] }, pagination: { page: 1, page_size: 0, total: 0 } }
     const emptyAccounts = { data: { items: [] as Account[] }, pagination: { page: 1, page_size: 0, total: 0 } }
 
@@ -166,6 +200,9 @@ export function useDashboard() {
     return {
       leadsTotal: pipelineLeadsRes.pagination.total,
       accountsTotal: pipelineAccountsRes.pagination.total,
+      dealsTotal: 0,
+      dealsOpenCount: 0,
+      dealsOpenAmount: 0,
       atRiskTotal: atRiskLeadsRes.pagination.total + atRiskAccountsRes.pagination.total,
       avgEngagement: averageEngagement(engagementPool),
       priorityCount: priorities.length,
@@ -174,6 +211,48 @@ export function useDashboard() {
       pipelineAccounts: pipelineAccountsRes.data.items,
       weeklyFollowUpCount,
       kpiTrends,
+      sparklines: { leads: [], deals: [] },
+      summaryFromApi: false,
+    }
+  }
+
+  async function loadSnapshot(isPreviewMode = false): Promise<DashboardSnapshot> {
+    const fromMock = dashboardStats.forceMock.value
+
+    const emptyLeads = { data: { items: [] as Lead[] }, pagination: { page: 1, page_size: 0, total: 0 } }
+    const emptyAccounts = { data: { items: [] as Account[] }, pagination: { page: 1, page_size: 0, total: 0 } }
+
+    const [summary, pipelineLeadsRes, pipelineAccountsRes] = await Promise.all([
+      dashboardStats.fetchSummary({ preview: isPreviewMode }),
+      safeList(() => leadsApi.fetchList({ page: 1, page_size: 3 }), emptyLeads),
+      safeList(() => accountsApi.fetchList({ page: 1, page_size: 3 }), emptyAccounts),
+    ])
+
+    let priorities = mergePriorities(summary.priorities.map(mapSummaryPriority))
+    if (priorities.length === 0) {
+      const legacy = await loadSnapshotLegacy(isPreviewMode)
+      priorities = legacy.priorities
+    } else {
+      priorities = ensurePreviewPriorities(priorities, isPreviewMode)
+    }
+
+    return {
+      leadsTotal: summary.kpis.leads_total,
+      accountsTotal: summary.kpis.accounts_total,
+      dealsTotal: summary.kpis.deals_total,
+      dealsOpenCount: summary.kpis.deals_open_count,
+      dealsOpenAmount: summary.kpis.deals_open_amount,
+      atRiskTotal: summary.kpis.at_risk_total,
+      avgEngagement: summary.kpis.avg_engagement,
+      priorityCount: priorities.length,
+      priorities,
+      pipelineLeads: pipelineLeadsRes.data.items,
+      pipelineAccounts: pipelineAccountsRes.data.items,
+      weeklyFollowUpCount: summary.kpis.weekly_follow_ups,
+      kpiTrends: summary.kpi_trends,
+      sparklines: summary.sparklines,
+      dataScope: summary.data_scope,
+      summaryFromApi: !fromMock,
     }
   }
 

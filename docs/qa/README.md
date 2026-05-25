@@ -16,6 +16,7 @@
 | [phase-0-qa.md](./phase-0-qa.md) | Phase 0 基础架构 | 通过 |
 | [phase-1-qa.md](./phase-1-qa.md) | Phase 1 认证与权限（含注册 E2E） | 有条件通过 |
 | [phase-2-2.3-leads-qa-plan.md](./phase-2-2.3-leads-qa-plan.md) | Phase 2.3 Leads CRUD + 状态（计划，待执行） | 未执行 |
+| [phase-3-deals-qa-plan.md](./phase-3-deals-qa-plan.md) | Phase 3 商机 Pipeline + Dashboard（计划，待执行） | 未执行 |
 
 ## 协作规则
 

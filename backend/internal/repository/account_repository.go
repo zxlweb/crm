@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 
 	"crm-backend/internal/domain"
 	"crm-backend/internal/infrastructure/persistence"
@@ -20,6 +21,8 @@ type AccountListFilter struct {
 	Search             string
 	LifecycleStage     string
 	RelationshipHealth string
+	Segment            string
+	SegmentOpts        crm.SegmentApplyOpts
 	OwnerID            *uuid.UUID
 	ViewAll            bool
 	UserID             uuid.UUID
@@ -30,7 +33,10 @@ type AccountRepository interface {
 	GetByID(ctx context.Context, tenantID, id uuid.UUID, viewAll bool, userID uuid.UUID) (*domain.Account, error)
 	Create(ctx context.Context, a *domain.Account) error
 	Update(ctx context.Context, a *domain.Account) error
+	UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error
 	SoftDelete(ctx context.Context, tenantID, id uuid.UUID) error
+	CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error)
+	CountLowEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error)
 }
 
 type GormAccountRepository struct {
@@ -50,7 +56,7 @@ func healthSQLExpr() string {
 }
 
 func (r *GormAccountRepository) base(ctx context.Context, tenantID uuid.UUID) *gorm.DB {
-	return persistence.DBFromContext(r.db, ctx).Model(&domain.Account{})
+	return persistence.DBFromContext(r.db, ctx).Model(&domain.Account{}).Where("tenant_id = ?", tenantID)
 }
 
 func (r *GormAccountRepository) List(ctx context.Context, tenantID uuid.UUID, f AccountListFilter) ([]domain.Account, int64, error) {
@@ -70,6 +76,11 @@ func (r *GormAccountRepository) List(ctx context.Context, tenantID uuid.UUID, f 
 	}
 	if f.OwnerID != nil {
 		q = q.Where("owner_id = ?", *f.OwnerID)
+	}
+	if f.Segment != "" {
+		if err := crm.ApplyAccountSegmentFilter(q, f.Segment, f.SegmentOpts); err != nil {
+			return nil, 0, err
+		}
 	}
 
 	var total int64
@@ -126,6 +137,14 @@ func (r *GormAccountRepository) Update(ctx context.Context, a *domain.Account) e
 		return errors.New("invalid lifecycle_stage")
 	}
 	return persistence.DBFromContext(r.db, ctx).Save(a).Error
+}
+
+func (r *GormAccountRepository) UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error {
+	return r.base(ctx, tenantID).Where("id = ?", id).Updates(map[string]any{
+		"last_activity_at": last,
+		"engagement_score": score,
+		"updated_by":       updatedBy,
+	}).Error
 }
 
 func (r *GormAccountRepository) SoftDelete(ctx context.Context, tenantID, id uuid.UUID) error {

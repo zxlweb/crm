@@ -4,7 +4,7 @@
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    stroke-width="1.75"
+    :stroke-width="strokeWidth"
     stroke-linecap="round"
     stroke-linejoin="round"
     aria-hidden="true"
@@ -28,6 +28,8 @@ import {
   type TagIconPath,
 } from '../../icons/tag-icons'
 
+const SENTIMENT_NAMES = new Set<TagIconName>(['positive', 'neutral', 'hesitant', 'negative'])
+
 const props = withDefaults(
   defineProps<{
     name: TagIconName
@@ -36,6 +38,8 @@ const props = withDefaults(
   }>(),
   { size: 'sm' },
 )
+
+const strokeWidth = computed(() => (SENTIMENT_NAMES.has(props.name) ? 2 : 1.75))
 
 const shapes = computed(() => TAG_ICONS[props.name] ?? TAG_ICONS.note)
 

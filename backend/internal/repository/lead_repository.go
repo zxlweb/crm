@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 
 	"crm-backend/internal/domain"
 	"crm-backend/internal/infrastructure/persistence"
@@ -22,6 +23,8 @@ type LeadListFilter struct {
 	Source             string
 	LifecycleStage     string
 	RelationshipHealth string
+	Segment            string
+	SegmentOpts        crm.SegmentApplyOpts
 	OwnerID            *uuid.UUID
 	ViewAll            bool
 	UserID             uuid.UUID
@@ -32,7 +35,17 @@ type LeadRepository interface {
 	GetByID(ctx context.Context, tenantID, id uuid.UUID, viewAll bool, userID uuid.UUID) (*domain.Lead, error)
 	Create(ctx context.Context, l *domain.Lead) error
 	Update(ctx context.Context, l *domain.Lead) error
+	UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error
 	SoftDelete(ctx context.Context, tenantID, id uuid.UUID) error
+	StatsBySource(ctx context.Context, tenantID uuid.UUID, f LeadStatsFilter) ([]LabelCount, int64, error)
+	StatsByStatus(ctx context.Context, tenantID uuid.UUID, f LeadStatsFilter) ([]LabelCount, int64, error)
+	StatsTrend(ctx context.Context, tenantID uuid.UUID, f LeadStatsFilter, granularity string) ([]TrendPoint, error)
+	StatsFunnel(ctx context.Context, tenantID uuid.UUID, f LeadStatsFilter) ([]LabelCount, error)
+	CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error)
+	DailyCreatedCounts(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID, days int) ([]int64, error)
+	CountLowEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error)
+	AvgEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (float64, error)
+	ListPriorityCandidates(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID, limit int) ([]domain.Lead, error)
 }
 
 type GormLeadRepository struct {
@@ -70,6 +83,14 @@ func (r *GormLeadRepository) List(ctx context.Context, tenantID uuid.UUID, f Lea
 	}
 	if f.OwnerID != nil {
 		q = q.Where("owner_id = ?", *f.OwnerID)
+	}
+	if f.Segment != "" {
+		if err := crm.ApplyLeadSegmentFilter(q, f.Segment, f.SegmentOpts); err != nil {
+			if errors.Is(err, crm.ErrInvalidSegmentCode) {
+				return nil, 0, err
+			}
+			return nil, 0, err
+		}
 	}
 
 	var total int64
@@ -135,6 +156,15 @@ func (r *GormLeadRepository) Update(ctx context.Context, l *domain.Lead) error {
 		return errors.New("invalid status")
 	}
 	return persistence.DBFromContext(r.db, ctx).Save(l).Error
+}
+
+func (r *GormLeadRepository) UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error {
+	return r.base(ctx, tenantID).Where("id = ?", id).Updates(map[string]any{
+		"last_activity_at":    last,
+		"engagement_score":    score,
+		"relationship_health": crm.RelationshipHealthFromScore(score),
+		"updated_by":          updatedBy,
+	}).Error
 }
 
 func (r *GormLeadRepository) SoftDelete(ctx context.Context, tenantID, id uuid.UUID) error {

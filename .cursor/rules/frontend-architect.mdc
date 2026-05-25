@@ -134,6 +134,8 @@ alwaysApply: false
 
 **检查**：`pnpm --filter @crm/web lint:layers`；`pnpm --filter @crm/ui-kit test`。
 
+**案例页（必做）**：新增 `Chart*` / `Card*` / `Ui*` 时，**同一迭代**更新 `/charts`、`/cards`、`/design` 案例页 + i18n + 场景登记。完整步骤见 `docs/frontend-arch/05-component-scenarios.md` §0.1。
+
 
 
 ### 3. UX 设计与过渡动画规范（新增重点）

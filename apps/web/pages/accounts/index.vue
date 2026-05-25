@@ -42,6 +42,13 @@
                 @keyup.enter="onSearch"
               />
               <UiSelect
+                v-model="segmentFilter"
+                class="sm:w-52"
+                :items="segmentSelectItems"
+                :placeholder="$t('segmentAll')"
+                data-testid="segment-select"
+              />
+              <UiSelect
                 v-model="lifecycleFilter"
                 class="sm:w-48"
                 :items="lifecycleSelectItems"
@@ -109,12 +116,17 @@
 
 <script setup lang="ts">
 import type { Account, LifecycleStage, RelationshipHealth } from '~/types/account'
+import type { SegmentTemplate } from '~/types/segment'
+import { isSegmentCode } from '~/types/segment'
 
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 const permission = usePermission()
 const accountsApi = useAccounts()
+const segmentsApi = useSegments()
 
 const lifecycleOptions: LifecycleStage[] = ['acquire', 'activate', 'grow', 'retain', 'revive']
 const healthOptions: RelationshipHealth[] = ['high', 'medium', 'low']
@@ -127,8 +139,11 @@ const pagination = ref<{ page: number; page_size: number; total: number } | null
 const pending = ref(true)
 const loadError = ref('')
 const search = ref('')
+const segmentFilter = ref('')
 const lifecycleFilter = ref('')
 const healthFilter = ref('')
+const segments = ref<SegmentTemplate[]>([])
+const filtersReady = ref(false)
 const saving = ref(false)
 const formOpen = ref(false)
 const editingId = ref<string | null>(null)
@@ -158,6 +173,17 @@ const lifecycleFormItems = computed(() =>
 const healthSelectItems = computed(() => [
   { label: t('accountsFilterAllHealth'), value: '' },
   ...healthOptions.map((h) => ({ label: t(`relationshipHealth.${h}`), value: h })),
+])
+
+const segmentSelectItems = computed(() => [
+  { label: t('segmentAll'), value: '' },
+  ...segments.value.map((segment) => ({
+    label:
+      segment.count != null
+        ? t('segmentOptionCount', { name: t(segment.name_key), count: segment.count })
+        : t(segment.name_key),
+    value: segment.code,
+  })),
 ])
 
 function parseTags(text: string): string[] {
@@ -235,6 +261,7 @@ async function reload() {
       search: search.value || undefined,
       lifecycle_stage: (lifecycleFilter.value || undefined) as LifecycleStage | undefined,
       relationship_health: (healthFilter.value || undefined) as RelationshipHealth | undefined,
+      segment: segmentFilter.value || undefined,
     })
     items.value = data.items
     pagination.value = pageMeta
@@ -274,18 +301,54 @@ async function submitForm() {
 }
 
 watch([lifecycleFilter, healthFilter], () => {
+  if (!filtersReady.value) return
   page.value = 1
   reload()
 })
 
+watch(segmentFilter, (code) => {
+  if (!filtersReady.value) return
+  syncSegmentQuery(code)
+  page.value = 1
+  reload()
+})
+
+watch(
+  () => route.query.segment,
+  (seg) => {
+    if (!filtersReady.value) return
+    const code = typeof seg === 'string' && isSegmentCode(seg) ? seg : ''
+    if (code !== segmentFilter.value) {
+      segmentFilter.value = code
+    }
+  },
+)
+
+function syncSegmentQuery(code: string) {
+  const current = typeof route.query.segment === 'string' ? route.query.segment : ''
+  if (code === current) return
+  const query = { ...route.query }
+  if (code) query.segment = code
+  else delete query.segment
+  router.replace({ query })
+}
+
 function applyRouteQuery() {
+  const seg = route.query.segment
+  if (typeof seg === 'string' && isSegmentCode(seg)) {
+    segmentFilter.value = seg
+  } else {
+    segmentFilter.value = ''
+  }
   if (route.query.create === '1' && canCreate.value) {
     openCreate()
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  segments.value = await segmentsApi.fetchListWithCounts()
   applyRouteQuery()
-  reload()
+  filtersReady.value = true
+  await reload()
 })
 </script>

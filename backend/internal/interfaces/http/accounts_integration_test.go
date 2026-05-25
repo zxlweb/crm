@@ -9,6 +9,7 @@ import (
 	"time"
 
 	accountapp "crm-backend/internal/application/account"
+	emotionapp "crm-backend/internal/application/emotion"
 	"crm-backend/internal/application/audit"
 	"crm-backend/internal/domain"
 	httphandler "crm-backend/internal/interfaces/http"
@@ -176,8 +177,13 @@ func TestAccountsHTTP_EmotionJourneyAndInsights(t *testing.T) {
 	w = env.post("/api/accounts/"+id+"/insights/evaluate", map[string]any{})
 	env.assertOK(w)
 	data = env.parseData(w)
-	if _, ok := data["items"]; !ok {
-		t.Fatalf("insights missing items: %v", data)
+	items, ok := data["items"].([]any)
+	if !ok || len(items) == 0 {
+		t.Fatalf("insights missing items: %v", data["items"])
+	}
+	first, _ := items[0].(map[string]any)
+	if first["rule_id"] != "INS-001" {
+		t.Fatalf("expected INS-001, got %v", first["rule_id"])
 	}
 }
 
@@ -204,8 +210,10 @@ func setupAccountsHTTPEnv(t *testing.T) *accountsHTTPEnv {
 	accountRepo := &memAccountRepo{items: map[uuid.UUID]*domain.Account{}}
 	auditRepo := &memAuditRepo{}
 	auditRec := audit.NewRecorder(auditRepo)
-	accountSvc := accountapp.NewService(accountRepo, enforcer)
-	accountHTTP := httphandler.NewAccountHandlers(accountSvc, auditRec)
+	accountSvc := accountapp.NewService(accountRepo, nil, enforcer)
+	activityRepo := &memActivityRepo{items: map[uuid.UUID]*domain.Activity{}}
+	emotionSvc := emotionapp.NewService(activityRepo)
+	accountHTTP := httphandler.NewAccountHandlers(accountSvc, auditRec, emotionSvc)
 
 	secret := "accounts-test-secret"
 	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, time.Hour)

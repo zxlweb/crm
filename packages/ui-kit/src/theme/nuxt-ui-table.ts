@@ -5,14 +5,14 @@
 export const crmTableUi = {
   wrapper: 'relative overflow-x-auto',
   base: 'min-w-full',
-  divide: 'divide-y divide-ds-border/80',
-  thead: 'bg-ds-bg-muted/70',
-  tbody: 'divide-y divide-ds-border/80',
+  divide: 'divide-y divide-ds-divide',
+  thead: 'bg-ds-table-head',
+  tbody: 'divide-y divide-ds-divide',
   tr: {
     base: 'transition-colors duration-200',
-    selected: 'bg-ds-bg-muted',
-    expanded: 'bg-ds-bg-muted/80',
-    active: 'hover:bg-ds-bg-muted/60',
+    selected: 'bg-ds-bg-muted/80',
+    expanded: 'bg-ds-bg-muted/60',
+    active: 'hover:bg-ds-bg-muted/35',
   },
   th: {
     base: 'text-left rtl:text-right',

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3 数据模型与迁移纲要 — Deals + Dashboard · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><a href="../api/phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api/phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture/04-phase-3-deals-dashboard-schema.html" style="color:var(--accent);font-weight:600">04-phase-3-deals-dashboard-schema</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch/03-design-system.html">03-design-system</a><a href="../frontend-arch/04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch/05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes/phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes/phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes/phase-3-notes.html">phase-3-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><a href="../prd/phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd/phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><a href="../qa/phase-1-qa.html">phase-1-qa</a><a href="../qa/phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa/phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><a href="../tasks/parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../architecture/04-phase-3-deals-dashboard-schema.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 3 数据模型与迁移纲要 — Deals + Dashboard</h1>
+<p><strong>版本</strong>：v1.0<br><strong>日期</strong>：2026-05-24<br><strong>关联</strong>：<a href="../api/phase-3-deals-dashboard-api.md">phase-3-deals-dashboard-api.md</a> · <a href="../prd/00-crm-overview.md">00-crm-overview.md</a> §Phase 3</p>
+<hr>
+<h2>1. ER 扩展</h2>
+<pre><code class="language-mermaid">erDiagram
+  tenants ||--o{ deals : has
+  accounts ||--o{ deals : has
+  leads ||--o{ deals : originates
+  contacts ||--o{ deals : has
+  users ||--o{ deals : owns
+  deals }o--|| accounts : account_id
+  deals }o--o| leads : lead_id
+</code></pre>
+<hr>
+<h2>2. 新表 <code>deals</code></h2>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>类型</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID PK</td>
+<td></td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>UUID FK</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>owner_id</td>
+<td>UUID FK users</td>
+<td>NULL</td>
+</tr>
+<tr>
+<td>title</td>
+<td>VARCHAR(255)</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>stage</td>
+<td>VARCHAR(32)</td>
+<td>NOT NULL DEFAULT <code>qualification</code></td>
+</tr>
+<tr>
+<td>amount</td>
+<td>DECIMAL(18,2)</td>
+<td>DEFAULT 0</td>
+</tr>
+<tr>
+<td>currency</td>
+<td>VARCHAR(8)</td>
+<td>DEFAULT <code>CNY</code></td>
+</tr>
+<tr>
+<td>probability</td>
+<td>SMALLINT</td>
+<td>DEFAULT 0 CHECK 0–100</td>
+</tr>
+<tr>
+<td>expected_close_date</td>
+<td>DATE</td>
+<td></td>
+</tr>
+<tr>
+<td>account_id</td>
+<td>UUID FK accounts</td>
+<td>NULL</td>
+</tr>
+<tr>
+<td>lead_id</td>
+<td>UUID FK leads</td>
+<td>NULL</td>
+</tr>
+<tr>
+<td>contact_id</td>
+<td>UUID FK contacts</td>
+<td>NULL</td>
+</tr>
+<tr>
+<td>description</td>
+<td>TEXT</td>
+<td></td>
+</tr>
+<tr>
+<td>lost_reason</td>
+<td>VARCHAR(500)</td>
+<td></td>
+</tr>
+<tr>
+<td>closed_at</td>
+<td>TIMESTAMPTZ</td>
+<td>won/lost 时写入</td>
+</tr>
+<tr>
+<td>engagement_score</td>
+<td>SMALLINT</td>
+<td>DEFAULT 0（可选，规则同 Phase 2）</td>
+</tr>
+<tr>
+<td>last_activity_at</td>
+<td>TIMESTAMPTZ</td>
+<td></td>
+</tr>
+<tr>
+<td>tags</td>
+<td>TEXT[]</td>
+<td>DEFAULT <code>{}</code></td>
+</tr>
+<tr>
+<td>created_by / updated_by</td>
+<td>UUID</td>
+<td></td>
+</tr>
+<tr>
+<td>created_at / updated_at / deleted_at</td>
+<td></td>
+<td>软删</td>
+</tr>
+</tbody></table>
+<p><strong>索引</strong></p>
+<ul>
+<li><code>(tenant_id, owner_id)</code></li>
+<li><code>(tenant_id, stage)</code></li>
+<li><code>(tenant_id, account_id)</code></li>
+<li><code>(tenant_id, expected_close_date)</code></li>
+<li><code>(tenant_id, updated_at DESC)</code> — Pipeline 排序</li>
+</ul>
+<p><strong>CHECK</strong></p>
+<ul>
+<li><code>stage IN (&#39;qualification&#39;,&#39;proposal&#39;,&#39;negotiation&#39;,&#39;won&#39;,&#39;lost&#39;)</code></li>
+</ul>
+<hr>
+<h2>3. 租户配置扩展</h2>
+<p>写入 <code>tenants.config</code> JSONB（与 Phase 2 <code>ai_*</code> 并列）：</p>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>默认</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sales_quota</code></td>
+<td>object</td>
+<td><code>{ &quot;amount&quot;: 0, &quot;period&quot;: &quot;month&quot; }</code></td>
+<td>Dashboard 配额 Gauge</td>
+</tr>
+<tr>
+<td><code>pipeline_display_metric</code></td>
+<td>string</td>
+<td><code>count</code></td>
+<td><code>count</code> | <code>amount</code></td>
+</tr>
+</tbody></table>
+<p>示例：</p>
+<pre><code class="language-json">{
+  &quot;sales_quota&quot;: { &quot;amount&quot;: 5000000, &quot;currency&quot;: &quot;CNY&quot;, &quot;period&quot;: &quot;2026-05&quot; },
+  &quot;pipeline_display_metric&quot;: &quot;amount&quot;
+}
+</code></pre>
+<hr>
+<h2>4. 可选表（Phase 3 可不建）</h2>
+<h3>4.1 <code>deal_stage_history</code></h3>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>deal_id</td>
+<td>UUID FK</td>
+<td></td>
+</tr>
+<tr>
+<td>from_stage / to_stage</td>
+<td>VARCHAR(32)</td>
+<td></td>
+</tr>
+<tr>
+<td>changed_by</td>
+<td>UUID</td>
+<td></td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TIMESTAMPTZ</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>用于阶段停留天数统计（<code>stats/velocity</code>）；MVP 可用 <code>audit_logs</code> 代替。</p>
+<hr>
+<h2>5. 迁移计划</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>00010_phase3_deals.sql</code></td>
+<td><code>deals</code> 表 + 索引</td>
+</tr>
+<tr>
+<td><code>00011_seed_phase3_dashboard_permission.sql</code></td>
+<td><code>dashboard:view</code>；角色绑定</td>
+</tr>
+<tr>
+<td><code>00012_seed_phase3_deals_demo.sql</code></td>
+<td>Demo 租户 3–5 条商机（可选，与 Pipeline 演示）</td>
+</tr>
+</tbody></table>
+<p><strong>回滚</strong>：<code>DROP TABLE deals</code>；删除 permissions 行。</p>
+<hr>
+<h2>6. 与代码落点</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Domain</td>
+<td><code>internal/domain/deal.go</code></td>
+</tr>
+<tr>
+<td>Repository</td>
+<td><code>internal/repository/deal_repository.go</code></td>
+</tr>
+<tr>
+<td>Service</td>
+<td><code>internal/application/deal/service.go</code></td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td><code>internal/application/dashboard/summary.go</code></td>
+</tr>
+<tr>
+<td>HTTP</td>
+<td><code>internal/interfaces/http/deals.go</code>、<code>dashboard.go</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-24</td>
+<td>v1.0：架构师 3.0，对齐 phase-3-deals-dashboard-api v1.0</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../architecture/04-phase-3-deals-dashboard-schema.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

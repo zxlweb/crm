@@ -17,6 +17,7 @@
     :read-only="readOnly"
     :show-zone-e="showZoneE"
     :show-team-heatmap="showTeamHeatmap"
+    :show-team-ranking="showTeamRanking"
     :is-preview-mode="isPreviewMode"
     :zone-e-default-open="zoneEDefaultOpen"
   />
@@ -56,6 +57,10 @@ const isPreviewMode = computed(
 
 const showZoneE = computed(() => true)
 const showTeamHeatmap = computed(() => isPreviewMode.value || permission.can('rbac', 'view'))
+const showTeamRanking = computed(() => {
+  const scope = snapshot.value?.dataScope
+  return scope === 'department' || scope === 'all' || permission.can('rbac', 'manage')
+})
 const zoneEDefaultOpen = computed(
   () => isPreviewMode.value || permission.can('rbac', 'view'),
 )

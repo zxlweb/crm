@@ -66,6 +66,14 @@
         <AiPreviewBadge v-if="showPreview" />
       </div>
 
+      <div class="mt-2 flex flex-wrap items-center gap-2" data-testid="lead-lifecycle-badges">
+        <CrmLifecycleBadge variant="plain" :stage="lead.lifecycle_stage" />
+        <CrmRelationshipHealthBadge :health="lead.relationship_health" />
+        <span class="text-xs text-ds-fg-muted">
+          {{ $t('leadsEngagementLabel', { score: lead.engagement_score }) }}
+        </span>
+      </div>
+
       <ul
         v-if="headerTags.length"
         class="mt-2.5 flex flex-wrap gap-1.5"

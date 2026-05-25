@@ -19,16 +19,11 @@
         </UiButton>
       </div>
 
-      <UiTabs v-model="activeTab" :items="mainTabs" class="max-w-xs" />
+      <UiTabs v-model="activeTab" :items="mainTabs" class="max-w-xs" data-testid="leads-main-tabs" />
 
-      <div v-if="pending" class="flex justify-center py-24">
-        <UIcon name="i-heroicons-arrow-path" class="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <UAlert v-if="activeTab === 'list' && loadError" color="red" variant="soft" :title="loadError" />
 
-      <UAlert v-else-if="loadError" color="red" variant="soft" :title="loadError" />
-
-      <template v-else>
-        <Transition
+      <Transition
           mode="out-in"
           enter-active-class="transition-opacity duration-200 ease-out"
           enter-from-class="opacity-0"
@@ -38,7 +33,10 @@
           leave-to-class="opacity-0"
         >
           <div v-if="activeTab === 'list'" key="list">
-            <LeadsListTable :items="items">
+            <div v-if="pending" class="flex justify-center py-24">
+              <UIcon name="i-heroicons-arrow-path" class="h-8 w-8 animate-spin text-primary" />
+            </div>
+            <LeadsListTable v-else :items="items">
               <template #toolbar>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <UiInput
@@ -48,6 +46,13 @@
                     class="flex-1"
                     :placeholder="$t('leadsSearchPlaceholder')"
                     @keyup.enter="onSearch"
+                  />
+                  <UiSelect
+                    v-model="segmentFilter"
+                    class="sm:w-52"
+                    :items="segmentSelectItems"
+                    :placeholder="$t('segmentAll')"
+                    data-testid="segment-select"
                   />
                   <UiSelect
                     v-model="statusFilter"
@@ -77,9 +82,8 @@
             </LeadsListTable>
           </div>
 
-          <LeadsReportsPanel v-else key="reports" />
+          <LeadsReportsPanel v-else key="reports" data-testid="leads-tab-reports" />
         </Transition>
-      </template>
 
       <UiModal v-model:open="createOpen" :title="$t('leadsCreateTitle')">
         <form class="space-y-4" @submit.prevent="submitCreate">
@@ -101,13 +105,17 @@
 
 <script setup lang="ts">
 import type { Lead, LeadStatus, RelationshipHealth } from '~/types/lead'
+import type { SegmentTemplate } from '~/types/segment'
+import { isSegmentCode } from '~/types/segment'
 
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const route = useRoute()
+const router = useRouter()
 const { t } = useI18n()
 const permission = usePermission()
 const leadsApi = useLeads()
+const segmentsApi = useSegments()
 
 const LIST_PAGE_SIZE = 10
 
@@ -118,8 +126,11 @@ const pagination = ref<{ page: number; page_size: number; total: number } | null
 const pending = ref(true)
 const loadError = ref('')
 const search = ref('')
+const segmentFilter = ref('')
 const statusFilter = ref('')
 const healthFilter = ref('')
+const segments = ref<SegmentTemplate[]>([])
+const filtersReady = ref(false)
 const creating = ref(false)
 const createTitle = ref('')
 const createOpen = ref(false)
@@ -142,6 +153,17 @@ const statusSelectItems = computed(() => [
 const healthSelectItems = computed(() => [
   { label: t('accountsFilterAllHealth'), value: '' },
   ...healthOptions.map((h) => ({ label: t(`relationshipHealth.${h}`), value: h })),
+])
+
+const segmentSelectItems = computed(() => [
+  { label: t('segmentAll'), value: '' },
+  ...segments.value.map((segment) => ({
+    label:
+      segment.count != null
+        ? t('segmentOptionCount', { name: t(segment.name_key), count: segment.count })
+        : t(segment.name_key),
+    value: segment.code,
+  })),
 ])
 
 const tableRangeLabel = computed(() => {
@@ -172,6 +194,7 @@ async function reload() {
       search: search.value || undefined,
       status: (statusFilter.value || undefined) as LeadStatus | undefined,
       relationship_health: (healthFilter.value || undefined) as RelationshipHealth | undefined,
+      segment: segmentFilter.value || undefined,
     })
     items.value = data.items
     pagination.value = pageMeta
@@ -199,9 +222,37 @@ async function submitCreate() {
 }
 
 watch([statusFilter, healthFilter], () => {
+  if (!filtersReady.value) return
   page.value = 1
   reload()
 })
+
+watch(segmentFilter, (code) => {
+  if (!filtersReady.value) return
+  syncSegmentQuery(code)
+  page.value = 1
+  reload()
+})
+
+watch(
+  () => route.query.segment,
+  (seg) => {
+    if (!filtersReady.value) return
+    const code = typeof seg === 'string' && isSegmentCode(seg) ? seg : ''
+    if (code !== segmentFilter.value) {
+      segmentFilter.value = code
+    }
+  },
+)
+
+function syncSegmentQuery(code: string) {
+  const current = typeof route.query.segment === 'string' ? route.query.segment : ''
+  if (code === current) return
+  const query = { ...route.query }
+  if (code) query.segment = code
+  else delete query.segment
+  router.replace({ query })
+}
 
 function applyRouteQuery() {
   const tab = route.query.tab
@@ -210,13 +261,21 @@ function applyRouteQuery() {
   if (typeof health === 'string' && healthOptions.includes(health as RelationshipHealth)) {
     healthFilter.value = health
   }
+  const seg = route.query.segment
+  if (typeof seg === 'string' && isSegmentCode(seg)) {
+    segmentFilter.value = seg
+  } else {
+    segmentFilter.value = ''
+  }
   if (route.query.create === '1' && canCreate.value) {
     createOpen.value = true
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  segments.value = await segmentsApi.fetchListWithCounts()
   applyRouteQuery()
-  reload()
+  filtersReady.value = true
+  await reload()
 })
 </script>

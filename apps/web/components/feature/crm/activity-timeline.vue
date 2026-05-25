@@ -4,6 +4,8 @@
       <UIcon name="i-heroicons-arrow-path" class="h-6 w-6 animate-spin text-primary" />
     </div>
 
+    <UAlert v-else-if="loadError" color="red" variant="soft" :title="loadError" />
+
     <div
       v-else-if="items.length === 0"
       class="rounded-xl border border-dashed border-ds-border bg-ds-bg-muted px-6 py-10 text-center"
@@ -13,7 +15,6 @@
     </div>
 
     <ol v-else class="relative">
-      <!-- 整列一条连贯虚线，贯穿所有条目间距 -->
       <span
         class="pointer-events-none absolute bottom-0 left-3 top-0 border-l border-dashed border-ds-border"
         aria-hidden="true"
@@ -40,21 +41,23 @@
               >
                 <UiTagIcon :name="activityIcon(item.event_type)" size="sm" />
               </span>
-              <p class="text-sm font-medium text-ds-fg-heading">{{ item.label }}</p>
+              <p class="text-sm font-medium text-ds-fg-heading">{{ displayLabel(item) }}</p>
             </div>
-            <time class="shrink-0 text-xs text-ds-fg-muted">{{ formatAt(item.at) }}</time>
+            <time class="shrink-0 text-xs text-ds-fg-muted">{{ formatAt(item.occurred_at) }}</time>
           </div>
           <p v-if="item.body" class="mt-1 pl-10 text-sm text-ds-fg-muted">{{ item.body }}</p>
           <div class="mt-2 flex flex-wrap gap-2 pl-10 text-xs text-ds-fg-subtle">
             <span class="inline-flex items-center gap-1 rounded bg-ds-bg-muted px-2 py-0.5">
               <UiTagIcon :name="activityIcon(item.event_type)" size="xs" />
-              {{ $t(`activityType.${item.event_type}`, item.event_type) }}
+              {{ $t(`activityType.${item.event_type}`) }}
             </span>
             <span
               v-if="item.sentiment"
-              class="inline-flex rounded px-2 py-0.5"
+              class="inline-flex items-center gap-1 rounded px-2 py-0.5"
               :class="sentimentClass(item.sentiment)"
+              :data-testid="`activity-sentiment-${item.sentiment}`"
             >
+              <UiSentimentEmoji :sentiment="item.sentiment" size="xs" />
               {{ $t(`sentiment.${item.sentiment}`) }}
             </span>
           </div>
@@ -66,23 +69,28 @@
 
 <script setup lang="ts">
 import { resolveActivityTypeIcon } from '@crm/ui-kit'
-import { DEMO_TENANT_ID } from '~/constants/demo'
-import { mockActivitiesForLead } from '~/fixtures/activities.mock'
-import type { ActivityTimelineItem } from '~/fixtures/activities.mock'
+import type { Activity } from '~/types/activity'
 
 function activityIcon(eventType: string) {
   return resolveActivityTypeIcon(eventType)
 }
 
 const props = defineProps<{
-  leadId: string
+  subjectType: 'lead' | 'account' | 'contact'
+  subjectId: string
 }>()
 
-const { locale } = useI18n()
-const tenantCookie = useCookie('crm.tenant_id')
+const { t, locale } = useI18n()
+const activitiesApi = useActivities()
 
-const items = ref<ActivityTimelineItem[]>([])
+const items = ref<Activity[]>([])
 const pending = ref(true)
+const loadError = ref('')
+
+function displayLabel(item: Activity) {
+  if (item.label) return item.label
+  return t(`activityType.${item.event_type}`)
+}
 
 function formatAt(iso: string) {
   return new Intl.DateTimeFormat(locale.value === 'zh' ? 'zh-CN' : 'en-US', {
@@ -91,7 +99,7 @@ function formatAt(iso: string) {
   }).format(new Date(iso))
 }
 
-function dotClass(sentiment?: string) {
+function dotClass(sentiment?: string | null) {
   const map: Record<string, string> = {
     positive: 'bg-ds-success',
     neutral: 'bg-ds-fg-subtle',
@@ -111,12 +119,24 @@ function sentimentClass(sentiment: string) {
   return map[sentiment] ?? 'bg-ds-bg-muted text-ds-fg-muted'
 }
 
-function load() {
+async function load() {
   pending.value = true
-  const demo = tenantCookie.value === DEMO_TENANT_ID
-  items.value = demo ? mockActivitiesForLead(props.leadId) : []
-  pending.value = false
+  loadError.value = ''
+  try {
+    const { items: rows } = await activitiesApi.fetchList({
+      subjectType: props.subjectType,
+      subjectId: props.subjectId,
+      pageSize: 50,
+    })
+    items.value = rows
+  } catch (e) {
+    loadError.value = e instanceof Error ? e.message : t('loadFailed')
+    items.value = []
+  } finally {
+    pending.value = false
+  }
 }
 
-watch(() => props.leadId, load, { immediate: true })
+watch(() => [props.subjectType, props.subjectId], load, { immediate: true })
+defineExpose({ reload: load })
 </script>

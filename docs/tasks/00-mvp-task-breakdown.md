@@ -121,44 +121,44 @@ Week 2  Mon–Tue  图表嵌入 + 空态/权限
 
 | ID | [BE] | [FE] | [QA] | 依赖 |
 |----|------|------|------|------|
-| 2.1 | Accounts API + 迁移 `00006` + `lifecycle_stage` — ✅ | `/accounts` 列表/表单 + `use-accounts` — ⬜ | Accounts HTTP 集成测（CRUD/筛选/租户/审计/只读字段）— ✅ | 契约 |
-| 2.2 | Contacts API + 关联 — ⬜ | `/contacts` + `use-contacts` — ⬜ | Contacts 集成测 — ⬜ | 2.1 契约可参考 |
+| 2.1 | Accounts API + 迁移 `00006` + `lifecycle_stage` — ✅ | `/accounts` 列表/详情 + `use-accounts` — ✅ | Accounts HTTP 集成测（CRUD/筛选/租户/审计/只读字段）— ✅ | 契约 |
+| 2.2 | Contacts API + 关联 — ✅ | `/contacts` + `use-contacts` — ✅ | Contacts 集成测 — ✅ | 2.1 契约可参考 |
 | 2.3 | Leads CRUD + 状态机 + `POST .../convert` — ✅ | Leads API 接入 + Nuxt UI + `layout: app` — ✅ | Leads HTTP 集成测（租户隔离 + 状态机 + convert 审计）— ✅ | 契约 |
-| 2.4 | Leads 统计 API（来源） — ⬜ | `ChartDonut` + 嵌入 — ⬜ | 统计 API + 权限集成测 — ⬜ | 2.3 |
-| 2.5 | Leads 趋势 API — ⬜ | `ChartLine` 嵌入 — ⬜ | 同上 — ⬜ | 2.4 |
-| 2.6 | Leads 转化 API — ⬜ | `ChartFunnel` 嵌入 — ⬜ | 同上 — ⬜ | 2.5 |
+| 2.4 | Leads 统计 API（来源/状态/趋势/漏斗 四端点） — ✅ | 报表 Tab 四图联调 — ✅ | 统计 API + 权限集成测 — ✅ | 2.3 |
+| 2.5 | Leads 趋势 API — ✅ | `ChartLine` 嵌入 — ✅ | 同上 — ✅ | 2.4 |
+| 2.6 | Leads 转化 API — ✅ | `ChartFunnel` 嵌入 — ✅ | 同上 — ✅ | 2.5 |
 | 2.7 | 导入、分配 API — ⬜ | 导入/分配 UI — ⬜ | 导入 E2E（可选）— ⬜ | 2.3 |
-| 2.8 | Activity API + `event_type`/`direction` — ⬜ | ActivityTimeline + 摘要 + 可选 `ChartBar` — ⬜ | Activity 集成测 — ⬜ | 2.3 |
-| 2.9 | `insights/evaluate` + engagement 字段 — ⬜ | 洞察侧栏 + `LifecycleBadge` — ⬜ | 规则引擎单测 + 洞察集成测 — ⬜ | 2.8 |
-| 2.10 | segments 模板 API + 列表筛选 — ⬜ | 分群下拉 + URL 筛选 — ⬜ | 分群 count + 权限 — ⬜ | 2.3 |
-| 2.11 | Activity `sentiment` 迁移 + 关键词规则 — ⬜ | Activity 情绪表单项 — ⬜ | 情绪字段 + 时间线 E2E — ⬜ | 2.8 |
-| 2.12 | `emotion-journey` 聚合 API — ⬜ | `EmotionJourneyMap` Tab — ⬜ | 地图空态/触点联动 E2E — ⬜ | 2.11 |
-| 2.13 | **架构师**：`docs/api/phase-2-crm-ai.md` + ADR-0004 — ✅ | `AiRelationPanel` + Copilot Mock + Preview 角标 + fixtures — ⬜ | §15.2 演示路径 E2E — ⬜ | 2.3 路由；契约已评审 |
-| 2.E2E | — | Leads/详情 `data-testid` + Preview 路径 — ⬜ | CRUD + 权限 + Activity/洞察/Preview 冒烟 — ⬜ | 2.3 FE；2.13 演示 |
+| 2.8 | Activity API + `event_type`/`direction` — ✅ | ActivityTimeline + 摘要 `ChartBar` — ✅ | Activity 集成测 — ✅ | 2.3 |
+| 2.9 | `insights/evaluate` + engagement 字段 — ✅ | 洞察侧栏 + `LifecycleBadge` — ✅ | 规则引擎单测 + 洞察集成测 — ✅ | 2.8 |
+| 2.10 | segments 模板 API + 列表筛选 — ✅ | 分群下拉 + URL 筛选 — ✅ | 分群 count + 权限 — ✅ | 2.3 |
+| 2.11 | Activity `sentiment` 迁移 + 关键词规则 — ✅ | Activity 情绪表单项 — ✅ | 情绪字段 + 时间线 E2E — 🟡 | 2.8 |
+| 2.12 | `emotion-journey` 聚合 API — ✅ | `EmotionJourneyMap` Tab — ✅ | 地图空态/触点联动 E2E — ✅ | 2.11 |
+| 2.13 | **架构师**：`docs/api/phase-2-crm-ai.md` + ADR-0004 — ✅ | `AiRelationPanel` + Copilot Mock + Preview 角标 + fixtures — ✅ | §15.2 演示路径 E2E — ✅ | 2.3 路由；契约已评审 |
+| 2.E2E | — | Leads/详情 `data-testid` + Preview 路径 — 🟡 | CRUD + 权限 + Activity/洞察/Preview + §15.2 demo — ✅ | 2.3 FE；2.13 演示 |
 
 **业务**（勾选可与上表同步，或作汇总验收）
 
-- [ ] 公司 (Accounts) CRUD + 搜索 + 生命周期阶段（BE ✅ / QA ✅；FE ⬜）
-- [ ] 联系人 (Contacts) CRUD + 关联公司
+- [ ] 公司 (Accounts) CRUD + 搜索 + 生命周期阶段（BE ✅ / QA ✅ / FE ✅）
+- [x] 联系人 (Contacts) CRUD + 关联公司
 - [x] 线索 (Leads) CRUD + 状态流转 + 转化（`POST /api/leads/:id/convert`）
 - [ ] 线索导入（Excel）
 - [ ] 线索分配功能
 - [ ] 跟进记录（Activity）基础 + 时间线 + 情绪标注
 - [ ] 规则洞察（≥2 条 INS）+ 预置分群（≥5）
 - [ ] 情绪旅程地图 Tab
-- [ ] **AI Preview**：详情 AI 侧栏 + Copilot Mock + 演示角标（§15）
+- [x] **AI Preview**：详情 AI 侧栏 + Copilot Mock + 演示角标（§15）
 
 **图表（缺组件则本迭代内补齐）**
 
 - [ ] Leads 统计 API（来源、趋势、状态、转化）
 - [ ] **`ChartDonut`** 组件 + Story（线索来源占比）
-- [ ] Leads 报表区：`ChartLine` + `ChartDonut` + `ChartFunnel` + `ChartBar`（状态）
-- [ ] Activity 摘要：`ChartBar` 跟进类型 TOP（可选，与 Activity 同迭代）
+- [x] Leads 报表区：`ChartLine` + `ChartDonut` + `ChartFunnel` + `ChartBar`（状态）
+- [x] Activity 摘要：`ChartBar` 跟进类型 TOP（线索详情 + `/charts` 案例）
 
 | 顺序 | 业务 | ui-kit | 嵌入页面 | 指标 |
 |------|------|--------|----------|------|
 | 2.1 | Accounts CRUD | — | `/accounts` | — |
-| 2.2 | Contacts CRUD | — | `/contacts` | — |
+| 2.2 | Contacts CRUD | — | `/contacts` | 公司关联 |
 | 2.3 | Leads CRUD + 状态 | `ChartBar` | Leads 报表 Tab | 状态分布 |
 | 2.4 | Leads 统计 API | **`ChartDonut`**（新增） | Leads 报表 | 来源占比 |
 | 2.5 | Leads 趋势 API | `ChartLine` | 同上 | 日/周新增 |
@@ -179,18 +179,39 @@ Week 2  Mon–Tue  图表嵌入 + 空态/权限
 
 ## Phase 3：商机与仪表盘
 
-**业务**
+**PRD**：[phase-3-deals-dashboard-prd.md](../prd/phase-3-deals-dashboard-prd.md) · **API**：[phase-3-deals-dashboard-api.md](../api/phase-3-deals-dashboard-api.md) v1.0 Accepted · **Schema**：[04-phase-3-deals-dashboard-schema.md](../architecture/04-phase-3-deals-dashboard-schema.md) · **切面**：[phase-3-notes.md](../meeting-notes/phase-3-notes.md)
+
+### Phase 3 并行任务（Implementation）
+
+> 三轨首条消息声明 `【BE】` / `【FE】` / `【QA】`，细则见 [parallel-implementation.md](./parallel-implementation.md)。  
+> **开工门禁**：`phase-3-deals-dashboard-api.md`（或 00-api-design 扩写）+ `phase-3-notes` 2b 评审后再领 3.1/3.4。  
+> **建议节奏**：**Week 1** → 3.0、3.UI、3.1、3.4；**Week 2** → 3.2–3.7、3.E2E。
+
+| ID | [BE] | [FE] | [QA] | 依赖 |
+|----|------|------|------|------|
+| 3.0 | **架构师**：`phase-3-deals-dashboard-api.md` + `04-phase-3` Schema + `phase-3-notes` — ✅ | 2b 前端切面（路由/composable/testid）— ✅ | — | PRD §Phase 3 |
+| 3.UI | — | **`ChartSparkline`** + **`ChartGauge`** + `/charts` 案例 + i18n — ✅ | ui-kit Vitest / 案例页冒烟（可选）— ⬜ | 3.0 切面 |
+| 3.1 | Deals 迁移 + CRUD + `GET /api/deals/pipeline` + `PUT .../stage` — ✅ | `/deals` 看板 + `use-deals` + `ChartFunnel` — ✅ | Deals HTTP 集成测（CRUD/管道/租户）— ⬜ | 3.0 契约 |
+| 3.2 | Deals 阶段/金额统计 API — ✅ | Deals 分析区 `ChartBar` — ✅ | 统计 API + 权限 — ⬜ | 3.1 |
+| 3.3 | 赢单率 API — ✅ | `ChartLine`（Deals / Dashboard）— ✅ | 同上 — ⬜ | 3.2 |
+| 3.4 | `GET /api/dashboard/summary`（+ 可选 `funnel`）— ✅ | `/` KPI 行 `CardMetric` + Sparkline 接 API — ✅ | summary + `data_scope` 集成测 — ⬜ | 3.0；可与 3.1 并行 |
+| 3.5 | 配额 API — ✅ | Dashboard `ChartGauge` — ✅ | 配额接口 — ⬜ | 3.4 |
+| 3.6 | Dashboard 汇总 API（Line+Funnel+Bar+Gauge 数据）— ✅ | Dashboard 全图嵌入 — ✅ | 图表数据 + 权限 — ⬜ | 3.4、3.5 |
+| 3.7 | 经理排行 API — ✅ | 经理视图 `ChartBar` — ✅ | Manager `view_all` 数据范围 — ⬜ | 3.6 |
+| 3.E2E | — | `deals` / Dashboard `data-testid` — ✅ | `phase3-deals` + Dashboard 冒烟 E2E — ⬜ | 3.1 FE；3.4 FE |
+
+**业务**（PM 验收后勾选）
 
 - [ ] 商机 (Deals) CRUD + Pipeline 看板
-- [ ] 销售阶段管理
+- [ ] 销售阶段管理（`PUT /api/deals/:id/stage`）
 - [ ] 仪表盘页面（个人 / 经理视图）
 
 **图表（Dashboard 为必验收）**
 
 - [ ] Deals 管道 `ChartFunnel` + 阶段金额 `ChartBar`（`/deals`）
 - [ ] 赢单率 `ChartLine`（Deals 或 Dashboard）
-- [ ] **`ChartSparkline`** 组件（KPI 卡内趋势）
-- [ ] **`ChartGauge`** 组件（配额完成率）
+- [ ] **`ChartSparkline`** 组件 + Story/案例页（KPI 卡内趋势）
+- [ ] **`ChartGauge`** 组件 + 案例页（配额完成率）
 - [ ] Dashboard：Sparkline×KPI + Line + Funnel + Gauge + Bar（经理排行）
 - [ ] Dashboard 汇总 API + 数据权限（本人 / 部门 / 全部）
 
@@ -199,12 +220,12 @@ Week 2  Mon–Tue  图表嵌入 + 空态/权限
 | 3.1 | Deals + Pipeline | `ChartFunnel` | `/deals` | 阶段管道 |
 | 3.2 | 阶段/金额 API | `ChartBar` | Deals 分析 | 金额、排行 |
 | 3.3 | 赢单率 API | `ChartLine` | Deals / Dashboard | win rate |
-| 3.4 | Dashboard 页面 | **`CardMetric`** | `/` 或 `/dashboard` | KPI 行 |
-| 3.5 | 配额 API | **`ChartGauge`**（新增） | Dashboard | 目标 % |
+| 3.4 | Dashboard 页面 | **`CardMetric`** + **`ChartSparkline`** | `/` | KPI 行 |
+| 3.5 | 配额 API | **`ChartGauge`** | Dashboard | 目标 % |
 | 3.6 | Dashboard 汇总 API | Line+Funnel+Bar+Gauge | Dashboard | 见 [05](../frontend-arch/05-component-scenarios.md) Part B |
 | 3.7 | 经理视图 | `ChartBar` | Dashboard | 业绩排行 |
 
-**本阶段新增组件**：`ChartSparkline`、`ChartGauge`（与 3.4、3.5 同迭代）。  
+**本阶段新增组件**：`ChartSparkline`、`ChartGauge`（与 3.UI、3.4、3.5 同迭代）。  
 **Phase 3 图表 Done**：Dashboard **不得**仅有数字 KPI；至少 4 类图接 API。
 
 ---
@@ -268,3 +289,7 @@ Week 2  Mon–Tue  图表嵌入 + 空态/权限
 | 2026-05-22 | Phase 2 Architect：phase-2-crm-ai.md、03-phase-2-crm-schema、ADR-0004、phase-2-notes |
 | 2026-05-22 | Phase 2 BE：2.1 Accounts API + `00006`；2.3 `convert` + Leads HTTP 集成测 |
 | 2026-05-22 | Phase 2 QA：2.1 `accounts_integration_test.go`；2.3 Leads HTTP 集成测 |
+| 2026-05-24 | Phase 3：并行任务表 3.0–3.E2E；`phase-3-notes.md` 切面 |
+| 2026-05-24 | Phase 3 Architect 3.0：`phase-3-deals-dashboard-api.md` v1.0、`04-phase-3-deals-dashboard-schema.md` |
+| 2026-05-25 | Phase 3 PM：`phase-3-deals-dashboard-prd.md` v0.1 |
+| 2026-05-25 | Phase 3 BE 冲刺：3.1–3.7 全 API + dashboard/deals 集成测 |

@@ -21,7 +21,11 @@
             class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
             :class="sentimentTone(journey.summary.current_sentiment)"
           >
-      
+            <UiSentimentEmoji
+              :sentiment="journey.summary.current_sentiment"
+              size="xs"
+              :label="$t(`sentiment.${journey.summary.current_sentiment}`)"
+            />
             {{ $t('emotionCurrentSentiment') }}：{{ $t(`sentiment.${journey.summary.current_sentiment}`) }}
           </span>
           <span class="inline-flex items-center rounded-full bg-ds-bg-muted px-3 py-1 text-xs font-medium text-ds-fg-muted">
@@ -106,7 +110,9 @@
             :y-min="-2"
             :y-max="2"
             :y-interval="1"
-            :point-emojis="chartPointEmojis"
+            :point-symbols="chartPointSymbols"
+            :point-item-styles="chartPointItemStyles"
+            :point-symbol-size="26"
             :point-labels="chartPointLabels"
             :show-area="true"
           />
@@ -160,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { sentimentEmoji } from '@crm/ui-kit'
+import { resolveSentimentChartColor, sentimentEchartSymbol } from '@crm/ui-kit'
 import type { LifecycleStage } from '~/types/lead'
 import type { ActivitySentiment, EmotionJourney, EmotionSubjectType } from '~/types/emotion-journey'
 const props = withDefaults(
@@ -176,6 +182,8 @@ const props = withDefaults(
     embedded?: boolean
     /** 时间范围，变更时重新拉取 */
     range?: '30d' | '90d' | 'all'
+    /** 父级递增以触发重新拉取（如新建 Activity 后） */
+    refreshKey?: number
   }>(),
   { hideTouchpoints: false, chartHeight: 280, demoBadgeOnlyWhenPreview: true, embedded: false },
 )
@@ -239,22 +247,35 @@ const chartSeries = computed(() => [
   },
 ])
 
-const chartPointEmojis = computed(() =>
-  sortedPoints.value.map((p) =>
-    p.sentiment ? sentimentEmoji(p.sentiment) : sentimentEmoji('unknown'),
-  ),
+const chartPointSymbols = computed(() =>
+  sortedPoints.value.map((p) => sentimentEchartSymbol(resolvePointSentiment(p))),
+)
+
+const chartPointItemStyles = computed(() =>
+  sortedPoints.value.map((p) => ({
+    color: resolveSentimentChartColor(resolvePointSentiment(p)),
+  })),
 )
 
 const chartPointLabels = computed(() =>
-  sortedPoints.value.map((p) => {
-    const key = p.sentiment ?? 'unknown'
-    const em = sentimentEmoji(key)
-    const label = t(`sentiment.${key}`)
-    return `${em} ${label}`
-  }),
+  sortedPoints.value.map((p) => t(`sentiment.${resolvePointSentiment(p)}`)),
 )
 
-/** Y 轴仅文字刻度；emoji 由 pointEmojis 标在数据点上方 */
+function resolvePointSentiment(point: { sentiment?: ActivitySentiment | null; sentiment_score?: number | null }) {
+  if (point.sentiment) return point.sentiment
+  const byScore: Record<number, ActivitySentiment> = {
+    2: 'positive',
+    0: 'neutral',
+    [-1]: 'hesitant',
+    [-2]: 'negative',
+  }
+  if (point.sentiment_score != null && byScore[point.sentiment_score]) {
+    return byScore[point.sentiment_score]
+  }
+  return 'unknown'
+}
+
+/** Y 轴文字刻度；数据点上方为 SVG 情绪图标（pointSymbols） */
 function yAxisLabelFormatter(value: number) {
   const map: Record<number, string> = {
     2: t('sentiment.positive'),
@@ -321,4 +342,11 @@ async function load() {
 }
 
 watch(() => [props.subjectType, props.subjectId, props.range], load, { immediate: true })
+watch(
+  () => props.refreshKey,
+  (key, prev) => {
+    if (key != null && key > 0 && key !== prev) void load()
+  },
+)
+defineExpose({ reload: load })
 </script>

@@ -172,13 +172,24 @@
 
 ---
 
-## 8. 下游依赖用例（非 2.3 实现，仅登记）
+## 8. 统计 API 用例（2.4–2.6，已实现）
+
+| ID | 子任务 | 简述 | 自动化 |
+|----|--------|------|--------|
+| L-STAT-01 | 2.4 | `GET /api/leads/stats/by-source` 与列表同源权限 / total 一致 | `TestLeadsHTTP_Stats_LSTAT01_*` |
+| L-STAT-02 | 2.5 | `stats/trend` 返回 categories + series | `TestLeadsHTTP_Stats_LSTAT02_*` |
+| L-STAT-03 | 2.6 | `stats/funnel` 各阶段 count 之和 = 列表 total | `TestLeadsHTTP_Stats_LSTAT03_*` |
+| L-STAT-04 | 2.4 | `by-status` total 与列表一致 | `TestLeadsHTTP_Stats_ByStatusMatchesList` |
+| L-STAT-05 | 2.4 | 跨租户 stats total=0 | `TestLeadsHTTP_Stats_TenantIsolation` |
+| L-STAT-06 | 2.4 | 非法日期 `to < from` → 400 | `TestLeadsHTTP_Stats_InvalidDateRange` |
+| L-STAT-07 | 2.4 | 无 `leads:view` → 403（stats 与 list 一致） | `TestLeadsHTTP_Stats_RequiresLeadsView` |
+| L-STAT-08 | 2.4 | 仅 `view` 可访问 stats | `TestLeadsHTTP_Stats_ViewerCanAccess` |
+| L-STAT-09 | 2.4 | owner scope：stats 与 list 同范围 | `TestLeadsHTTP_Stats_OwnerScopeMatchesList` |
+
+## 8b. 下游依赖用例（非 2.3/2.4–2.6，仅登记）
 
 | ID | 子任务 | 简述 |
 |----|--------|------|
-| L-STAT-01 | 2.4 | `GET /api/leads/stats/by-source` 与列表同源权限 |
-| L-STAT-02 | 2.5 | `stats/trend` |
-| L-STAT-03 | 2.6 | `stats/funnel` 与列表 count 误差 0 |
 | L-INT-07a | 2.7 | `POST /api/leads/import` multipart |
 | L-INT-07b | 2.7 | `POST .../assign` + system Activity |
 | L-ACT-01 | 2.8 | `POST /api/activities` 后 `last_activity_at` 更新 |
@@ -210,12 +221,12 @@ flowchart LR
 
 | 类型 | 路径 |
 |------|------|
-| Go 集成测 | `backend/internal/interfaces/http/leads_test.go` |
+| Go 集成测 | `backend/internal/interfaces/http/leads_integration_test.go`、`leads_stats_integration_test.go` |
 | 域/状态机单测 | `backend/internal/application/leads/status_test.go` |
 | Playwright | `e2e/tests/phase2-leads.spec.ts` |
 | 测试辅助登录 | `e2e/helpers/auth.ts`（复用 phase1 模式） |
 
-**Makefile 建议**（可选）：`make test-phase2-leads` → 仅跑 Leads 相关 `-run`。
+**Makefile**：`cd backend && go test ./internal/interfaces/http/... -run 'LeadsHTTP'`（含 Stats）。
 
 ---
 

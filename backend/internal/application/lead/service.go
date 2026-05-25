@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"crm-backend/internal/application/deal"
+	"crm-backend/internal/application/insights"
 	"crm-backend/internal/domain"
 	"crm-backend/internal/pkg/crm"
 	"crm-backend/internal/pkg/datascope"
@@ -19,19 +21,30 @@ var (
 	ErrInvalidLifecycle        = errors.New("invalid lifecycle_stage")
 	ErrInvalidStatus           = errors.New("invalid status")
 	ErrInvalidStatusTransition = errors.New("invalid_status_transition")
+	ErrInvalidSegment          = errors.New("invalid_segment_code")
 	ErrConvertNotAllowed       = errors.New("convert_not_allowed")
 	ErrConvertMissingAccount   = errors.New("convert_requires_account")
 	ErrAlreadyConverted        = errors.New("lead_already_converted")
 )
 
 type Service struct {
-	repo     repository.LeadRepository
-	accounts repository.AccountRepository
-	enforcer *casbin.Enforcer
+	repo       repository.LeadRepository
+	accounts   repository.AccountRepository
+	activities repository.ActivityRepository
+	tenants    repository.TenantRepository
+	deals      *deal.Service
+	enforcer   *casbin.Enforcer
 }
 
-func NewService(repo repository.LeadRepository, accounts repository.AccountRepository, enforcer *casbin.Enforcer) *Service {
-	return &Service{repo: repo, accounts: accounts, enforcer: enforcer}
+func NewService(
+	repo repository.LeadRepository,
+	accounts repository.AccountRepository,
+	activities repository.ActivityRepository,
+	tenants repository.TenantRepository,
+	enforcer *casbin.Enforcer,
+	deals *deal.Service,
+) *Service {
+	return &Service{repo: repo, accounts: accounts, activities: activities, tenants: tenants, enforcer: enforcer, deals: deals}
 }
 
 type LeadDTO struct {
@@ -62,6 +75,7 @@ type ListQuery struct {
 	Source             string
 	LifecycleStage     string
 	RelationshipHealth string
+	Segment            string
 	OwnerID            *uuid.UUID
 }
 
@@ -99,10 +113,22 @@ type ConvertAccountInput struct {
 	Name string
 }
 
+type ConvertDealInput struct {
+	Title  string
+	Amount float64
+	Stage  string
+}
+
 type ConvertInput struct {
 	AccountID     *uuid.UUID
 	ContactID     *uuid.UUID
 	CreateAccount *ConvertAccountInput
+	CreateDeal    *ConvertDealInput
+}
+
+type ConvertResult struct {
+	LeadDTO
+	DealID *uuid.UUID `json:"deal_id,omitempty"`
 }
 
 func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQuery) (*ListResult, error) {
@@ -115,6 +141,9 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 	if size < 1 {
 		size = 20
 	}
+	if err := validateLeadSegment(q.Segment); err != nil {
+		return nil, err
+	}
 	items, total, err := s.repo.List(ctx, tenantID, repository.LeadListFilter{
 		Page:               page,
 		PageSize:           size,
@@ -123,6 +152,8 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 		Source:             q.Source,
 		LifecycleStage:     q.LifecycleStage,
 		RelationshipHealth: q.RelationshipHealth,
+		Segment:            q.Segment,
+		SegmentOpts:        s.segmentOpts(ctx, tenantID),
 		OwnerID:            q.OwnerID,
 		ViewAll:            viewAll,
 		UserID:             userID,
@@ -304,7 +335,7 @@ func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) er
 }
 
 // Convert marks a qualified lead as converted and links an account (existing or newly created).
-func (s *Service) Convert(ctx context.Context, tenantID, userID, id uuid.UUID, in ConvertInput) (*LeadDTO, error) {
+func (s *Service) Convert(ctx context.Context, tenantID, userID, id uuid.UUID, in ConvertInput) (*ConvertResult, error) {
 	viewAll := s.viewAll(userID.String(), tenantID.String())
 	l, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID)
 	if err != nil {
@@ -368,7 +399,19 @@ func (s *Service) Convert(ctx context.Context, tenantID, userID, id uuid.UUID, i
 		return nil, err
 	}
 	dto := toDTO(l)
-	return &dto, nil
+	result := &ConvertResult{LeadDTO: dto}
+	if in.CreateDeal != nil && in.CreateDeal.Title != "" && s.deals != nil {
+		created, err := s.deals.CreateFromLead(ctx, tenantID, userID, id, accountID, deal.CreateFromLeadInput{
+			Title:  in.CreateDeal.Title,
+			Amount: in.CreateDeal.Amount,
+			Stage:  in.CreateDeal.Stage,
+		})
+		if err != nil {
+			return nil, err
+		}
+		result.DealID = &created.ID
+	}
+	return result, nil
 }
 
 func applyStatusChange(l *domain.Lead, to string) error {
@@ -387,6 +430,73 @@ func applyStatusChange(l *domain.Lead, to string) error {
 
 func (s *Service) viewAll(userID, tenantID string) bool {
 	return datascope.CanViewAllTenantData(s.enforcer, userID, tenantID)
+}
+
+func validateLeadSegment(code string) error {
+	if code == "" {
+		return nil
+	}
+	if !crm.ValidSegmentCode(code) {
+		return ErrInvalidSegment
+	}
+	ok, _, err := crm.SegmentEntityForCode(code)
+	if err != nil || !ok {
+		return ErrInvalidSegment
+	}
+	return nil
+}
+
+func (s *Service) segmentOpts(ctx context.Context, tenantID uuid.UUID) crm.SegmentApplyOpts {
+	opts := crm.SegmentApplyOpts{DaysSilent: 7, HighValueAmount: 100000}
+	if s.tenants == nil {
+		return opts
+	}
+	t, err := s.tenants.FindByID(ctx, tenantID)
+	if err != nil || t == nil {
+		return opts
+	}
+	cfg := crm.ParseTenantCRMConfig(t.Config)
+	opts.DaysSilent = cfg.InsightThresholds.DaysSilent
+	opts.HighValueAmount = cfg.InsightThresholds.HighValueAmount
+	return opts
+}
+
+func (s *Service) EvaluateInsights(ctx context.Context, tenantID, userID, leadID uuid.UUID) (*insights.EvaluateResponse, error) {
+	viewAll := datascope.CanViewAllTenantData(s.enforcer, userID.String(), tenantID.String())
+	lead, err := s.repo.GetByID(ctx, tenantID, leadID, viewAll, userID)
+	if err != nil {
+		return nil, err
+	}
+	acts, _, err := s.activities.List(ctx, tenantID, repository.ActivityListFilter{
+		SubjectType: "lead",
+		SubjectID:   leadID,
+		Page:        1,
+		PageSize:    50,
+	})
+	if err != nil {
+		return nil, err
+	}
+	daysSilent := 7
+	if s.tenants != nil {
+		if t, err := s.tenants.FindByID(ctx, tenantID); err == nil && t != nil {
+			cfg := crm.ParseTenantCRMConfig(t.Config)
+			daysSilent = cfg.InsightThresholds.DaysSilent
+		}
+	}
+	resp := insights.EvaluateLead(insights.LeadEvaluateInput{
+		LeadID:         leadID,
+		Status:         lead.Status,
+		LifecycleStage: lead.LifecycleStage,
+		CreatedAt:      lead.CreatedAt,
+		LastActivityAt: lead.LastActivityAt,
+		Activities:     acts,
+		DaysSilent:     daysSilent,
+	})
+	lastAt := lead.LastActivityAt
+	if err := s.repo.UpdateEngagementFromActivity(ctx, tenantID, leadID, userID, lastAt, int16(resp.EngagementScore)); err != nil {
+		return nil, err
+	}
+	return &resp, nil
 }
 
 func toDTO(l *domain.Lead) LeadDTO {

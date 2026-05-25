@@ -54,7 +54,7 @@
     <section class="space-y-4" data-testid="lead-activity-timeline-section">
       <h3 class="text-sm font-semibold text-ds-fg-heading">{{ $t('leadsSectionTimeline') }}</h3>
       <p class="text-xs text-ds-fg-muted">{{ $t('leadsSectionTimelineHint') }}</p>
-      <CrmActivityTimeline :lead-id="lead.id" />
+      <CrmActivityTimeline subject-type="lead" :subject-id="lead.id" />
     </section>
   </CardShell>
 </template>

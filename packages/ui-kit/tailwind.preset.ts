@@ -5,6 +5,7 @@ import type { Config } from 'tailwindcss'
  * 消费 packages/ui-kit/src/styles/design-system.css 中的 --ds-* 变量
  */
 export default {
+  darkMode: ['selector', '[data-theme="v2"]'],
   theme: {
     extend: {
       fontFamily: {
@@ -115,6 +116,9 @@ export default {
           'on-brand': 'var(--ds-fg-on-brand)',
           border: 'var(--ds-border)',
           'border-muted': 'var(--ds-border-muted)',
+          'border-table': 'var(--ds-border-table)',
+          divide: 'var(--ds-divide)',
+          'table-head': 'var(--ds-bg-table-head)',
           brand: 'var(--ds-brand)',
           'brand-hover': 'var(--ds-brand-hover)',
           'brand-muted': 'var(--ds-brand-muted)',

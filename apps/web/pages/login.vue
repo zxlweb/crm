@@ -35,7 +35,7 @@
 
       <div class="relative z-10 flex items-center justify-between text-xs text-ds-fg-subtle">
         <span>© {{ year }} EnterpriseFlow CRM</span>
-        <UiThemeToggle />
+        <UiThemeToggle variant="icon" :format-label="skinLabel" :aria-label="$t('themeSkinLabel')" />
       </div>
     </section>
 
@@ -49,7 +49,7 @@
           </div>
           <span class="font-semibold text-ds-fg-heading">{{ brandName }}</span>
         </div>
-        <UiThemeToggle />
+        <UiThemeToggle variant="icon" :format-label="skinLabel" :aria-label="$t('themeSkinLabel')" />
       </div>
 
       <div
@@ -198,6 +198,7 @@
 <script setup lang="ts">
 import { registerSchema } from '~/schemas/register'
 import type { LoginResponse } from '~/composables/use-auth'
+import type { ThemeId } from '@crm/ui-kit'
 
 definePageMeta({ layout: 'auth' })
 
@@ -224,6 +225,10 @@ const year = new Date().getFullYear()
 
 const isRegister = computed(() => mode.value === 'register')
 const brandName = computed(() => (isDark.value ? 'Optrixx' : 'EnterpriseFlow'))
+
+function skinLabel(id: ThemeId) {
+  return id === 'v1' ? t('themeSkinLight') : t('themeSkinDark')
+}
 const heroEmpower = computed(() => (isRegister.value ? t('registerHeroEmpower') : t('loginHeroEmpower')))
 const heroEmpowerSub = computed(() => (isRegister.value ? t('registerHeroEmpowerSub') : t('loginHeroEmpowerSub')))
 const submitLabel = computed(() => {

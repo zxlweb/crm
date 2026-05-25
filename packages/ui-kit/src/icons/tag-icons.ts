@@ -1,3 +1,6 @@
+import { readCssVar } from '../chart/utils/colors'
+import { tagIconPathsToEchartPath } from './tag-icon-echart'
+
 /** 24×24 stroke 图标，用于活动类型 / 情绪 / 线索标签等徽标 */
 
 export type TagIconName =
@@ -71,31 +74,31 @@ export const TAG_ICONS: Record<TagIconName, TagIconPath[]> = {
     },
     { tag: 'circle', cx: 9.5, cy: 7.5, r: 1 },
   ],
-  /** 情绪表情：圆脸 + 眼 + 嘴 */
+  /** 情绪地图：圆脸 + 眼 + 嘴/眉，小尺寸可辨（非 emoji） */
   positive: [
     { tag: 'circle', cx: 12, cy: 12, r: 8 },
-    { tag: 'circle', cx: 9, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'circle', cx: 15, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'path', d: 'M8.5 13.5c1.2 1.8 2.8 2.5 3.5 2.5s2.3-.7 3.5-2.5' },
+    { tag: 'circle', cx: 9.25, cy: 10.25, r: 1.1, fill: 'currentColor' },
+    { tag: 'circle', cx: 14.75, cy: 10.25, r: 1.1, fill: 'currentColor' },
+    { tag: 'path', d: 'M7.5 13.25 Q12 17.25 16.5 13.25' },
   ],
   neutral: [
     { tag: 'circle', cx: 12, cy: 12, r: 8 },
-    { tag: 'circle', cx: 9, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'circle', cx: 15, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'line', x1: 8.5, y1: 14.5, x2: 15.5, y2: 14.5 },
+    { tag: 'circle', cx: 9.25, cy: 10.25, r: 1.1, fill: 'currentColor' },
+    { tag: 'circle', cx: 14.75, cy: 10.25, r: 1.1, fill: 'currentColor' },
+    { tag: 'line', x1: 8.25, y1: 14.75, x2: 15.75, y2: 14.75 },
   ],
   hesitant: [
     { tag: 'circle', cx: 12, cy: 12, r: 8 },
-    { tag: 'circle', cx: 9, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'circle', cx: 15, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'path', d: 'M8.5 14.5c1-.5 2.2-.8 3.5-.8s2.5.3 3.5.8' },
-    { tag: 'path', d: 'M9 9.5h1M14 9.5h1' },
+    { tag: 'circle', cx: 9.25, cy: 10.5, r: 1.1, fill: 'currentColor' },
+    { tag: 'circle', cx: 14.75, cy: 10.5, r: 1.1, fill: 'currentColor' },
+    { tag: 'path', d: 'M6.75 8.75 L9.75 9.75' },
+    { tag: 'path', d: 'M8.75 15.25 Q12 14 15.25 15.25' },
   ],
   negative: [
     { tag: 'circle', cx: 12, cy: 12, r: 8 },
-    { tag: 'circle', cx: 9, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'circle', cx: 15, cy: 10, r: 1, fill: 'currentColor' },
-    { tag: 'path', d: 'M8.5 16c1.2-1.5 2.8-2 3.5-2s2.3.5 3.5 2' },
+    { tag: 'circle', cx: 9.25, cy: 10.25, r: 1.1, fill: 'currentColor' },
+    { tag: 'circle', cx: 14.75, cy: 10.25, r: 1.1, fill: 'currentColor' },
+    { tag: 'path', d: 'M7.5 15.5 Q12 12 16.5 15.5' },
   ],
 }
 
@@ -124,22 +127,47 @@ export function resolveSentimentIcon(sentiment: string): TagIconName {
   return SENTIMENT_ICON[sentiment] ?? 'neutral'
 }
 
-/** ECharts path:// 符号，与 UiTagIcon 情绪表情一致 */
+const SENTIMENT_CHART_COLOR_FALLBACK: Record<TagIconName, string> = {
+  email: '#64748b',
+  call: '#64748b',
+  meeting: '#64748b',
+  wechat: '#64748b',
+  note: '#64748b',
+  tag: '#64748b',
+  positive: '#059669',
+  neutral: '#64748b',
+  hesitant: '#d97706',
+  negative: '#e11d48',
+}
+
+const SENTIMENT_CHART_CSS_VAR: Partial<Record<TagIconName, string>> = {
+  positive: '--ds-success',
+  neutral: '--ds-fg-muted',
+  hesitant: '--ds-warning',
+  negative: '--ds-danger',
+}
+
+/** ECharts path:// 符号，与 UiTagIcon 情绪表情同源生成 */
 export const SENTIMENT_ECHART_SYMBOL: Record<
   'positive' | 'neutral' | 'hesitant' | 'negative',
   string
 > = {
-  positive:
-    'path://M12,4a8,8,0,1,1,0,16a8,8,0,1,1,0,-16M9,10a1,1,0,1,0,0,-0.01M15,10a1,1,0,1,0,0,-0.01M8.5,13.5c1.2,1.8,2.8,2.5,3.5,2.5s2.3,-0.7,3.5,-2.5',
-  neutral:
-    'path://M12,4a8,8,0,1,1,0,16a8,8,0,1,1,0,-16M9,10a1,1,0,1,0,0,-0.01M15,10a1,1,0,1,0,0,-0.01M8.5,14.5h7',
-  hesitant:
-    'path://M12,4a8,8,0,1,1,0,16a8,8,0,1,1,0,-16M9,10a1,1,0,1,0,0,-0.01M15,10a1,1,0,1,0,0,-0.01M9,9.5h1M14,9.5h1M8.5,14.5c1,-0.5,2.2,-0.8,3.5,-0.8s2.5,0.3,3.5,0.8',
-  negative:
-    'path://M12,4a8,8,0,1,1,0,16a8,8,0,1,1,0,-16M9,10a1,1,0,1,0,0,-0.01M15,10a1,1,0,1,0,0,-0.01M8.5,16c1.2,-1.5,2.8,-2,3.5,-2s2.3,0.5,3.5,2',
+  positive: tagIconPathsToEchartPath(TAG_ICONS.positive),
+  neutral: tagIconPathsToEchartPath(TAG_ICONS.neutral),
+  hesitant: tagIconPathsToEchartPath(TAG_ICONS.hesitant),
+  negative: tagIconPathsToEchartPath(TAG_ICONS.negative),
 }
 
 export function sentimentEchartSymbol(sentiment: string): string {
   const key = resolveSentimentIcon(sentiment) as keyof typeof SENTIMENT_ECHART_SYMBOL
   return SENTIMENT_ECHART_SYMBOL[key] ?? SENTIMENT_ECHART_SYMBOL.neutral
+}
+
+/** 情绪曲线数据点色（形状 + 颜色，满足 a11y） */
+export function resolveSentimentChartColor(sentiment: string): string {
+  const key = resolveSentimentIcon(sentiment)
+  const cssVar = SENTIMENT_CHART_CSS_VAR[key]
+  const fallback = SENTIMENT_CHART_COLOR_FALLBACK[key]
+  if (!cssVar) return fallback
+  return readCssVar(cssVar, fallback)
 }

@@ -74,6 +74,30 @@
         </div>
       </section>
 
+      <!-- Activity 跟进类型（纵向柱，与线索详情摘要一致） -->
+      <section>
+        <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-ds-fg-muted">{{ $t('chartsSectionActivity') }}</h2>
+        <ChartShell
+          :title="$t('chartsActivityTypeTitle')"
+          :subtitle="$t('chartsActivityTypeDesc')"
+          :height="300"
+        >
+          <ChartBar :items="activityTypeBars" :horizontal="false" :height="260" />
+        </ChartShell>
+      </section>
+
+      <!-- 环形图 -->
+      <section>
+        <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-ds-fg-muted">{{ $t('chartsSectionDonut') }}</h2>
+        <ChartShell
+          :title="$t('chartsDonutTitle')"
+          :subtitle="$t('chartsDonutDesc')"
+          :height="320"
+        >
+          <ChartDonut :items="sourceDonut" :height="300" />
+        </ChartShell>
+      </section>
+
       <!-- 漏斗图 -->
       <section>
         <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-ds-fg-muted">{{ $t('chartsSectionFunnel') }}</h2>
@@ -104,16 +128,51 @@
           />
         </ChartShell>
       </section>
+
+      <!-- Sparkline · KPI 内嵌趋势 -->
+      <section>
+        <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-ds-fg-muted">{{ $t('chartsSectionSparkline') }}</h2>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <ChartShell :title="$t('chartsSparklineTitle')" :subtitle="$t('chartsSparklineDesc')" :height="120">
+            <div class="flex items-center justify-between gap-4 px-2">
+              <div>
+                <p class="text-xs text-ds-fg-muted">{{ $t('chartsSparklineMetricLabel') }}</p>
+                <p class="text-2xl font-bold tabular-nums text-ds-fg-heading">¥2.4M</p>
+              </div>
+              <ChartSparkline :values="sparklineUp" tone="up" :width="120" :height="40" />
+            </div>
+          </ChartShell>
+          <ChartShell :title="$t('chartsSparklineFlatTitle')" :height="120">
+            <div class="flex items-center justify-end gap-4 px-2">
+              <ChartSparkline :values="sparklineMixed" tone="auto" :width="140" :height="40" />
+            </div>
+          </ChartShell>
+        </div>
+      </section>
+
+      <!-- Gauge · 配额完成率 -->
+      <section>
+        <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-ds-fg-muted">{{ $t('chartsSectionGauge') }}</h2>
+        <ChartShell
+          :title="$t('chartsGaugeTitle')"
+          :subtitle="$t('chartsGaugeDesc')"
+          :height="280"
+          data-testid="dashboard-quota-gauge"
+        >
+          <ChartGauge :value="72" :label="$t('chartsGaugeLabel')" :height="240" />
+        </ChartShell>
+      </section>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ChartBarItem, ChartFunnelItem, ChartLegendItem, ChartSeries } from '@crm/ui-kit'
+import type { ChartBarItem, ChartDonutItem, ChartFunnelItem, ChartLegendItem, ChartSeries } from '@crm/ui-kit'
 
 definePageMeta({ layout: 'auth' })
 
 const { t } = useI18n()
+const { activityTypeLabel } = useActivityLabels()
 
 const salesDays = Array.from({ length: 15 }, (_, i) => String(i + 1))
 const salesCurrent = [8, 10, 9, 12, 11, 14, 16, 18, 17, 20, 19, 22, 21, 20, 24]
@@ -134,6 +193,21 @@ const salesMetric = '$88,692.00'
 function formatCurrencyK(value: number) {
   return `$${value}k`
 }
+
+const sourceDonut = computed<ChartDonutItem[]>(() => [
+  { name: t('leadSource.website'), value: 120 },
+  { name: t('leadSource.exhibition'), value: 80 },
+  { name: t('leadSource.referral'), value: 45 },
+  { name: t('leadSource.partner'), value: 30 },
+])
+
+const activityTypeBars = computed<ChartBarItem[]>(() => [
+  { name: activityTypeLabel('call'), value: 18 },
+  { name: activityTypeLabel('email'), value: 12 },
+  { name: activityTypeLabel('meeting'), value: 8 },
+  { name: activityTypeLabel('wechat'), value: 6 },
+  { name: activityTypeLabel('note'), value: 4 },
+])
 
 const productBars: ChartBarItem[] = [
   { name: 'Baby & Kids', value: 86 },
@@ -174,4 +248,7 @@ const tenantLegend: ChartLegendItem[] = [
   { label: 'Active' },
   { label: 'New', muted: true, dashed: true },
 ]
+
+const sparklineUp = [12, 14, 13, 16, 18, 17, 22, 24]
+const sparklineMixed = [8, 12, 9, 11, 10, 13, 11, 15]
 </script>

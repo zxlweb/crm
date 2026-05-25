@@ -16,13 +16,14 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewAccountHandlers(svc *accountapp.Service, rec *audit.Recorder) *AccountHandlers {
-	return &AccountHandlers{svc: svc, audit: rec}
+func NewAccountHandlers(svc *accountapp.Service, rec *audit.Recorder, emotionSvc *emotion.Service) *AccountHandlers {
+	return &AccountHandlers{svc: svc, audit: rec, emotion: emotionSvc}
 }
 
 type AccountHandlers struct {
-	svc   *accountapp.Service
-	audit *audit.Recorder
+	svc     *accountapp.Service
+	audit   *audit.Recorder
+	emotion *emotion.Service
 }
 
 func (h *AccountHandlers) List(c *gin.Context) {
@@ -36,6 +37,7 @@ func (h *AccountHandlers) List(c *gin.Context) {
 		Search:             c.Query("search"),
 		LifecycleStage:     c.Query("lifecycle_stage"),
 		RelationshipHealth: c.Query("relationship_health"),
+		Segment:            c.Query("segment"),
 	}
 	if oid := c.Query("owner_id"); oid != "" {
 		id, err := uuid.Parse(oid)
@@ -47,6 +49,10 @@ func (h *AccountHandlers) List(c *gin.Context) {
 	}
 	result, err := h.svc.List(c.Request.Context(), tenantID, userID, q)
 	if err != nil {
+		if errors.Is(err, accountapp.ErrInvalidSegment) {
+			response.BadRequest(c, "invalid_segment_code")
+			return
+		}
 		response.InternalError(c, "获取公司列表失败")
 		return
 	}
@@ -207,8 +213,25 @@ func (h *AccountHandlers) EmotionJourney(c *gin.Context) {
 		response.InternalError(c, "获取情绪旅程失败")
 		return
 	}
-	_ = c.Query("range")
-	data := emotion.EmptyJourney("account", id, dto.LifecycleStage)
+	rangeQ := c.DefaultQuery("range", "90d")
+	if h.emotion == nil {
+		response.Success(c, emotion.EmptyJourney("account", id, dto.LifecycleStage))
+		return
+	}
+	data, err := h.emotion.BuildJourney(c.Request.Context(), tenantID, emotion.SubjectInput{
+		SubjectType:      "account",
+		SubjectID:        id,
+		LifecycleCurrent: dto.LifecycleStage,
+		CreatedAt:        dto.CreatedAt,
+	}, rangeQ)
+	if err != nil {
+		if errors.Is(err, emotion.ErrInvalidRange) {
+			response.BadRequest(c, emotion.FormatRangeError())
+			return
+		}
+		response.InternalError(c, "获取情绪旅程失败")
+		return
+	}
 	response.Success(c, data)
 }
 

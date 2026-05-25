@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3 API 契约：商机 (Deals) + 仪表盘 (Dashboard) · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><a href="../api/phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api/phase-3-deals-dashboard-api.html" style="color:var(--accent);font-weight:600">phase-3-deals-dashboard-api</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture/04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch/03-design-system.html">03-design-system</a><a href="../frontend-arch/04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch/05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes/phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes/phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes/phase-3-notes.html">phase-3-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><a href="../prd/phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd/phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><a href="../qa/phase-1-qa.html">phase-1-qa</a><a href="../qa/phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa/phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><a href="../tasks/parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../api/phase-3-deals-dashboard-api.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 3 API 契约：商机 (Deals) + 仪表盘 (Dashboard)</h1>
+<p><strong>版本</strong>：v1.0<br><strong>日期</strong>：2026-05-24<br><strong>状态</strong>：Accepted（Implementation 开工前评审基线）<br><strong>输入</strong>：<a href="../prd/phase-3-deals-dashboard-prd.md">phase-3-deals-dashboard-prd.md</a> · <a href="../prd/00-crm-overview.md">00-crm-overview.md</a> §Phase 3 · <a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> §Phase 3<br><strong>数据模型</strong>：<a href="../architecture/04-phase-3-deals-dashboard-schema.md">04-phase-3-deals-dashboard-schema.md</a><br><strong>索引</strong>：<a href="./00-api-design.md">00-api-design.md</a></p>
+<blockquote>
+<p>HTML：<code>phase-3-deals-dashboard-api.html</code>（<code>make docs-html</code> 生成）</p>
+</blockquote>
+<hr>
+<h2>1. 范围与原则</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>Phase 3 交付</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Deals (L1)</strong></td>
+<td>商机 CRUD、Pipeline 看板、阶段变更、统计 API</td>
+</tr>
+<tr>
+<td><strong>Dashboard (L1)</strong></td>
+<td>汇总 KPI、漏斗、待办、经理排行、配额完成率</td>
+</tr>
+<tr>
+<td><strong>复用 Phase 2</strong></td>
+<td>多租户、<code>data_scope</code>、关系字段（<code>engagement_score</code> 等可选只读）</td>
+</tr>
+<tr>
+<td><strong>不在 MVP</strong></td>
+<td>自定义 Pipeline 阶段编排 UI、审批流、多币种汇率</td>
+</tr>
+</tbody></table>
+<p><strong>通用约定</strong>（继承 <a href="./00-api-design.md">00-api-design.md</a>）：</p>
+<ul>
+<li>Header：<code>Authorization</code>、<code>X-Tenant-ID</code></li>
+<li>响应：<code>{ code, message, data, pagination? }</code></li>
+<li>列表默认 <code>page=1</code>、<code>page_size=20</code>（最大 100）</li>
+<li>写操作写 <code>audit_logs</code>（见 §10）</li>
+<li><strong>禁止</strong> body 传 <code>tenant_id</code></li>
+</ul>
+<p><strong>与 Phase 2 关系</strong>：</p>
+<ul>
+<li>线索 <code>POST /api/leads/:id/convert</code> 可创建 Account/Contact；<strong>可选</strong>同时创建 Deal（<code>create_deal</code> body，见 §4.3 扩展）</li>
+<li>Dashboard「今日优先」可继续聚合 Leads/Accounts；本契约提供 <strong>统一汇总端点</strong> 减少 FE N+1</li>
+</ul>
+<hr>
+<h2>2. 枚举与共享类型</h2>
+<h3>2.1 商机阶段 <code>stage</code>（Pipeline）</h3>
+<table>
+<thead>
+<tr>
+<th>code</th>
+<th>中文</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>qualification</code></td>
+<td>需求确认</td>
+<td>默认阶段；评估需求与预算</td>
+</tr>
+<tr>
+<td><code>proposal</code></td>
+<td>方案报价</td>
+<td>已提交方案/报价</td>
+</tr>
+<tr>
+<td><code>negotiation</code></td>
+<td>商务谈判</td>
+<td>价格与条款博弈</td>
+</tr>
+<tr>
+<td><code>won</code></td>
+<td>赢单</td>
+<td><strong>终态</strong>；须写 <code>closed_at</code></td>
+</tr>
+<tr>
+<td><code>lost</code></td>
+<td>输单</td>
+<td><strong>终态</strong>；须写 <code>closed_at</code>，建议 <code>lost_reason</code></td>
+</tr>
+</tbody></table>
+<p><strong>状态机</strong>（非法迁移 → <code>400</code> + <code>invalid_stage_transition</code>）：</p>
+<pre><code>qualification → proposal → negotiation → won | lost
+</code></pre>
+<ul>
+<li><code>won</code> / <code>lost</code> 不可再变更 <code>stage</code>（除 Admin 纠错 PATCH，Phase 3 可不实现）</li>
+<li>回退（如 <code>negotiation</code> → <code>proposal</code>）：<strong>允许</strong>，写审计 <code>deal.stage_change</code></li>
+</ul>
+<h3>2.2 币种 <code>currency</code></h3>
+<table>
+<thead>
+<tr>
+<th>code</th>
+<th>中文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CNY</code></td>
+<td>人民币（默认）</td>
+</tr>
+<tr>
+<td><code>USD</code></td>
+<td>美元</td>
+</tr>
+</tbody></table>
+<p>Phase 3 仅存储 code，不做汇率换算。</p>
+<h3>2.3 Dashboard <code>data_scope</code></h3>
+<p>与 Phase 2 一致，由 <code>GET /api/rbac/my-permissions</code> 返回（可选字段）：</p>
+<table>
+<thead>
+<tr>
+<th>code</th>
+<th>中文</th>
+<th>过滤</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>self</code></td>
+<td>本人</td>
+<td><code>owner_id = 当前用户</code></td>
+</tr>
+<tr>
+<td><code>department</code></td>
+<td>部门</td>
+<td><code>department_id</code> 匹配（种子可等同 <code>all</code>）</td>
+</tr>
+<tr>
+<td><code>all</code></td>
+<td>全部</td>
+<td>租户内可见范围</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. Deals（商机）资源</h2>
+<h3>3.1 字段</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>uuid</td>
+<td>出</td>
+<td></td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>string</td>
+<td>是</td>
+<td>商机名称</td>
+</tr>
+<tr>
+<td><code>stage</code></td>
+<td>enum</td>
+<td>否</td>
+<td>默认 <code>qualification</code></td>
+</tr>
+<tr>
+<td><code>amount</code></td>
+<td>decimal(18,2)</td>
+<td>否</td>
+<td>预计金额，≥ 0</td>
+</tr>
+<tr>
+<td><code>currency</code></td>
+<td>enum</td>
+<td>否</td>
+<td>默认 <code>CNY</code></td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>int 0–100</td>
+<td>否</td>
+<td>成交概率；<code>won</code>=100，<code>lost</code>=0 建议</td>
+</tr>
+<tr>
+<td><code>expected_close_date</code></td>
+<td>date</td>
+<td>否</td>
+<td>预计成交日</td>
+</tr>
+<tr>
+<td><code>account_id</code></td>
+<td>uuid</td>
+<td>否</td>
+<td>关联公司</td>
+</tr>
+<tr>
+<td><code>lead_id</code></td>
+<td>uuid</td>
+<td>否</td>
+<td>来源线索</td>
+</tr>
+<tr>
+<td><code>contact_id</code></td>
+<td>uuid</td>
+<td>否</td>
+<td>主联系人</td>
+</tr>
+<tr>
+<td><code>owner_id</code></td>
+<td>uuid</td>
+<td>否</td>
+<td>负责人；默认当前用户</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>text</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>string[]</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td><code>lost_reason</code></td>
+<td>string</td>
+<td>否</td>
+<td><code>stage=lost</code> 时建议必填</td>
+</tr>
+<tr>
+<td><code>closed_at</code></td>
+<td>timestamptz</td>
+<td>出</td>
+<td><code>won</code>/<code>lost</code> 时写入</td>
+</tr>
+<tr>
+<td><code>engagement_score</code></td>
+<td>int</td>
+<td>出</td>
+<td>只读；规则同 Lead（可选 Phase 3）</td>
+</tr>
+<tr>
+<td><code>last_activity_at</code></td>
+<td>timestamptz</td>
+<td>出</td>
+<td>只读</td>
+</tr>
+<tr>
+<td><code>created_at</code> / <code>updated_at</code></td>
+<td>timestamptz</td>
+<td>出</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3>3.2 CRUD</h3>
+<p><strong>权限</strong>：<code>deals:view|create|update|delete</code>；数据范围见 §9。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>权限</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/deals</code></td>
+<td>view</td>
+<td>Query 见下表</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/deals</code></td>
+<td>create</td>
+<td>创建</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/deals/:id</code></td>
+<td>view</td>
+<td>详情</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/deals/:id</code></td>
+<td>update</td>
+<td>全量更新（含 <code>stage</code>，走状态机）</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/deals/:id</code></td>
+<td>update</td>
+<td>部分更新</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/deals/:id</code></td>
+<td>delete</td>
+<td>软删</td>
+</tr>
+</tbody></table>
+<p><strong>列表 Query</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>page</code>, <code>page_size</code></td>
+<td>分页</td>
+</tr>
+<tr>
+<td><code>search</code></td>
+<td>标题模糊</td>
+</tr>
+<tr>
+<td><code>stage</code></td>
+<td>单阶段</td>
+</tr>
+<tr>
+<td><code>stages</code></td>
+<td>逗号分隔多阶段</td>
+</tr>
+<tr>
+<td><code>owner_id</code></td>
+<td>负责人</td>
+</tr>
+<tr>
+<td><code>account_id</code></td>
+<td>公司</td>
+</tr>
+<tr>
+<td><code>lead_id</code></td>
+<td>线索</td>
+</tr>
+<tr>
+<td><code>expected_close_from</code>, <code>expected_close_to</code></td>
+<td>预计成交日区间</td>
+</tr>
+<tr>
+<td><code>min_amount</code>, <code>max_amount</code></td>
+<td>金额筛选</td>
+</tr>
+</tbody></table>
+<p><strong>列表响应 <code>data</code></strong>：<code>{ items: Deal[], pagination }</code></p>
+<h3>3.3 Pipeline 看板</h3>
+<p><strong>GET</strong> <code>/api/deals/pipeline</code></p>
+<p><strong>权限</strong>：<code>deals:view</code></p>
+<p><strong>Query</strong>：<code>owner_id</code>（可选）、<code>account_id</code>（可选）；数据范围与列表一致。</p>
+<p><strong>响应 data</strong>：</p>
+<pre><code class="language-json">{
+  &quot;stages&quot;: [
+    {
+      &quot;stage&quot;: &quot;qualification&quot;,
+      &quot;count&quot;: 4,
+      &quot;amount_total&quot;: 580000,
+      &quot;items&quot;: [
+        {
+          &quot;id&quot;: &quot;uuid&quot;,
+          &quot;title&quot;: &quot;云帆智造年度订阅&quot;,
+          &quot;amount&quot;: 280000,
+          &quot;currency&quot;: &quot;CNY&quot;,
+          &quot;probability&quot;: 40,
+          &quot;expected_close_date&quot;: &quot;2026-07-15&quot;,
+          &quot;account_id&quot;: &quot;uuid&quot;,
+          &quot;owner_id&quot;: &quot;uuid&quot;
+        }
+      ]
+    }
+  ],
+  &quot;summary&quot;: {
+    &quot;open_count&quot;: 12,
+    &quot;open_amount&quot;: 3200000,
+    &quot;won_count_mtd&quot;: 2,
+    &quot;won_amount_mtd&quot;: 450000
+  }
+}
+</code></pre>
+<ul>
+<li><code>items</code>：每阶段默认最多返回 <strong>20</strong> 条（按 <code>updated_at DESC</code>）；完整列表走 <code>GET /api/deals?stage=</code></li>
+<li>FE <code>ChartFunnel</code> 使用 <code>stages[].count</code> 或 <code>amount_total</code>（Query <code>metric=count|amount</code>，默认 <code>count</code>）</li>
+</ul>
+<h3>3.4 阶段变更（推荐）</h3>
+<p><strong>PUT</strong> <code>/api/deals/:id/stage</code></p>
+<p><strong>权限</strong>：<code>deals:update</code></p>
+<p><strong>请求</strong>：</p>
+<pre><code class="language-json">{
+  &quot;stage&quot;: &quot;negotiation&quot;,
+  &quot;lost_reason&quot;: null,
+  &quot;note&quot;: &quot;客户确认采购清单&quot;
+}
+</code></pre>
+<p><strong>响应 data</strong>：更新后的 <code>Deal</code> 对象。</p>
+<blockquote>
+<p>亦可通过 <code>PATCH /api/deals/:id</code> 更新 <code>stage</code>；专用路径便于审计与 E2E。</p>
+</blockquote>
+<h3>3.5 统计 API（Deals 报表 / 任务 3.2–3.3）</h3>
+<p><strong>权限</strong>：<code>deals:view</code>；数据范围与列表一致。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>图表</th>
+<th>Query</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/deals/stats/by-stage</code></td>
+<td><code>ChartBar</code></td>
+<td><code>from</code>, <code>to</code>, <code>metric=count|amount</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/deals/stats/win-rate</code></td>
+<td><code>ChartLine</code></td>
+<td><code>from</code>, <code>to</code>, <code>granularity=week|month</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/deals/stats/velocity</code></td>
+<td>—</td>
+<td>平均阶段停留天数（Could）</td>
+</tr>
+</tbody></table>
+<p><strong><code>by-stage</code> 响应示例</strong>：</p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [
+    { &quot;label&quot;: &quot;qualification&quot;, &quot;value&quot;: 8, &quot;amount&quot;: 1200000 },
+    { &quot;label&quot;: &quot;proposal&quot;, &quot;value&quot;: 5, &quot;amount&quot;: 900000 }
+  ],
+  &quot;total&quot;: 13
+}
+</code></pre>
+<p><strong><code>win-rate</code> 响应示例</strong>：</p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [
+    { &quot;period&quot;: &quot;2026-W20&quot;, &quot;won&quot;: 2, &quot;lost&quot;: 1, &quot;rate&quot;: 0.67 }
+  ]
+}
+</code></pre>
+<hr>
+<h2>4. Dashboard（仪表盘）</h2>
+<p><strong>权限</strong>：<code>leads:view</code> 或 <code>deals:view</code>（至少其一）；各 KPI 仅统计有权限的资源。</p>
+<h3>4.1 汇总 <code>summary</code>（任务 3.4）</h3>
+<p><strong>GET</strong> <code>/api/dashboard/summary</code></p>
+<p><strong>Query</strong>：<code>preview=1</code>（可选；演示租户可合并 fixture 元数据，<strong>不写入库</strong>）</p>
+<p><strong>响应 data</strong>：</p>
+<pre><code class="language-json">{
+  &quot;data_scope&quot;: &quot;self&quot;,
+  &quot;kpis&quot;: {
+    &quot;leads_total&quot;: 5,
+    &quot;accounts_total&quot;: 2,
+    &quot;deals_total&quot;: 8,
+    &quot;deals_open_count&quot;: 6,
+    &quot;deals_open_amount&quot;: 2800000,
+    &quot;at_risk_total&quot;: 3,
+    &quot;avg_engagement&quot;: 62,
+    &quot;weekly_follow_ups&quot;: 12
+  },
+  &quot;kpi_trends&quot;: {
+    &quot;leads_weekly_touch&quot;: 3,
+    &quot;accounts_weekly_touch&quot;: 2,
+    &quot;deals_weekly_new&quot;: 1,
+    &quot;engagement_delta&quot;: 15,
+    &quot;engagement_direction&quot;: &quot;up&quot;
+  },
+  &quot;sparklines&quot;: {
+    &quot;leads&quot;: [2, 3, 1, 4, 3, 5, 4],
+    &quot;deals&quot;: [0, 1, 0, 2, 1, 1, 2]
+  },
+  &quot;priorities&quot;: [
+    {
+      &quot;entity_type&quot;: &quot;lead&quot;,
+      &quot;entity_id&quot;: &quot;uuid&quot;,
+      &quot;title&quot;: &quot;华创科技&quot;,
+      &quot;reasons&quot;: [&quot;7 天未跟进&quot;],
+      &quot;suggestion&quot;: &quot;今日电话确认方案&quot;,
+      &quot;score&quot;: 38,
+      &quot;engagement_score&quot;: 62,
+      &quot;is_preview&quot;: false
+    }
+  ]
+}
+</code></pre>
+<ul>
+<li><code>priorities</code>：最多 <strong>5</strong> 条，规则复用 Phase 2（沉默、低健康度）；<code>is_preview</code> 仅演示数据为 true</li>
+<li><code>sparklines</code>：近 <strong>7</strong> 个自然日点数，供 <code>ChartSparkline</code></li>
+<li>FE 逐步用本端点替代 <code>useDashboard().loadSnapshot()</code> 内多次 <code>leads/accounts</code> 列表聚合</li>
+</ul>
+<h3>4.2 漏斗 <code>funnel</code>（任务 3.6）</h3>
+<p><strong>GET</strong> <code>/api/dashboard/funnel</code></p>
+<p><strong>Query</strong>：<code>scope=deals|leads</code>（默认 <code>deals</code>）</p>
+<p><strong>响应 data</strong>（<code>scope=deals</code>）：</p>
+<pre><code class="language-json">{
+  &quot;stages&quot;: [
+    { &quot;name&quot;: &quot;qualification&quot;, &quot;count&quot;: 8 },
+    { &quot;name&quot;: &quot;proposal&quot;, &quot;count&quot;: 5 },
+    { &quot;name&quot;: &quot;negotiation&quot;, &quot;count&quot;: 3 },
+    { &quot;name&quot;: &quot;won&quot;, &quot;count&quot;: 2 }
+  ]
+}
+</code></pre>
+<h3>4.3 待办 <code>todo</code>（Could · 任务 3.6）</h3>
+<p><strong>GET</strong> <code>/api/dashboard/todo</code></p>
+<p><strong>Query</strong>：<code>date=YYYY-MM-DD</code>（默认今天）</p>
+<p><strong>响应 data</strong>：</p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [
+    {
+      &quot;id&quot;: &quot;uuid&quot;,
+      &quot;time&quot;: &quot;09:30&quot;,
+      &quot;title&quot;: &quot;华创科技&quot;,
+      &quot;subtitle&quot;: &quot;跟进 · 线索&quot;,
+      &quot;href_entity_type&quot;: &quot;lead&quot;,
+      &quot;href_entity_id&quot;: &quot;uuid&quot;
+    }
+  ]
+}
+</code></pre>
+<p>可与 FE 现有 <code>dashboard-calendar</code> fixture 对齐；BE 可从 Leads/Activities 聚合。</p>
+<h3>4.4 配额 <code>quota</code>（任务 3.5）</h3>
+<p><strong>GET</strong> <code>/api/dashboard/quota</code></p>
+<p><strong>权限</strong>：<code>deals:view</code>；经理 <code>data_scope=all</code> 可看团队配额。</p>
+<p><strong>响应 data</strong>：</p>
+<pre><code class="language-json">{
+  &quot;target_amount&quot;: 5000000,
+  &quot;won_amount_mtd&quot;: 3400000,
+  &quot;completion_rate&quot;: 0.68,
+  &quot;period&quot;: &quot;2026-05&quot;
+}
+</code></pre>
+<ul>
+<li>配额存 <code>tenants.config.sales_quota</code> JSONB（见 Schema §3.2）</li>
+<li>FE <code>ChartGauge</code> 绑定 <code>completion_rate</code></li>
+</ul>
+<h3>4.5 经理排行 <code>team-ranking</code>（任务 3.7）</h3>
+<p><strong>GET</strong> <code>/api/dashboard/team-ranking</code></p>
+<p><strong>权限</strong>：<code>deals:view</code> + <code>data_scope</code> 为 <code>department</code> 或 <code>all</code></p>
+<p><strong>Query</strong>：<code>metric=won_amount|win_count|avg_engagement</code>（默认 <code>won_amount</code>）、<code>limit=10</code></p>
+<p><strong>响应 data</strong>：</p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [
+    {
+      &quot;user_id&quot;: &quot;uuid&quot;,
+      &quot;name&quot;: &quot;张三&quot;,
+      &quot;value&quot;: 1200000,
+      &quot;rank&quot;: 1
+    }
+  ]
+}
+</code></pre>
+<p>FE <code>ChartBar</code> 横向排行 + 现有 <code>dashboard-team-heatmap</code> 可共用用户维度。</p>
+<hr>
+<h2>5. 与 Leads Convert 扩展（可选 · 3.1）</h2>
+<p><strong>POST</strong> <code>/api/leads/:id/convert</code> 增加可选字段：</p>
+<pre><code class="language-json">{
+  &quot;create_account&quot;: { &quot;name&quot;: &quot;华创科技&quot; },
+  &quot;create_deal&quot;: {
+    &quot;title&quot;: &quot;华创科技 — 年度合作&quot;,
+    &quot;amount&quot;: 280000,
+    &quot;stage&quot;: &quot;qualification&quot;
+  }
+}
+</code></pre>
+<p>响应 <code>data</code> 增加 <code>deal_id</code>。未传 <code>create_deal</code> 时行为与 Phase 2 一致。</p>
+<hr>
+<h2>6. RBAC</h2>
+<p>已有种子（<code>00002</code>）：<code>deals:view|create|update|delete</code>。</p>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>action</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>deals</code></td>
+<td><code>view</code></td>
+<td>查看</td>
+</tr>
+<tr>
+<td><code>deals</code></td>
+<td><code>create</code></td>
+<td>创建</td>
+</tr>
+<tr>
+<td><code>deals</code></td>
+<td><code>update</code></td>
+<td>更新 / 改阶段</td>
+</tr>
+<tr>
+<td><code>deals</code></td>
+<td><code>delete</code></td>
+<td>删除</td>
+</tr>
+<tr>
+<td><code>dashboard</code></td>
+<td><code>view</code></td>
+<td>访问汇总端点（<strong>新增</strong> migration）</td>
+</tr>
+</tbody></table>
+<p><strong>数据范围</strong>（Service 层）：</p>
+<table>
+<thead>
+<tr>
+<th>角色模板</th>
+<th>deals</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sales</td>
+<td><code>owner_id = me</code></td>
+</tr>
+<tr>
+<td>Manager</td>
+<td><code>all</code>（种子）</td>
+</tr>
+<tr>
+<td>Viewer</td>
+<td>view only</td>
+</tr>
+</tbody></table>
+<p>路由映射（<code>route.go</code>）：<code>/api/deals/*</code> → <code>deals</code>；<code>/api/dashboard/*</code> → <code>dashboard</code> + <code>view</code>。</p>
+<hr>
+<h2>7. 审计动作</h2>
+<table>
+<thead>
+<tr>
+<th>action</th>
+<th>触发</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>deal.create</code></td>
+<td>POST deals</td>
+</tr>
+<tr>
+<td><code>deal.update</code></td>
+<td>PUT/PATCH</td>
+</tr>
+<tr>
+<td><code>deal.delete</code></td>
+<td>DELETE</td>
+</tr>
+<tr>
+<td><code>deal.stage_change</code></td>
+<td>PUT stage 或 PATCH stage</td>
+</tr>
+<tr>
+<td><code>deal.convert_from_lead</code></td>
+<td>convert 时 create_deal</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. 错误码补充</h2>
+<table>
+<thead>
+<tr>
+<th>message</th>
+<th>HTTP</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>invalid_stage_transition</code></td>
+<td>400</td>
+<td>非法阶段迁移</td>
+</tr>
+<tr>
+<td><code>deal_closed_readonly</code></td>
+<td>400</td>
+<td>终态商机禁止改 stage</td>
+</tr>
+<tr>
+<td><code>dashboard_scope_denied</code></td>
+<td>403</td>
+<td>无 <code>dashboard:view</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. 实现顺序（供 BE 领任务）</h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>任务 ID</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>3.1</td>
+<td>迁移 <code>deals</code> + CRUD + pipeline + PUT stage</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3.4</td>
+<td><code>GET /api/dashboard/summary</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.2–3.3</td>
+<td><code>deals/stats/*</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.5</td>
+<td><code>GET /api/dashboard/quota</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.6</td>
+<td><code>funnel</code> + <code>todo</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>3.7</td>
+<td><code>team-ranking</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>—</td>
+<td>权限 <code>dashboard:view</code> 种子 + 集成测</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>10. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-24</td>
+<td>v1.0：架构师 3.0 首版，对齐 Phase 3 并行表 3.1–3.7</td>
+</tr>
+<tr>
+<td>2026-05-25</td>
+<td>重命名为 <code>phase-3-deals-dashboard-api.md</code>（与 PRD / <code>phase-2-crm-ai.md</code> 规范一致）</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../api/phase-3-deals-dashboard-api.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

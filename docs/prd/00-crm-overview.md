@@ -64,9 +64,12 @@
 
 ### Phase 3 — 商机与仪表盘
 
-- 商机 (Deals) CRUD + Pipeline 看板
-- 个人/经理 Dashboard（KPI + 图表）
-- AI：经理「关系降温」名单（接 Phase 2 情绪与 L2 规则/预测）
+**详细 PRD**：[phase-3-deals-dashboard-prd.md](./phase-3-deals-dashboard-prd.md)
+
+- 商机 (Deals) CRUD + Pipeline 看板 + 阶段推进
+- 个人/经理 Dashboard（KPI + Sparkline/Line/Funnel/Gauge/Bar 接 API）
+- 首页 Zone E 迷你漏斗 **生产化**（替换 Phase 2 Preview fixtures）
+- AI（Should）：经理「关系降温」名单（规则版，接 Phase 2 情绪与 engagement）
 
 ### Phase 4 — 系统设置与收尾
 
@@ -155,6 +158,7 @@
 |------|------|
 | **本文件** | MVP 总览、AI 战略、MoSCoW |
 | [phase-2-relationship-crm-prd.md](./phase-2-relationship-crm-prd.md) | Phase 2 全量需求 + AI Preview + 架构师输入清单 |
+| [phase-3-deals-dashboard-prd.md](./phase-3-deals-dashboard-prd.md) | Phase 3 商机 Pipeline + Dashboard 生产化 |
 | `docs/tasks/00-mvp-task-breakdown.md` | 任务勾选 |
 | `docs/api/*` | **架构师** API 契约（PM 不写） |
 | `docs/meeting-notes/phase-N-notes.md` | 阶段验收与汇报纪要 |
@@ -167,3 +171,4 @@
 |------|------|
 | 2026-05-21 | MVP v0.1 初稿 |
 | 2026-05-22 | v0.2：AI 客户关系战略；废止「MVP 不做 AI」；链 Phase 2 PRD §15 演示预留 |
+| 2026-05-25 | 链 Phase 3 详细 PRD（Deals + Dashboard） |

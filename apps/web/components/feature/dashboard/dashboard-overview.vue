@@ -31,11 +31,17 @@
           variant="hero"
           :leads-total="snapshot.leadsTotal"
           :accounts-total="snapshot.accountsTotal"
+          :deals-open-count="snapshot.dealsOpenCount"
+          :deals-open-amount="snapshot.dealsOpenAmount"
           :avg-engagement="snapshot.avgEngagement"
           :at-risk-total="snapshot.atRiskTotal"
           :kpi-trends="snapshot.kpiTrends"
+          :sparklines="snapshot.sparklines"
         />
       </section>
+
+      <!-- Row 1.5 · 成交分析图表 -->
+      <DashboardAnalyticsPanel :show-team-ranking="showTeamRanking" data-testid="dashboard-zone-analytics" />
 
       <!-- Row 2 · 今日优先 + 今日日程 -->
       <div
@@ -147,12 +153,14 @@ const props = withDefaults(
     readOnly?: boolean
     showZoneE?: boolean
     showTeamHeatmap?: boolean
+    showTeamRanking?: boolean
     isPreviewMode?: boolean
     zoneEDefaultOpen?: boolean
   }>(),
   {
     showZoneE: true,
     showTeamHeatmap: false,
+    showTeamRanking: false,
     isPreviewMode: false,
     zoneEDefaultOpen: false,
   },
@@ -160,6 +168,7 @@ const props = withDefaults(
 
 const showZoneE = computed(() => props.showZoneE)
 const showTeamHeatmap = computed(() => props.showTeamHeatmap)
+const showTeamRanking = computed(() => props.showTeamRanking)
 
 const zoneEDetailsRef = ref<HTMLDetailsElement | null>(null)
 const zoneEOpen = ref(props.zoneEDefaultOpen)

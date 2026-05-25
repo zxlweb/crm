@@ -23,6 +23,45 @@ func RouteToPermission(method, path string) (resource, action string) {
 		resource = "unknown"
 	}
 
+	// Dashboard (phase-3-deals-dashboard-api.md §4)
+	if parts[0] == "dashboard" {
+		return "dashboard", "view"
+	}
+
+	// Deals pipeline / stage / stats (phase-3-deals-dashboard-api.md)
+	if len(parts) >= 2 && parts[0] == "deals" {
+		if parts[1] == "pipeline" {
+			return "deals", "view"
+		}
+		if parts[1] == "stats" {
+			return "deals", "view"
+		}
+		if len(parts) >= 3 && parts[2] == "stage" {
+			return "deals", "update"
+		}
+	}
+
+	// Leads stats (phase-2-crm-ai.md §10)
+	if len(parts) >= 3 && parts[1] == "stats" {
+		return "leads", "view"
+	}
+
+	// Activities summary (phase-2-crm-ai.md §8)
+	if len(parts) >= 2 && parts[0] == "activities" && parts[1] == "summary" {
+		return "activities", "view"
+	}
+
+	// Segments (phase-2-crm-ai.md §9)
+	if parts[0] == "segments" {
+		if method == "PATCH" {
+			return "segments", "manage"
+		}
+		if len(parts) >= 3 && parts[2] == "count" {
+			return "segments", "view"
+		}
+		return "segments", "view"
+	}
+
 	// Sub-resource routes (phase-2-crm-ai.md)
 	if len(parts) >= 3 {
 		switch parts[2] {

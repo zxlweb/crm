@@ -1,11 +1,11 @@
 <template>
   <div
-    class="overflow-hidden rounded-2xl border border-ds-border bg-ds-bg-elevated shadow-ds-sm"
+    class="overflow-hidden rounded-2xl border border-ds-border-table bg-ds-bg-elevated shadow-ds-sm"
     data-testid="data-table"
   >
     <div
       v-if="$slots.toolbar"
-      class="border-b border-ds-border/80 px-5 py-3"
+      class="border-b border-ds-divide px-5 py-3"
     >
       <slot name="toolbar" />
     </div>
@@ -22,7 +22,7 @@
 
     <div
       v-if="$slots.footer"
-      class="flex flex-wrap items-center justify-between gap-3 border-t border-ds-border px-5 py-3.5 text-xs text-ds-fg-muted"
+      class="flex flex-wrap items-center justify-between gap-3 border-t border-ds-divide px-5 py-3.5 text-xs text-ds-fg-muted"
     >
       <slot name="footer" />
     </div>

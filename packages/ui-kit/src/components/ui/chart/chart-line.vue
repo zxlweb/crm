@@ -30,6 +30,8 @@ const props = withDefaults(
     yFormatter?: (value: number) => string
     /** 与 categories 等长；每项为 ECharts symbol（如 path://） */
     pointSymbols?: string[]
+    /** 与 categories 等长；数据点描边/填充色（如情绪语义色） */
+    pointItemStyles?: Array<{ color?: string; borderColor?: string } | undefined>
     pointSymbolSize?: number
     /** 与 categories 等长；在数据点上方显示 emoji */
     pointEmojis?: string[]
@@ -40,9 +42,11 @@ const props = withDefaults(
     yMax?: number
     yInterval?: number
     showArea?: boolean
+    /** 稀疏数据（如仅 1 个时间点）时也常显拐点 */
+    alwaysShowSymbols?: boolean
     loadingText?: string
   }>(),
-  { height: 260, showArea: true, pointSymbolSize: 22, loadingText: 'Loading…' },
+  { height: 260, showArea: true, pointSymbolSize: 22, alwaysShowSymbols: false, loadingText: 'Loading…' },
 )
 
 const { colors, baseGrid, baseTooltip, categoryAxis, valueAxis } = useChartTheme()
@@ -59,28 +63,42 @@ const option = computed(() => {
     const isPrimary = s.primary !== false && !isCompare
     const usePathSymbols = isPrimary && hasPointSymbols
     const useEmojis = isPrimary && hasPointEmojis
+    const forceSymbols = isPrimary && props.alwaysShowSymbols
 
     const seriesData = usePathSymbols
-      ? s.data.map((v, i) => ({
-          value: v,
-          symbol: props.pointSymbols![i] ?? 'circle',
-          symbolSize: props.pointSymbolSize,
-        }))
+      ? s.data.map((v, i) => {
+          const pointStyle = props.pointItemStyles?.[i]
+          return {
+            value: v,
+            symbol: props.pointSymbols![i] ?? 'circle',
+            symbolSize: props.pointSymbolSize,
+            ...(pointStyle
+              ? {
+                  itemStyle: {
+                    color: pointStyle.color,
+                    borderColor: pointStyle.borderColor ?? c.dotStroke,
+                  },
+                }
+              : {}),
+          }
+        })
       : s.data
 
     return {
       name: s.name,
       type: 'line',
       smooth: true,
-      /** 折线默认仅 hover 显示拐点；有 emoji/path 标记时需常显 */
-      showSymbol: usePathSymbols || useEmojis,
-      showAllSymbol: usePathSymbols || useEmojis ? true : 'auto',
+      /** 折线默认仅 hover 显示拐点；有 emoji/path 标记或 alwaysShowSymbols 时常显 */
+      showSymbol: usePathSymbols || useEmojis || forceSymbols,
+      showAllSymbol: usePathSymbols || useEmojis || forceSymbols ? true : 'auto',
       symbol: 'circle',
       symbolSize: usePathSymbols
         ? props.pointSymbolSize
-        : useEmojis
-          ? 6
-          : 10,
+        : forceSymbols
+          ? 12
+          : useEmojis
+            ? 6
+            : 10,
       label: useEmojis
         ? {
             show: true,

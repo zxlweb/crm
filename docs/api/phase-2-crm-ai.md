@@ -31,42 +31,162 @@
 | Header | 说明 |
 |--------|------|
 | `X-CRM-Preview: 1` | 仅 `demo` 角色或 `tenant.config.ai_preview_mode=fixtures` 时生效；强制 fixture |
-| `X-CRM-AI-Capability` | 可选，Copilot 场景：`followup_script` \| `email_draft` \| `summarize` |
+| `X-CRM-AI-Capability` | 可选，Copilot 场景见 §2.7 |
 
 ---
 
 ## 2. 枚举与共享类型
 
+> 下列 **code** 为 API / DB 存贮值；**中文** 为默认展示名（租户可配置显示名，i18n key 见 `apps/web/locales`）。
+
 ### 2.1 生命周期 `lifecycle_stage`
 
-`acquire` | `activate` | `grow` | `retain` | `revive`
+| code | 中文 | 说明 |
+|------|------|------|
+| `acquire` | 获客 | 新线索未有效触达 |
+| `activate` | 激活 | 首次有效互动 |
+| `grow` | 成长 | 需求明确、推进中 |
+| `retain` | 留存 | 已成交 / 稳定合作 |
+| `revive` | 唤醒 | 曾活跃现沉默 |
 
 ### 2.2 关系健康 `relationship_health`
 
-`high` | `medium` | `low`（规则计算，只读字段）
+规则计算，**只读**（客户端不可 POST/PATCH 写入）。
+
+| code | 中文 | 说明 |
+|------|------|------|
+| `high` | 健康 | 互动与阶段信号良好 |
+| `medium` | 一般 | 需关注，未达风险阈值 |
+| `low` | 风险 | 沉默或负面信号偏多 |
 
 ### 2.3 Lead 状态 `status`
 
-`new` | `contacted` | `qualified` | `unqualified` | `converted`
+| code | 中文 | 说明 |
+|------|------|------|
+| `new` | 新建 | 初始状态 |
+| `contacted` | 已联系 | 已有触达 |
+| `qualified` | 合格 | 意向明确 |
+| `unqualified` | 不合格 | 归档 / 培育池 |
+| `converted` | 已转化 | 须关联 `converted_account_id`（及可选 Contact） |
+
+合法迁移：`new` → `contacted` → `qualified` → `unqualified` \| `converted`（非法返回 `invalid_status_transition`）。
 
 ### 2.4 Activity
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `event_type` | enum | `note`, `call`, `email`, `meeting`, `wechat`, `visit`, `system` |
-| `direction` | enum | `inbound`, `outbound` |
-| `subject_type` | enum | `lead`, `contact`, `account` |
+| `event_type` | enum | 见下表 |
+| `direction` | enum | 见下表（`note` / `system` 可为空） |
+| `subject_type` | enum | 见下表 |
 | `subject_id` | uuid | 主体 ID |
-| `sentiment` | enum nullable | `positive`, `neutral`, `hesitant`, `negative`, `unknown` |
-| `sentiment_source` | enum | `manual`, `rule`, `ai`（Phase 2 禁止写 `ai`） |
+| `sentiment` | enum nullable | 见 §2.4.1 |
+| `sentiment_source` | enum | 见 §2.4.2（Phase 2 **禁止**写 `ai`） |
 | `metadata` | jsonb | 时长、渠道、人工行为等 |
 | `occurred_at` | timestamptz | 业务发生时间（默认 now） |
 
+**`event_type`**
+
+| code | 中文 |
+|------|------|
+| `note` | 备注 |
+| `call` | 电话 |
+| `email` | 邮件 |
+| `meeting` | 会议 |
+| `wechat` | 微信 |
+| `visit` | 拜访 |
+| `system` | 系统 |
+
+**`direction`**
+
+| code | 中文 |
+|------|------|
+| `inbound` | 入站（客户 / 对方发起） |
+| `outbound` | 出站（我方发起） |
+
+**`subject_type`**
+
+| code | 中文 |
+|------|------|
+| `lead` | 线索 |
+| `contact` | 联系人 |
+| `account` | 公司 |
+
+#### 2.4.1 情绪 `sentiment`
+
+| code | 中文 | `sentiment_score`（情绪旅程聚合） |
+|------|------|----------------------------------|
+| `positive` | 积极 | 2 |
+| `neutral` | 中性 | 0 |
+| `hesitant` | 犹豫 | -1 |
+| `negative` | 消极 | -2 |
+| `unknown` | 未知 | `null` |
+
+#### 2.4.2 情绪来源 `sentiment_source`
+
+| code | 中文 | Phase 2 |
+|------|------|---------|
+| `manual` | 人工标注 | 允许 |
+| `rule` | 规则推断 | 允许 |
+| `ai` | AI 推断 | **禁止写入**（Phase 5+） |
+
 ### 2.5 分群 `segment_code`（预置）
 
-`high_value` | `churn_risk` | `new_potential` | `needs_activation` | `revive_pool`
+| code | 中文 | 筛选逻辑（示例） |
+|------|------|------------------|
+| `high_value` | 高价值 | 预计金额 > 租户阈值 |
+| `churn_risk` | 流失预警 | N 天无 Activity（默认 7） |
+| `new_potential` | 潜在新客 | 近 7 天创建且未 `qualified` |
+| `needs_activation` | 待激活 | `lifecycle=acquire` 且无 `outbound` |
+| `revive_pool` | 唤醒池 | `lifecycle=revive` |
 
-### 2.6 `AiCapabilityResult`（Preview / 未来真 AI 统一包）
+### 2.6 租户 AI 配置 `ai_preview_mode`
+
+| code | 中文 | Phase 2 |
+|------|------|---------|
+| `off` | 关闭 | 不展示 Preview |
+| `fixtures` | 演示夹具 | **默认演示**；`X-CRM-Preview: 1` 生效 |
+| `live` | 真机推理 | 预留（Phase 3+） |
+
+### 2.7 Copilot 场景 `scene` / `X-CRM-AI-Capability`
+
+| code | 中文 |
+|------|------|
+| `followup_script` | 跟进话术 |
+| `email_draft` | 邮件草稿 |
+| `summarize` | 摘要 |
+
+### 2.8 情绪旅程 Query `range`
+
+| code | 中文 |
+|------|------|
+| `30d` | 近 30 天 |
+| `90d` | 近 90 天（默认） |
+| `all` | 全部 |
+
+### 2.9 统计 Query `granularity`（`/api/leads/stats/trend`）
+
+| code | 中文 |
+|------|------|
+| `day` | 按日 |
+| `week` | 按周 |
+
+### 2.10 数据范围 `data_scope`（`GET /api/rbac/my-permissions` 可选字段）
+
+| code | 中文 |
+|------|------|
+| `self` | 本人（`owner_id = me`） |
+| `department` | 部门 |
+| `all` | 全部（经理种子） |
+
+### 2.11 情绪旅程里程碑 `milestones[].type`（示例）
+
+| code | 中文 |
+|------|------|
+| `converted` | 已转化 |
+| `owner_changed` | 负责人变更 |
+| `insight_triggered` | 洞察触发 |
+
+### 2.12 `AiCapabilityResult`（Preview / 未来真 AI 统一包）
 
 用于 Copilot、预测分、增强洞察等 **非 CRUD** 能力响应（可嵌在 `data` 内或作为 `data` 本体）：
 
@@ -80,11 +200,13 @@
 }
 ```
 
-| `source` | 含义 |
-|----------|------|
-| `rule` | L1 规则引擎 |
-| `preview` | Mock / fixture |
-| `model` | 真模型（Phase 3+） |
+**`source`**
+
+| code | 中文 | 说明 |
+|------|------|------|
+| `rule` | 规则引擎 | L1 生产逻辑 |
+| `preview` | 演示数据 | Mock / fixture |
+| `model` | 模型推理 | Phase 3+ 真 LLM |
 
 **业务错误码（`code` 字段，HTTP 见下表）**：
 
@@ -103,7 +225,7 @@
 | 键 | 类型 | 默认 | 说明 |
 |----|------|------|------|
 | `ai_enabled` | bool | `false` | 是否展示 AI 模块 |
-| `ai_preview_mode` | string | `off` | `off` \| `fixtures` \| `live`（Phase 2 仅 `fixtures`） |
+| `ai_preview_mode` | string | `off` | 见 §2.6（Phase 2 演示租户为 `fixtures`） |
 | `insight_thresholds` | object | 内置默认 | 如 `days_silent: 7` |
 | `sentiment_keyword_rules` | array | 可选 | 关键词 → sentiment（租户可配） |
 
@@ -504,3 +626,4 @@ Preview：`X-CRM-Preview: 1` 可返回固定 fixture（与生产结构相同）
 | 日期 | 说明 |
 |------|------|
 | 2026-05-22 | v1.0：架构师首版，对齐 PRD v0.3 §15.3 |
+| 2026-05-24 | §2 枚举补充中文注释表（对齐 PRD / i18n） |

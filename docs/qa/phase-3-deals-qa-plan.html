@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QA 测试计划 — Phase 3 商机 Pipeline 与仪表盘 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api/00-api-design.html">00-api-design</a><a href="../api/README.html">README</a><a href="../api/phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api/phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><h2>architecture</h2><a href="../architecture/00-main-architecture.html">00-main-architecture</a><a href="../architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture/02-rbac-design.html">02-rbac-design</a><a href="../architecture/03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture/04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="../architecture/README.html">README</a><h2>architecture/adr</h2><a href="../architecture/adr/0000-template.html">0000-template</a><a href="../architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture/adr/0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="../backend-arch/00-database-schema.html">00-database-schema</a><a href="../backend-arch/01-layering.html">01-layering</a><a href="../backend-arch/README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch/02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch/03-design-system.html">03-design-system</a><a href="../frontend-arch/04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch/05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes/README.html">README</a><a href="../meeting-notes/phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes/phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes/phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes/phase-3-notes.html">phase-3-notes</a><h2>prd</h2><a href="../prd/00-crm-overview.html">00-crm-overview</a><a href="../prd/README.html">README</a><a href="../prd/phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd/phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><h2>qa</h2><a href="../qa/README.html">README</a><a href="../qa/phase-0-qa.html">phase-0-qa</a><a href="../qa/phase-1-qa.html">phase-1-qa</a><a href="../qa/phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa/phase-3-deals-qa-plan.html" style="color:var(--accent);font-weight:600">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews/README.html">README</a><a href="../reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks/README.html">README</a><a href="../tasks/parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates/code-review-template.html">code-review-template</a><a href="../templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../qa/phase-3-deals-qa-plan.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>QA 测试计划 — Phase 3 商机 Pipeline 与仪表盘</h1>
+<p><strong>子任务 ID</strong>：<code>3.1</code>–<code>3.7</code>、<code>3.UI</code>、<code>3.E2E</code>（<code>[QA]</code> 轨）<br><strong>测试日期</strong>：待执行<br><strong>测试人</strong>：待填<br><strong>输入</strong>：<a href="../prd/phase-3-deals-dashboard-prd.md">phase-3-deals-dashboard-prd.md</a> · <a href="../api/phase-3-deals-dashboard-api.md">phase-3-deals-dashboard-api.md</a> v1.0 · <a href="../architecture/04-phase-3-deals-dashboard-schema.md">04-phase-3-deals-dashboard-schema.md</a> · <a href="../meeting-notes/phase-3-notes.md">phase-3-notes.md</a> §2b<br><strong>关联任务</strong>：<a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> § Phase 3 并行表</p>
+<hr>
+<h2>1. 测试范围</h2>
+<h3>1.1 本计划覆盖（Phase 3 QA Done 条件）</h3>
+<table>
+<thead>
+<tr>
+<th>子任务</th>
+<th>类别</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>3.1</strong></td>
+<td>API 集成测</td>
+<td>Deals CRUD；<code>GET /api/deals/pipeline</code>；<code>PUT /api/deals/:id/stage</code>；阶段状态机；租户隔离；<code>deals:*</code> RBAC</td>
+</tr>
+<tr>
+<td><strong>3.2–3.3</strong></td>
+<td>API 集成测</td>
+<td><code>GET /api/deals/stats/by-stage</code>、<code>win-rate</code>；数据范围与列表一致</td>
+</tr>
+<tr>
+<td><strong>3.4</strong></td>
+<td>API 集成测</td>
+<td><code>GET /api/dashboard/summary</code>；<code>data_scope</code>；禁止跨租户 KPI 泄漏</td>
+</tr>
+<tr>
+<td><strong>3.5</strong></td>
+<td>API 集成测</td>
+<td><code>GET /api/dashboard/quota</code>；<code>completion_rate</code> 与 seed 一致</td>
+</tr>
+<tr>
+<td><strong>3.6</strong></td>
+<td>API 集成测</td>
+<td><code>GET /api/dashboard/funnel</code>；与 pipeline 计数同源权限</td>
+</tr>
+<tr>
+<td><strong>3.7</strong></td>
+<td>API 集成测</td>
+<td><code>GET /api/dashboard/team-ranking</code>；仅 <code>department</code>/<code>all</code> scope</td>
+</tr>
+<tr>
+<td><strong>3.UI</strong></td>
+<td>组件冒烟（可选）</td>
+<td><code>ChartSparkline</code>、<code>ChartGauge</code> Vitest + <code>/charts</code> 案例页</td>
+</tr>
+<tr>
+<td><strong>3.E2E</strong></td>
+<td>Playwright</td>
+<td><code>phase3-deals</code> + Dashboard 冒烟；<code>data-testid</code> 对齐 §6</td>
+</tr>
+<tr>
+<td><strong>契约</strong></td>
+<td>全 Phase</td>
+<td><code>{ code, message, data, pagination? }</code>；禁止 body <code>tenant_id</code>；只读字段不可写</td>
+</tr>
+<tr>
+<td><strong>审计</strong></td>
+<td>抽测</td>
+<td><code>deal.create</code>、<code>deal.stage_change</code>、<code>deal.convert_from_lead</code></td>
+</tr>
+<tr>
+<td><strong>Convert 扩展</strong></td>
+<td>集成测</td>
+<td><code>POST /api/leads/:id/convert</code> + <code>create_deal</code> → <code>deal_id</code>（Should，3.1 后）</td>
+</tr>
+</tbody></table>
+<h3>1.2 不在 Phase 3（登记占位）</h3>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET /api/deals/stats/velocity</code></td>
+<td>API 标记 Could；不测</td>
+</tr>
+<tr>
+<td><code>GET /api/dashboard/todo</code></td>
+<td>Could；FE fixture 可保留</td>
+</tr>
+<tr>
+<td>关系降温名单（PRD §4.6）</td>
+<td>Should；规则版单测归 FE/BE 后续 PR</td>
+</tr>
+<tr>
+<td>自定义 Pipeline 阶段、多币种、审批流</td>
+<td>Won&#39;t</td>
+</tr>
+<tr>
+<td>Phase 4 i18n 全量审计</td>
+<td>Phase 3 仅 Deals/Dashboard 关键路径双语</td>
+</tr>
+</tbody></table>
+<h3>1.3 前置与环境</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BE</td>
+<td>迁移 <code>00008_phase3_deals.sql</code> + <code>00009_*</code> 权限种子；Deals/Dashboard 路由注册</td>
+</tr>
+<tr>
+<td>FE</td>
+<td><code>/deals</code>、<code>/deals/[id]</code>、<code>/</code> Dashboard；§6 <code>data-testid</code></td>
+</tr>
+<tr>
+<td>账号</td>
+<td>Demo <code>admin@demo.com</code> / <code>password123</code>；<strong>另需</strong> <code>sales_a</code>、<code>sales_b</code>、<code>manager</code>、<code>viewer</code>（复用 Phase 2 种子或 3.x 迁移补充）</td>
+</tr>
+<tr>
+<td>配额</td>
+<td><code>tenants.config.sales_quota</code> 在 seed 中设非 0，否则 Gauge 仅测空态</td>
+</tr>
+<tr>
+<td>命令</td>
+<td><code>cd backend &amp;&amp; go test ./internal/interfaces/http/... -run &#39;DealsHTTP|DashboardHTTP&#39;</code>；<code>cd e2e &amp;&amp; npm test -- tests/phase3-deals.spec.ts</code>（待建）</td>
+</tr>
+<tr>
+<td>技术债</td>
+<td><a href="./phase-1-qa.md">phase-1-qa.md</a> Bug #3：新租户 Casbin — <strong>不阻塞</strong> Demo Admin 单接口 CRUD；<strong>阻塞</strong> Sales/Manager 越权矩阵全绿</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. PRD / 契约 → 验收追溯</h2>
+<table>
+<thead>
+<tr>
+<th>PRD / 契约要点</th>
+<th>验收标准摘要</th>
+<th>测试 ID</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DL-01～04 Deals CRUD</td>
+<td>创建/读/改/删/筛选</td>
+<td>D-INT-01～05</td>
+</tr>
+<tr>
+<td>PL-01～04 Pipeline</td>
+<td>pipeline 分列；漏斗 count/amount</td>
+<td>D-INT-10～12</td>
+</tr>
+<tr>
+<td>阶段状态机 §2.1</td>
+<td>合法/非法迁移；终态只读</td>
+<td>D-INT-20～22</td>
+</tr>
+<tr>
+<td>DL-05 convert + deal</td>
+<td><code>create_deal</code> → <code>deal_id</code></td>
+<td>D-INT-30</td>
+</tr>
+<tr>
+<td>DS-01～03 统计</td>
+<td>by-stage、win-rate 与 scope</td>
+<td>D-STAT-01～05</td>
+</tr>
+<tr>
+<td>DB-01～02 summary</td>
+<td>一次加载 KPI + sparklines</td>
+<td>D-DB-01～04</td>
+</tr>
+<tr>
+<td>QT-01～02 配额</td>
+<td>Gauge 数据一致</td>
+<td>D-DB-05</td>
+</tr>
+<tr>
+<td>经理排行 §4.4.4</td>
+<td>team-ranking scope</td>
+<td>D-DB-06</td>
+</tr>
+<tr>
+<td>§5 多租户</td>
+<td>跨租户 404；Dashboard 无泄漏</td>
+<td>D-INT-40～41</td>
+</tr>
+<tr>
+<td>§5 RBAC</td>
+<td>Sales 本人；Manager all</td>
+<td>D-INT-50～53</td>
+</tr>
+<tr>
+<td>§8 E2E 路径</td>
+<td>建商机→改阶段→漏斗；经理/销售隔离</td>
+<td>D-E2E-01～06</td>
+</tr>
+<tr>
+<td>图表 Done</td>
+<td>≥4 类图接 API</td>
+<td>D-E2E-07、§9</td>
+</tr>
+<tr>
+<td>PRD §7 性能</td>
+<td>summary P95 &lt; 300ms（本地种子）</td>
+<td>D-PERF-01</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 测试数据与角色</h2>
+<h3>3.1 建议种子（BE <code>00009_seed_phase3_deals_demo.sql</code> 或测试 helper）</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>邮箱建议</th>
+<th><code>data_scope</code></th>
+<th><code>deals</code> 权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sales_a</code></td>
+<td><code>sales-a@demo.com</code></td>
+<td><code>self</code></td>
+<td>view, create, update（无 delete 可选）</td>
+</tr>
+<tr>
+<td><code>sales_b</code></td>
+<td><code>sales-b@demo.com</code></td>
+<td><code>self</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>manager</code></td>
+<td><code>manager@demo.com</code></td>
+<td><code>all</code></td>
+<td>view, create, update, delete</td>
+</tr>
+<tr>
+<td><code>viewer</code></td>
+<td><code>viewer@demo.com</code></td>
+<td><code>self</code></td>
+<td>view only</td>
+</tr>
+</tbody></table>
+<p>每个销售至少 2 条 <strong>本人</strong> <code>owner_id</code> 商机（不同阶段）；<code>sales_b</code> 商机对 <code>sales_a</code> 不可见。经理可见 A+B 合计 ≥ 4 条 open deal。</p>
+<p><strong>配额 seed</strong>（Demo 租户）：</p>
+<pre><code class="language-json">{
+  &quot;sales_quota&quot;: { &quot;amount&quot;: 5000000, &quot;currency&quot;: &quot;CNY&quot;, &quot;period&quot;: &quot;2026-05&quot; }
+}
+</code></pre>
+<p><code>won_amount_mtd</code> 由 1～2 条 <code>stage=won</code> 且 <code>closed_at</code> 在本月的 Deal 构成，便于 <code>completion_rate</code> 断言。</p>
+<h3>3.2 标准 Deal 载荷（集成测）</h3>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;QA Deal 北辰物流年度合作&quot;,
+  &quot;stage&quot;: &quot;qualification&quot;,
+  &quot;amount&quot;: 280000,
+  &quot;currency&quot;: &quot;CNY&quot;,
+  &quot;probability&quot;: 40,
+  &quot;expected_close_date&quot;: &quot;2026-07-15&quot;,
+  &quot;tags&quot;: [&quot;qa&quot;, &quot;phase3&quot;]
+}
+</code></pre>
+<h3>3.3 阶段迁移矩阵（集成测必跑）</h3>
+<table>
+<thead>
+<tr>
+<th>从 \ 到</th>
+<th>proposal</th>
+<th>negotiation</th>
+<th>won</th>
+<th>lost</th>
+<th>qualification</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>qualification</strong></td>
+<td>✅</td>
+<td>⬜ 跳过直连按实现</td>
+<td>❌</td>
+<td>❌</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>proposal</strong></td>
+<td>—</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅ 回退</td>
+</tr>
+<tr>
+<td><strong>negotiation</strong></td>
+<td>✅ 回退</td>
+<td>—</td>
+<td>✅ + <code>closed_at</code></td>
+<td>✅ + <code>lost_reason</code> 建议</td>
+<td>✅ 回退</td>
+</tr>
+<tr>
+<td><strong>won</strong></td>
+<td>❌ 终态</td>
+<td>❌</td>
+<td>—</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>lost</strong></td>
+<td>❌ 终态</td>
+<td>❌</td>
+<td>❌</td>
+<td>—</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<p>非法迁移：<code>HTTP 400</code>，<code>message</code> 含 <code>invalid_stage_transition</code>。终态再 <code>PUT .../stage</code> → <code>deal_closed_readonly</code>（契约 §8）。</p>
+<hr>
+<h2>4. Deals API 集成测试用例（3.1）</h2>
+<p><strong>建议文件</strong>：<code>backend/internal/interfaces/http/deals_integration_test.go</code><br><strong>运行</strong>：<code>cd backend &amp;&amp; go test ./internal/interfaces/http/... -run DealsHTTP -count=1</code><br><strong>模式</strong>：httptest + 测试 DB；<code>Authorization</code> + <code>X-Tenant-ID</code>。</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>场景</th>
+<th>步骤</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D-INT-01</td>
+<td>创建</td>
+<td><code>POST /api/deals</code> 合法 body</td>
+<td><code>200/201</code>，<code>data.id</code> UUID，<code>tenant_id</code> 当前租户，<code>owner_id</code> 默认当前用户</td>
+</tr>
+<tr>
+<td>D-INT-02</td>
+<td>列表分页</td>
+<td><code>GET /api/deals?page=1&amp;page_size=20</code></td>
+<td><code>pagination</code> 存在；仅本租户 + scope</td>
+</tr>
+<tr>
+<td>D-INT-03</td>
+<td>搜索/筛选</td>
+<td><code>?search=北辰&amp;stage=qualification&amp;min_amount=100000</code></td>
+<td>结果匹配 Query</td>
+</tr>
+<tr>
+<td>D-INT-04</td>
+<td>详情/更新/删</td>
+<td><code>GET</code> → <code>PATCH</code> amount → <code>DELETE</code> → <code>GET</code></td>
+<td>更新生效；删除后 404 或软删不可见</td>
+</tr>
+<tr>
+<td>D-INT-05</td>
+<td>只读字段</td>
+<td>PATCH <code>engagement_score: 99</code></td>
+<td>忽略或 400；DB 仍为系统值</td>
+</tr>
+<tr>
+<td>D-INT-10</td>
+<td>Pipeline</td>
+<td><code>GET /api/deals/pipeline</code></td>
+<td><code>stages[]</code> 含五阶段 code；<code>summary.open_count</code> ≥ 0</td>
+</tr>
+<tr>
+<td>D-INT-11</td>
+<td>Pipeline 权限</td>
+<td>sales_a pipeline</td>
+<td>不含 sales_b 的 deal id</td>
+</tr>
+<tr>
+<td>D-INT-12</td>
+<td>Pipeline metric</td>
+<td><code>?metric=amount</code>（若支持）</td>
+<td>漏斗 amount 与 items 一致</td>
+</tr>
+<tr>
+<td>D-INT-20</td>
+<td>阶段变更</td>
+<td><code>PUT /api/deals/:id/stage</code> proposal→negotiation</td>
+<td>200；<code>audit_logs.action=deal.stage_change</code></td>
+</tr>
+<tr>
+<td>D-INT-21</td>
+<td>非法迁移</td>
+<td>qualification→won（跳过）</td>
+<td>400 + <code>invalid_stage_transition</code></td>
+</tr>
+<tr>
+<td>D-INT-22</td>
+<td>终态</td>
+<td>won 后再 PUT stage</td>
+<td>400 + <code>deal_closed_readonly</code></td>
+</tr>
+<tr>
+<td>D-INT-30</td>
+<td>convert+deal</td>
+<td>qualified lead + convert <code>create_deal</code></td>
+<td>响应 <code>deal_id</code>；Deal.<code>lead_id</code> 匹配；<code>deal.convert_from_lead</code></td>
+</tr>
+<tr>
+<td>D-INT-50</td>
+<td>Sales 越权读</td>
+<td>A token <code>GET /api/deals/:id</code>（B 的 id）</td>
+<td>403 或 404</td>
+</tr>
+<tr>
+<td>D-INT-51</td>
+<td>Sales 越权改</td>
+<td>A 改 B 的 stage</td>
+<td>403</td>
+</tr>
+<tr>
+<td>D-INT-52</td>
+<td>viewer 无 create</td>
+<td>viewer <code>POST /api/deals</code></td>
+<td>403</td>
+</tr>
+<tr>
+<td>D-INT-53</td>
+<td>Manager 全量</td>
+<td>manager <code>GET /api/deals</code></td>
+<td>含 A、B 条数</td>
+</tr>
+<tr>
+<td>D-INT-40</td>
+<td>跨租户</td>
+<td>Tenant-A token + Tenant-B <code>X-Tenant-ID</code></td>
+<td>403 或空</td>
+</tr>
+<tr>
+<td>D-INT-41</td>
+<td>无租户头</td>
+<td>缺 <code>X-Tenant-ID</code></td>
+<td>401/400</td>
+</tr>
+<tr>
+<td>D-INT-60</td>
+<td>参数校验</td>
+<td><code>title</code> 空、<code>stage=invalid</code>、<code>amount=-1</code></td>
+<td>400</td>
+</tr>
+<tr>
+<td>D-INT-61</td>
+<td>SQL 注入</td>
+<td><code>search=&#39; OR 1=1--</code></td>
+<td>无异常泄漏</td>
+</tr>
+<tr>
+<td>D-INT-62</td>
+<td>XSS 存储</td>
+<td>title <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></td>
+<td>存原文；API 不执行</td>
+</tr>
+</tbody></table>
+<p><strong>域单测（可选）</strong>：<code>backend/internal/application/deal/stage_test.go</code> — 状态机表与 §3.3 矩阵一致。</p>
+<hr>
+<h2>5. Deals 统计 API 集成测试（3.2–3.3）</h2>
+<p><strong>建议文件</strong>：<code>backend/internal/interfaces/http/deals_stats_integration_test.go</code><br><strong>运行</strong>：<code>-run DealsHTTP_Stats</code></p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>场景</th>
+<th>步骤</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D-STAT-01</td>
+<td>by-stage</td>
+<td><code>GET /api/deals/stats/by-stage</code></td>
+<td><code>items[].label</code> 为 stage code；<code>total</code> 与 scope 内列表 stage 分布一致</td>
+</tr>
+<tr>
+<td>D-STAT-02</td>
+<td>by-stage amount</td>
+<td><code>metric=amount</code></td>
+<td>各 stage <code>amount</code> 之和 ≈ open deals 金额和（允许 closed 排除规则与实现一致）</td>
+</tr>
+<tr>
+<td>D-STAT-03</td>
+<td>win-rate</td>
+<td><code>GET .../stats/win-rate?granularity=month</code></td>
+<td><code>items[].rate</code> = won/(won+lost)；分母 0 时期 <code>rate</code> null</td>
+</tr>
+<tr>
+<td>D-STAT-04</td>
+<td>日期非法</td>
+<td><code>to &lt; from</code></td>
+<td>400</td>
+</tr>
+<tr>
+<td>D-STAT-05</td>
+<td>租户隔离</td>
+<td>跨租户 stats</td>
+<td>total=0 或 403</td>
+</tr>
+<tr>
+<td>D-STAT-06</td>
+<td>权限</td>
+<td>viewer 无 <code>deals:view</code></td>
+<td>403（与 list 一致）</td>
+</tr>
+<tr>
+<td>D-STAT-07</td>
+<td>scope</td>
+<td>sales_a stats total ≤ manager 同 Query</td>
+<td>owner scope 与 list 同源</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. Dashboard API 集成测试（3.4–3.7）</h2>
+<p><strong>建议文件</strong>：<code>backend/internal/interfaces/http/dashboard_integration_test.go</code><br><strong>运行</strong>：<code>-run DashboardHTTP</code></p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>子任务</th>
+<th>场景</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D-DB-01</td>
+<td>3.4</td>
+<td><code>GET /api/dashboard/summary</code></td>
+<td><code>kpis</code>、<code>sparklines</code>（7 点）、<code>data_scope</code> 与 JWT 角色一致</td>
+</tr>
+<tr>
+<td>D-DB-02</td>
+<td>3.4</td>
+<td>sales_a summary</td>
+<td><code>deals_total</code> 仅本人；不含 B 的商机计数</td>
+</tr>
+<tr>
+<td>D-DB-03</td>
+<td>3.4</td>
+<td>manager summary</td>
+<td><code>deals_open_amount</code> ≥ A+B open 之和（种子下）</td>
+</tr>
+<tr>
+<td>D-DB-04</td>
+<td>3.4</td>
+<td>跨租户 summary</td>
+<td>Tenant-B KPI 全 0 或 403</td>
+</tr>
+<tr>
+<td>D-DB-05</td>
+<td>3.5</td>
+<td><code>GET /api/dashboard/quota</code></td>
+<td><code>completion_rate</code> = <code>won_amount_mtd/target_amount</code>（±0.01）</td>
+</tr>
+<tr>
+<td>D-DB-06</td>
+<td>3.7</td>
+<td><code>GET /api/dashboard/team-ranking</code></td>
+<td>manager 200 + <code>items[].rank</code>；sales_a 403 或空（无 view_all）</td>
+</tr>
+<tr>
+<td>D-DB-07</td>
+<td>3.6</td>
+<td><code>GET /api/dashboard/funnel?scope=deals</code></td>
+<td><code>stages[].count</code> 与 pipeline 汇总一致（同 scope）</td>
+</tr>
+<tr>
+<td>D-DB-08</td>
+<td>3.6</td>
+<td><code>scope=leads</code></td>
+<td>与 Leads 漏斗定义一致（回归 Phase 2）</td>
+</tr>
+<tr>
+<td>D-DB-09</td>
+<td>—</td>
+<td>无 <code>dashboard:view</code></td>
+<td>403 <code>dashboard_scope_denied</code>（种子后）</td>
+</tr>
+<tr>
+<td>D-DB-10</td>
+<td>—</td>
+<td>无 token</td>
+<td>401</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. E2E 测试用例（3.E2E · Playwright）</h2>
+<p><strong>建议文件</strong>：<code>e2e/tests/phase3-deals.spec.ts</code>（Deals）；<code>e2e/tests/phase3-dashboard.spec.ts</code>（Dashboard，可合并单 spec）<br><strong>前置</strong>：backend + web 已起；<code>manager@demo.com</code> 测全量；<code>sales-a@demo.com</code> 测隔离。</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>场景</th>
+<th>步骤</th>
+<th>预期</th>
+<th>testid / 路由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D-E2E-01</td>
+<td>Pipeline 冒烟</td>
+<td>登录 → <code>/deals</code></td>
+<td>看板或空态；<code>deals-pipeline</code> 可见</td>
+<td><code>deals-pipeline</code></td>
+</tr>
+<tr>
+<td>D-E2E-02</td>
+<td>新建商机</td>
+<td><code>deal-create-btn</code> → 填标题/金额 → 保存</td>
+<td>看板对应列出现卡片</td>
+<td><code>deal-create-btn</code></td>
+</tr>
+<tr>
+<td>D-E2E-03</td>
+<td>改阶段</td>
+<td>拖拽或菜单 proposal→negotiation</td>
+<td>UI 与刷新后 API 一致</td>
+<td><code>deals-pipeline-stage-{stage}</code></td>
+</tr>
+<tr>
+<td>D-E2E-04</td>
+<td>convert 链路</td>
+<td>Lead 详情 convert + 勾选创建商机</td>
+<td>跳转 <code>/deals/:id</code>；详情有 lead 链接</td>
+<td>待 FE testid</td>
+</tr>
+<tr>
+<td>D-E2E-05</td>
+<td>权限 UI</td>
+<td><code>sales_a</code> 不见 B 的 deal 标题</td>
+<td>看板/列表无泄漏</td>
+<td>—</td>
+</tr>
+<tr>
+<td>D-E2E-06</td>
+<td>Dashboard summary</td>
+<td>登录 <code>/</code></td>
+<td>一次 network 含 <code>dashboard/summary</code>；KPI 非全 0（种子下）</td>
+<td><code>dashboard-kpi-row</code></td>
+</tr>
+<tr>
+<td>D-E2E-07</td>
+<td>图表 Done</td>
+<td>Dashboard 页</td>
+<td>Sparkline + Line + Funnel + Gauge 至少 4 类无长期 skeleton</td>
+<td><code>dashboard-quota-gauge</code></td>
+</tr>
+<tr>
+<td>D-E2E-08</td>
+<td>经理排行</td>
+<td>manager 见 team ranking 区块；sales 不可见</td>
+<td>与 D-DB-06 一致</td>
+<td>待 FE：<code>dashboard-team-ranking</code></td>
+</tr>
+<tr>
+<td>D-E2E-09</td>
+<td>i18n</td>
+<td><code>/deals</code>、/` 切换 zh/en</td>
+<td>阶段 label、KPI 无裸 key</td>
+<td>—</td>
+</tr>
+<tr>
+<td>D-E2E-10</td>
+<td>Zone E 无 Preview</td>
+<td>Demo <code>/</code> 迷你漏斗</td>
+<td>无 Preview 角标（真实 <code>dashboard/funnel</code>）</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p><strong>同步检查点</strong>：FE 合入 §8 testid 后再启用 D-E2E-02/03 硬性断言。</p>
+<hr>
+<h2>8. <code>data-testid</code> 约定（与 FE 对齐）</h2>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>testid</th>
+<th>子任务</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>新建商机</td>
+<td><code>deal-create-btn</code></td>
+<td>3.1</td>
+<td>已约定</td>
+</tr>
+<tr>
+<td>Pipeline 看板</td>
+<td><code>deals-pipeline</code></td>
+<td>3.1</td>
+<td>已约定</td>
+</tr>
+<tr>
+<td>阶段列</td>
+<td><code>deals-pipeline-stage-{stage}</code></td>
+<td>3.1</td>
+<td>已约定</td>
+</tr>
+<tr>
+<td>Dashboard KPI 行</td>
+<td><code>dashboard-kpi-row</code></td>
+<td>3.4</td>
+<td>已约定</td>
+</tr>
+<tr>
+<td>配额仪表</td>
+<td><code>dashboard-quota-gauge</code></td>
+<td>3.5</td>
+<td>已约定</td>
+</tr>
+<tr>
+<td><strong>建议新增</strong></td>
+<td><code>deal-form-title</code>、<code>deal-form-submit</code>、<code>deal-stage-menu</code>、<code>deals-tab-pipeline</code>、<code>deals-tab-analytics</code></td>
+<td>3.1</td>
+<td>待 FE</td>
+</tr>
+<tr>
+<td><strong>建议新增</strong></td>
+<td><code>dashboard-team-ranking</code>、<code>dashboard-funnel-chart</code></td>
+<td>3.6–3.7</td>
+<td>待 FE</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. ui-kit 组件测试（3.UI · 可选 Must for 图表 Done）</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>组件</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D-UI-01</td>
+<td><code>ChartSparkline</code></td>
+<td>Vitest：props <code>series</code> 7 点渲染；<code>/charts</code> 案例可见</td>
+</tr>
+<tr>
+<td>D-UI-02</td>
+<td><code>ChartGauge</code></td>
+<td>Vitest：<code>value</code> 0–100 与超额 &gt;100；i18n 中心文案</td>
+</tr>
+<tr>
+<td>D-UI-03</td>
+<td>主题</td>
+<td>明暗切换图表颜色不崩（可复用 <code>charts-theme.spec.ts</code> 模式）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>10. 安全 / i18n / 非功能（抽测）</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D-SEC-01</td>
+<td>认证</td>
+<td>无 token → <code>/api/deals</code>、<code>/api/dashboard/summary</code> → 401</td>
+</tr>
+<tr>
+<td>D-SEC-02</td>
+<td>IDOR</td>
+<td>见 D-INT-50、D-INT-40</td>
+</tr>
+<tr>
+<td>D-I18N-01</td>
+<td>文案</td>
+<td><code>/deals</code>、Dashboard KPI、Gauge 双语键存在</td>
+</tr>
+<tr>
+<td>D-PERF-01</td>
+<td>summary</td>
+<td>本地种子 <code>GET /api/dashboard/summary</code> P95 &lt; 300ms</td>
+</tr>
+<tr>
+<td>D-PERF-02</td>
+<td>pipeline</td>
+<td><code>GET /api/deals/pipeline</code> P95 &lt; 500ms（每阶段 ≤20 items）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>11. 子任务与任务表勾选映射</h2>
+<table>
+<thead>
+<tr>
+<th>任务 ID</th>
+<th>QA 通过条件（勾选 <code>[QA]</code> 列前）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.1</td>
+<td>§4 Must：D-INT-01～05、10～12、20～22、50～53、40～41</td>
+</tr>
+<tr>
+<td>3.2–3.3</td>
+<td>§5：D-STAT-01～07</td>
+</tr>
+<tr>
+<td>3.4</td>
+<td>§6：D-DB-01～04</td>
+</tr>
+<tr>
+<td>3.5</td>
+<td>§6：D-DB-05 + D-E2E-07 Gauge</td>
+</tr>
+<tr>
+<td>3.6</td>
+<td>§6：D-DB-07～08 + D-E2E-07 漏斗图</td>
+</tr>
+<tr>
+<td>3.7</td>
+<td>§6：D-DB-06 + D-E2E-08</td>
+</tr>
+<tr>
+<td>3.UI</td>
+<td>§9 D-UI-01～02（或与 FE 联合验收图表 Done）</td>
+</tr>
+<tr>
+<td>3.E2E</td>
+<td>§7 D-E2E-01～07 Must；08～10 Should</td>
+</tr>
+</tbody></table>
+<p><strong>业务汇总行</strong>（PM）：全部 Must 子任务 QA ✅ 且 PRD §8 图表 Done 勾选后，由 PM 勾选任务表「业务」汇总，<strong>QA 不擅自勾选</strong>。</p>
+<hr>
+<h2>12. 执行顺序</h2>
+<pre><code class="language-mermaid">flowchart LR
+  A[BE 3.1 Deals API] --&gt; B[D-INT-01～22]
+  B --&gt; C[D-INT-50～53 RBAC]
+  C --&gt; D[3.4 summary D-DB-01～04]
+  D --&gt; E[3.2～3.7 stats D-STAT / D-DB]
+  E --&gt; F[FE testid 稳定]
+  F --&gt; G[D-E2E-01～07]
+  G --&gt; H[任务表 QA 列 ✅]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开始 Deals 集成测</td>
+<td><code>POST /api/deals</code> 本地 200</td>
+</tr>
+<tr>
+<td>开始 Dashboard 集成测</td>
+<td><code>GET /api/dashboard/summary</code> 可用</td>
+</tr>
+<tr>
+<td>开始 E2E</td>
+<td><code>deal-create-btn</code>、<code>deals-pipeline</code> 已合入</td>
+</tr>
+<tr>
+<td><strong>Phase 3 QA 计划评审通过</strong></td>
+<td>本文档已链入 <code>docs/qa/README.md</code></td>
+</tr>
+<tr>
+<td><strong>3.1 QA 关闭</strong></td>
+<td>§4 Must 绿；无 P0/P1</td>
+</tr>
+<tr>
+<td><strong>Phase 3 全轨关闭</strong></td>
+<td>§11 表全部 Must 行绿 + §7 D-E2E-01～07</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>13. 自动化落点（实现时创建）</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Go Deals 集成测</td>
+<td><code>backend/internal/interfaces/http/deals_integration_test.go</code></td>
+</tr>
+<tr>
+<td>Go Deals 统计</td>
+<td><code>backend/internal/interfaces/http/deals_stats_integration_test.go</code></td>
+</tr>
+<tr>
+<td>Go Dashboard</td>
+<td><code>backend/internal/interfaces/http/dashboard_integration_test.go</code></td>
+</tr>
+<tr>
+<td>阶段机单测</td>
+<td><code>backend/internal/application/deal/stage_test.go</code></td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td><code>e2e/tests/phase3-deals.spec.ts</code>、<code>e2e/tests/phase3-dashboard.spec.ts</code></td>
+</tr>
+<tr>
+<td>登录辅助</td>
+<td><code>e2e/tests/helpers/demo-session.ts</code>（复用）</td>
+</tr>
+<tr>
+<td>ui-kit Vitest</td>
+<td><code>packages/ui-kit/src/components/ui/chart/chart-sparkline.spec.ts</code> 等</td>
+</tr>
+</tbody></table>
+<p><strong>Makefile / 命令</strong>：</p>
+<pre><code class="language-bash">cd backend &amp;&amp; go test ./internal/interfaces/http/... -run &#39;DealsHTTP|DashboardHTTP&#39; -count=1
+cd e2e &amp;&amp; npm test -- tests/phase3-deals.spec.ts tests/phase3-dashboard.spec.ts
+</code></pre>
+<hr>
+<h2>14. Bug 记录</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>描述</th>
+<th>严重程度</th>
+<th>状态</th>
+<th>关联子任务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>—</td>
+<td>（执行后填写）</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>15. 测试结论</h2>
+<p><strong>状态</strong>：⬜ 未执行（计划已评审）</p>
+<p><strong>正式关闭 Phase 3 <code>[QA]</code> 列（逐行）条件</strong>：</p>
+<ul>
+<li><input disabled="" type="checkbox"> 本文档 §4–§6 对应子任务 Must ID 已实现且本地/CI 通过  </li>
+<li><input disabled="" type="checkbox"> §7 D-E2E-01～07 通过  </li>
+<li><input disabled="" type="checkbox"> <a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> 表 <code>3.1</code>–<code>3.7</code>、<code>3.UI</code>、<code>3.E2E</code> 的 <code>[QA]</code> 列按 §11 分别改 <code>✅</code>  </li>
+<li><input disabled="" type="checkbox"> 无 P0/P1；P2 记入 §14</li>
+</ul>
+<p><strong>说明</strong>：Phase 3 执行报告（测通/不测通明细）可在全轨结束后另写 <code>phase-3-qa.md</code>（从 <a href="../templates/qa-test-template.md">qa-test-template.md</a> 复制），本文件保持<strong>计划 + 用例 ID</strong> 不变。</p>
+<hr>
+<h2>修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-25</td>
+<td>首版：Phase 3 Deals + Dashboard 集成测 / E2E / 子任务映射，对齐 PRD v0.1 与 API v1.0 Accepted</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../qa/phase-3-deals-qa-plan.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

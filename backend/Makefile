@@ -6,6 +6,15 @@ run:
 test:
 	go test ./... -count=1
 
+test-leads:
+	go test ./internal/interfaces/http/... -count=1 -run 'LeadsHTTP'
+
+test-activities:
+	go test ./internal/interfaces/http/... -count=1 -run 'Activities'
+
+test-contacts:
+	go test ./internal/interfaces/http/... -count=1 -run 'Contacts'
+
 build:
 	go build -o bin/api ./cmd/api/
 

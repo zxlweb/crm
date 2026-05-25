@@ -1,37 +1,34 @@
 <template>
-  <span
-    class="inline-flex shrink-0 items-center justify-center leading-none"
-    :class="sizeClass"
-    role="img"
-    :aria-label="ariaLabel"
-  >{{ glyph }}</span>
+  <UiTagIcon
+    :name="iconName"
+    :size="tagSize"
+    :title="ariaLabel"
+    class="inline-flex shrink-0"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { sentimentEmoji } from '../../icons/sentiment-emoji'
+import { resolveSentimentIcon } from '../../icons/tag-icons'
+import UiTagIcon from './tag-icon.vue'
 
 const props = withDefaults(
   defineProps<{
     sentiment: string
     size?: 'xs' | 'sm' | 'md' | 'lg'
-    /** 无障碍朗读；默认与 sentiment 文案一致时可由父级传入 */
+    /** 无障碍朗读 */
     label?: string
   }>(),
   { size: 'sm' },
 )
 
-const glyph = computed(() => sentimentEmoji(props.sentiment))
+const iconName = computed(() => resolveSentimentIcon(props.sentiment))
 
 const ariaLabel = computed(() => props.label ?? props.sentiment)
 
-const sizeClass = computed(() => {
-  const map = {
-    xs: 'text-sm',
-    sm: 'text-base',
-    md: 'text-lg',
-    lg: 'text-xl',
-  }
-  return map[props.size]
+const tagSize = computed((): 'xs' | 'sm' | 'md' => {
+  if (props.size === 'xs') return 'xs'
+  if (props.size === 'lg') return 'md'
+  return props.size === 'md' ? 'md' : 'sm'
 })
 </script>

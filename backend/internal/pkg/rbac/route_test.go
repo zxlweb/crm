@@ -18,6 +18,10 @@ func TestRouteToPermission(t *testing.T) {
 		{"GET", "/api/accounts/uuid/emotion-journey", "accounts", "view"},
 		{"POST", "/api/accounts/uuid/insights/evaluate", "accounts", "view"},
 		{"POST", "/api/leads/uuid/assign", "leads", "assign"},
+		{"GET", "/api/leads/stats/by-source", "leads", "view"},
+		{"GET", "/api/leads/stats/trend", "leads", "view"},
+		{"GET", "/api/deals/pipeline", "deals", "view"},
+		{"PUT", "/api/deals/uuid/stage", "deals", "update"},
 	}
 
 	for _, tt := range tests {

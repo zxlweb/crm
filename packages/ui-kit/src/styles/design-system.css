@@ -141,6 +141,9 @@
 
   --ds-border: rgba(139, 92, 246, 0.15);
   --ds-border-muted: #f5f3ff;
+  --ds-border-table: rgba(139, 92, 246, 0.12);
+  --ds-divide: rgba(15, 23, 42, 0.06);
+  --ds-bg-table-head: rgba(245, 243, 255, 0.85);
   --ds-border-focus: rgba(139, 92, 246, 0.22);
 
   --ds-brand: #7c3aed;
@@ -189,73 +192,76 @@
   color-scheme: light;
 }
 
-/* ─── V2 深色 Optrixx ─── */
+/* ─── V2 深色 · 午夜蓝紫（非纯黑） ─── */
 [data-theme='v2'] {
-  --ds-bg: #0a0a0a;
-  --ds-bg-elevated: #141414;
-  --ds-bg-muted: #111111;
-  --ds-bg-input: #141414;
-  --ds-bg-sidebar: #111111;
-  --ds-bg-topbar: rgba(17, 17, 17, 0.9);
-  --ds-bg-brand-panel: #0a0a0a;
-  --ds-bg-insight: linear-gradient(135deg, rgba(88, 28, 135, 0.5) 0%, rgba(46, 16, 101, 0.8) 100%);
-  --ds-bg-active-nav: rgba(124, 58, 237, 0.1);
-  --ds-bg-brand-subtle: rgba(124, 58, 237, 0.15);
-  --ds-bg-info-subtle: rgba(14, 165, 233, 0.12);
+  --ds-bg: #0a0b1e;
+  --ds-bg-elevated: #12132b;
+  --ds-bg-muted: #0f1028;
+  --ds-bg-input: #161733;
+  --ds-bg-sidebar: #090a18;
+  --ds-bg-topbar: rgba(10, 11, 30, 0.88);
+  --ds-bg-brand-panel: linear-gradient(160deg, #0a0b1e 0%, #12103a 48%, #0f0a24 100%);
+  --ds-bg-insight: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(147, 51, 234, 0.42) 55%, rgba(217, 70, 239, 0.18) 100%);
+  --ds-bg-active-nav: rgba(99, 102, 241, 0.14);
+  --ds-bg-brand-subtle: rgba(99, 102, 241, 0.16);
+  --ds-bg-info-subtle: rgba(56, 189, 248, 0.12);
   --ds-bg-warning-subtle: rgba(245, 158, 11, 0.12);
-  --ds-bg-success-subtle: rgba(16, 185, 129, 0.15);
+  --ds-bg-success-subtle: rgba(16, 185, 129, 0.14);
   --ds-bg-danger-subtle: rgba(251, 113, 133, 0.12);
 
-  --ds-fg: #f4f4f5;
+  --ds-fg: #e2e8f0;
   --ds-fg-heading: #ffffff;
-  --ds-fg-muted: #71717a;
-  --ds-fg-subtle: #52525b;
+  --ds-fg-muted: #94a3b8;
+  --ds-fg-subtle: #64748b;
   --ds-fg-on-brand: #ffffff;
   --ds-fg-brand: #c4b5fd;
   --ds-fg-success: #34d399;
   --ds-fg-danger: #fb7185;
-  --ds-fg-nav: #a1a1aa;
-  --ds-fg-nav-active: #c4b5fd;
+  --ds-fg-nav: #94a3b8;
+  --ds-fg-nav-active: #ddd6fe;
 
-  --ds-border: rgba(255, 255, 255, 0.06);
-  --ds-border-muted: rgba(255, 255, 255, 0.04);
-  --ds-border-focus: rgba(124, 58, 237, 0.38);
+  --ds-border: rgba(99, 102, 241, 0.16);
+  --ds-border-muted: rgba(99, 102, 241, 0.08);
+  --ds-border-table: rgba(148, 163, 184, 0.12);
+  --ds-divide: rgba(148, 163, 184, 0.07);
+  --ds-bg-table-head: rgba(15, 16, 40, 0.55);
+  --ds-border-focus: rgba(147, 51, 234, 0.42);
 
-  --ds-brand: #9333ea;
-  --ds-brand-hover: #a855f7;
-  --ds-brand-muted: rgba(124, 58, 237, 0.15);
-  --ds-brand-gradient: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
-  --ds-brand-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.35);
+  --ds-brand: #6366f1;
+  --ds-brand-hover: #818cf8;
+  --ds-brand-muted: rgba(99, 102, 241, 0.18);
+  --ds-brand-gradient: linear-gradient(135deg, #6366f1 0%, #9333ea 55%, #d946ef 100%);
+  --ds-brand-shadow: 0 10px 28px -6px rgba(99, 102, 241, 0.38);
 
   --ds-info: #38bdf8;
   --ds-warning: #fbbf24;
   --ds-success: #34d399;
   --ds-danger: #fb7185;
 
-  --ds-chart-grid: rgba(255, 255, 255, 0.05);
-  --ds-chart-area-start: rgba(124, 58, 237, 0.38);
-  --ds-chart-area-mid: rgba(124, 58, 237, 0.16);
+  --ds-chart-grid: rgba(99, 102, 241, 0.08);
+  --ds-chart-area-start: rgba(99, 102, 241, 0.36);
+  --ds-chart-area-mid: rgba(147, 51, 234, 0.18);
   --ds-chart-area-end: transparent;
   --ds-chart-area-opacity: 1;
-  --ds-chart-line-start: #7c3aed;
+  --ds-chart-line-start: #6366f1;
   --ds-chart-line-end: #c4b5fd;
-  --ds-chart-dot: #7c3aed;
-  --ds-chart-dot-stroke: #141414;
-  --ds-chart-secondary: #52525b;
-  --ds-chart-axis: #71717a;
-  --ds-chart-tooltip-bg: #1a1a1a;
-  --ds-chart-tooltip-border: rgba(255, 255, 255, 0.08);
-  --ds-chart-tooltip-fg: #fafafa;
-  --ds-chart-glow: rgba(167, 139, 250, 0.55);
-  --ds-chart-bar-track: rgba(124, 58, 237, 0.14);
-  --ds-blur-brand: rgba(147, 51, 234, 0.2);
-  --ds-blur-accent: rgba(124, 58, 237, 0.1);
+  --ds-chart-dot: #818cf8;
+  --ds-chart-dot-stroke: #12132b;
+  --ds-chart-secondary: #64748b;
+  --ds-chart-axis: #94a3b8;
+  --ds-chart-tooltip-bg: #12132b;
+  --ds-chart-tooltip-border: rgba(99, 102, 241, 0.22);
+  --ds-chart-tooltip-fg: #f1f5f9;
+  --ds-chart-glow: rgba(147, 51, 234, 0.5);
+  --ds-chart-bar-track: rgba(99, 102, 241, 0.14);
+  --ds-blur-brand: rgba(99, 102, 241, 0.28);
+  --ds-blur-accent: rgba(217, 70, 239, 0.22);
 
-  --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --ds-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
-  --ds-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
-  --ds-shadow-xl: 0 20px 48px rgba(124, 58, 237, 0.2);
-  --ds-shadow-focus: 0 0 0 2px color-mix(in srgb, var(--ds-brand) 22%, transparent);
+  --ds-shadow-sm: 0 1px 2px rgba(5, 6, 20, 0.45);
+  --ds-shadow-md: 0 4px 16px rgba(5, 6, 20, 0.5);
+  --ds-shadow-lg: 0 12px 40px rgba(5, 6, 20, 0.55);
+  --ds-shadow-xl: 0 20px 48px rgba(99, 102, 241, 0.22);
+  --ds-shadow-focus: 0 0 0 2px color-mix(in srgb, var(--ds-brand) 24%, transparent);
 
   --ds-metric-tint-info-bg: rgba(37, 99, 235, 0.15);
   --ds-metric-tint-info-fg: #60a5fa;
@@ -303,6 +309,39 @@
 
 .ds-input::placeholder {
   color: var(--ds-fg-muted);
+}
+
+/* Nuxt UI 表单控件 — merge 后仍可能被 bg-gray-50 覆盖，统一走语义 token */
+.form-input,
+.form-select,
+.form-textarea {
+  background-color: var(--ds-bg-input) !important;
+  color: var(--ds-fg) !important;
+  --tw-ring-color: var(--ds-border) !important;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--ds-fg-muted);
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+  --tw-ring-color: color-mix(in srgb, var(--ds-border) 90%, var(--ds-brand) 10%) !important;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  --tw-ring-color: color-mix(in srgb, var(--ds-brand) 35%, transparent) !important;
+}
+
+[data-theme='v2'] input[type='checkbox'],
+[data-theme='v2'] input[type='radio'] {
+  border-color: var(--ds-border);
+  background-color: var(--ds-bg-input);
+  accent-color: var(--ds-brand);
 }
 
 .ds-btn-primary {

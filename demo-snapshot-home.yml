@@ -1,0 +1,417 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - generic [ref=e9]:
+          - paragraph [ref=e10]: CRM
+          - paragraph [ref=e11]: 关系经营
+      - navigation [ref=e12]:
+        - link "工作台" [ref=e13] [cursor=pointer]:
+          - /url: /
+          - img [ref=e14]
+          - text: 工作台
+        - link "线索" [ref=e16] [cursor=pointer]:
+          - /url: /leads
+          - img [ref=e17]
+          - text: 线索
+        - link "公司" [ref=e19] [cursor=pointer]:
+          - /url: /accounts
+          - img [ref=e20]
+          - text: 公司
+        - link "联系人" [ref=e22] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e23]
+          - text: 联系人
+      - group "Theme version" [ref=e27]:
+        - button "V1" [pressed] [ref=e28] [cursor=pointer]
+        - button "V2" [ref=e29] [cursor=pointer]
+    - generic [ref=e30]:
+      - banner [ref=e31]:
+        - generic [ref=e32]:
+          - paragraph [ref=e33]: 销售工作台
+          - heading "工作台" [level=1] [ref=e34]
+        - combobox [ref=e38]:
+          - option "选择租户" [disabled]
+          - option "Demo Corp" [selected]
+      - main [ref=e39]:
+        - generic [ref=e41]:
+          - region "Demo Admin · Demo Corp" [ref=e42]:
+            - generic [ref=e43]:
+              - generic [ref=e44]:
+                - paragraph [ref=e45]: 早上好
+                - heading "Demo Admin · Demo Corp" [level=1] [ref=e46]
+              - paragraph [ref=e47]: 本周你已跟进 21 次 · 保持节奏
+            - generic [ref=e49]:
+              - link [ref=e50] [cursor=pointer]:
+                - /url: /leads
+                - article [ref=e51]:
+                  - generic [ref=e53]:
+                    - img [ref=e55]
+                    - generic [ref=e57]:
+                      - paragraph [ref=e58]: 线索总数
+                      - paragraph [ref=e59]: "43"
+                  - generic [ref=e60]:
+                    - generic [ref=e61]: 当前管道
+                    - generic [ref=e62]: +19 本周活跃
+              - link [ref=e63] [cursor=pointer]:
+                - /url: /accounts
+                - article [ref=e64]:
+                  - generic [ref=e66]:
+                    - img [ref=e68]
+                    - generic [ref=e70]:
+                      - paragraph [ref=e71]: 公司
+                      - paragraph [ref=e72]: "12"
+                  - generic [ref=e73]:
+                    - generic [ref=e74]: 客户公司
+                    - generic [ref=e75]: +2 本周活跃
+              - link [ref=e76] [cursor=pointer]:
+                - /url: /leads?tab=reports
+                - article [ref=e77]:
+                  - generic [ref=e79]:
+                    - img [ref=e81]
+                    - generic [ref=e83]:
+                      - paragraph [ref=e84]: 平均互动分
+                      - paragraph [ref=e85]: "9"
+                  - generic [ref=e86]:
+                    - generic [ref=e87]: 线索与公司
+                    - generic [ref=e88]:
+                      - text: ↑ 15
+                      - generic [ref=e89]: ↑
+              - link [ref=e90] [cursor=pointer]:
+                - /url: /leads?health=low
+                - article [ref=e91]:
+                  - generic [ref=e93]:
+                    - img [ref=e95]
+                    - generic [ref=e97]:
+                      - paragraph [ref=e98]: 需关注
+                      - paragraph [ref=e99]: "50"
+                  - generic [ref=e100]:
+                    - generic [ref=e101]: 关系健康度偏低
+                    - generic [ref=e102]:
+                      - text: 需关注
+                      - generic [ref=e103]: ↓
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - heading "今日优先" [level=2] [ref=e107]
+                - paragraph [ref=e108]: 今天有 7 位客户需要关注
+              - generic [ref=e110]:
+                - link "华创科技 线索 预警 Preview 演示 7 天未跟进 · 健康度持续走低 建议：今日电话确认方案 王总监 7 天前 38 去跟进" [ref=e111] [cursor=pointer]:
+                  - /url: /leads/a1000000-0000-4000-8000-000000000001#timeline
+                  - generic [ref=e116]:
+                    - generic [ref=e117]:
+                      - heading "华创科技" [level=3] [ref=e118]
+                      - generic [ref=e119]: 线索
+                      - generic [ref=e120]: 预警
+                      - generic [ref=e121]: Preview 演示
+                    - paragraph [ref=e122]: 7 天未跟进 · 健康度持续走低
+                    - paragraph [ref=e123]: 建议：今日电话确认方案
+                    - generic [ref=e124]:
+                      - generic [ref=e125]: 王总监
+                      - generic [ref=e127]: 7 天前
+                  - generic [ref=e129]:
+                    - generic [ref=e130]:
+                      - img [ref=e131]
+                      - generic [ref=e133]: "38"
+                    - generic [ref=e134]: 去跟进
+                - link "北辰物流 线索 预警 13 天未跟进 · 健康度偏低 · 健康度持续走低 建议：今日电话确认方案 13 天前 28 去跟进" [ref=e136] [cursor=pointer]:
+                  - /url: /leads/a1000000-0000-4000-8000-000000000003#timeline
+                  - generic [ref=e141]:
+                    - generic [ref=e142]:
+                      - heading "北辰物流" [level=3] [ref=e143]
+                      - generic [ref=e144]: 线索
+                      - generic [ref=e145]: 预警
+                    - paragraph [ref=e146]: 13 天未跟进 · 健康度偏低 · 健康度持续走低
+                    - paragraph [ref=e147]: 建议：今日电话确认方案
+                    - generic [ref=e149]: 13 天前
+                  - generic [ref=e151]:
+                    - generic [ref=e152]:
+                      - img [ref=e153]
+                      - generic [ref=e155]: "28"
+                    - generic [ref=e156]: 去跟进
+                - link "演示线索-1779561520107 线索 预警 健康度偏低 建议：今日电话确认方案 0 去跟进" [ref=e158] [cursor=pointer]:
+                  - /url: /leads/dcc748aa-b168-4ae8-85ce-0e81f6233a5e#timeline
+                  - generic [ref=e163]:
+                    - generic [ref=e164]:
+                      - heading "演示线索-1779561520107" [level=3] [ref=e165]
+                      - generic [ref=e166]: 线索
+                      - generic [ref=e167]: 预警
+                    - paragraph [ref=e168]: 健康度偏低
+                    - paragraph [ref=e169]: 建议：今日电话确认方案
+                  - generic [ref=e170]:
+                    - generic [ref=e171]:
+                      - img [ref=e172]
+                      - generic [ref=e173]: "0"
+                    - generic [ref=e174]: 去跟进
+                - link "Lead 1779561275132 线索 预警 健康度偏低 建议：今日电话确认方案 0 去跟进" [ref=e176] [cursor=pointer]:
+                  - /url: /leads/94e9f369-7707-4ee5-b058-733d547afc98#timeline
+                  - generic [ref=e181]:
+                    - generic [ref=e182]:
+                      - heading "Lead 1779561275132" [level=3] [ref=e183]
+                      - generic [ref=e184]: 线索
+                      - generic [ref=e185]: 预警
+                    - paragraph [ref=e186]: 健康度偏低
+                    - paragraph [ref=e187]: 建议：今日电话确认方案
+                  - generic [ref=e188]:
+                    - generic [ref=e189]:
+                      - img [ref=e190]
+                      - generic [ref=e191]: "0"
+                    - generic [ref=e192]: 去跟进
+                - link "E2E Sentiment Form 1779561271625 线索 预警 健康度偏低 建议：今日电话确认方案 0 去跟进" [ref=e194] [cursor=pointer]:
+                  - /url: /leads/363529fa-4330-44e9-8eda-632c3fecd8ac#timeline
+                  - generic [ref=e199]:
+                    - generic [ref=e200]:
+                      - heading "E2E Sentiment Form 1779561271625" [level=3] [ref=e201]
+                      - generic [ref=e202]: 线索
+                      - generic [ref=e203]: 预警
+                    - paragraph [ref=e204]: 健康度偏低
+                    - paragraph [ref=e205]: 建议：今日电话确认方案
+                  - generic [ref=e206]:
+                    - generic [ref=e207]:
+                      - img [ref=e208]
+                      - generic [ref=e209]: "0"
+                    - generic [ref=e210]: 去跟进
+                - link "Lead 1779561240145 线索 预警 健康度偏低 建议：今日电话确认方案 0 去跟进" [ref=e212] [cursor=pointer]:
+                  - /url: /leads/7841d422-948b-4599-8b83-d2d48f0b0ab6#timeline
+                  - generic [ref=e217]:
+                    - generic [ref=e218]:
+                      - heading "Lead 1779561240145" [level=3] [ref=e219]
+                      - generic [ref=e220]: 线索
+                      - generic [ref=e221]: 预警
+                    - paragraph [ref=e222]: 健康度偏低
+                    - paragraph [ref=e223]: 建议：今日电话确认方案
+                  - generic [ref=e224]:
+                    - generic [ref=e225]:
+                      - img [ref=e226]
+                      - generic [ref=e227]: "0"
+                    - generic [ref=e228]: 去跟进
+                - link "E2E Sentiment Form 1779561236475 线索 预警 健康度偏低 建议：今日电话确认方案 0 去跟进" [ref=e230] [cursor=pointer]:
+                  - /url: /leads/f9f27eed-3937-4178-aa74-fbc2e5f6d894#timeline
+                  - generic [ref=e235]:
+                    - generic [ref=e236]:
+                      - heading "E2E Sentiment Form 1779561236475" [level=3] [ref=e237]
+                      - generic [ref=e238]: 线索
+                      - generic [ref=e239]: 预警
+                    - paragraph [ref=e240]: 健康度偏低
+                    - paragraph [ref=e241]: 建议：今日电话确认方案
+                  - generic [ref=e242]:
+                    - generic [ref=e243]:
+                      - img [ref=e244]
+                      - generic [ref=e245]: "0"
+                    - generic [ref=e246]: 去跟进
+            - complementary [ref=e248]:
+              - generic [ref=e249]:
+                - generic [ref=e250]:
+                  - heading "今日日程" [level=3] [ref=e251]
+                  - paragraph [ref=e252]: 5月24日周日
+                - generic [ref=e253]:
+                  - button [ref=e254] [cursor=pointer]
+                  - button [ref=e256] [cursor=pointer]
+              - generic [ref=e259]:
+                - generic [ref=e260]: 一
+                - generic [ref=e261]: 二
+                - generic [ref=e262]: 三
+                - generic [ref=e263]: 四
+                - generic [ref=e264]: 五
+                - generic [ref=e265]: 六
+                - generic [ref=e266]: 日
+                - button "18" [ref=e267] [cursor=pointer]:
+                  - generic [ref=e268]: "18"
+                - button "19" [ref=e269] [cursor=pointer]:
+                  - generic [ref=e270]: "19"
+                - button "20" [ref=e271] [cursor=pointer]:
+                  - generic [ref=e272]: "20"
+                - button "21" [ref=e273] [cursor=pointer]:
+                  - generic [ref=e274]: "21"
+                - button "22" [ref=e275] [cursor=pointer]:
+                  - generic [ref=e276]: "22"
+                - button "23" [ref=e277] [cursor=pointer]:
+                  - generic [ref=e278]: "23"
+                - button "24" [ref=e279] [cursor=pointer]:
+                  - generic [ref=e280]: "24"
+              - generic [ref=e281]:
+                - paragraph [ref=e283]: 5月24日星期日
+                - list [ref=e284]:
+                  - listitem [ref=e285]:
+                    - link "09:30 华创科技 跟进 · 线索" [ref=e286] [cursor=pointer]:
+                      - /url: /leads/a1000000-0000-4000-8000-000000000001#timeline
+                      - generic [ref=e287]: 09:30
+                      - generic [ref=e288]:
+                        - generic [ref=e289]: 华创科技
+                        - generic [ref=e290]: 跟进 · 线索
+                  - listitem [ref=e291]:
+                    - link "11:00 北辰物流 跟进 · 线索" [ref=e292] [cursor=pointer]:
+                      - /url: /leads/a1000000-0000-4000-8000-000000000003#timeline
+                      - generic [ref=e293]: 11:00
+                      - generic [ref=e294]:
+                        - generic [ref=e295]: 北辰物流
+                        - generic [ref=e296]: 跟进 · 线索
+                  - listitem [ref=e297]:
+                    - link "14:30 演示线索-1779561520107 跟进 · 线索" [ref=e298] [cursor=pointer]:
+                      - /url: /leads/dcc748aa-b168-4ae8-85ce-0e81f6233a5e#timeline
+                      - generic [ref=e299]: 14:30
+                      - generic [ref=e300]:
+                        - generic [ref=e301]: 演示线索-1779561520107
+                        - generic [ref=e302]: 跟进 · 线索
+                  - listitem [ref=e303]:
+                    - link "16:00 Lead 1779561275132 跟进 · 线索" [ref=e304] [cursor=pointer]:
+                      - /url: /leads/94e9f369-7707-4ee5-b058-733d547afc98#timeline
+                      - generic [ref=e305]: 16:00
+                      - generic [ref=e306]:
+                        - generic [ref=e307]: Lead 1779561275132
+                        - generic [ref=e308]: 跟进 · 线索
+          - generic [ref=e309]:
+            - generic [ref=e310]:
+              - generic [ref=e312]:
+                - generic [ref=e313]:
+                  - heading "管道动态" [level=3] [ref=e314]
+                  - paragraph [ref=e315]: 最近更新的线索与公司
+                - generic [ref=e316]:
+                  - generic [ref=e317]:
+                    - tablist [ref=e318]:
+                      - tab "线索" [selected] [ref=e321] [cursor=pointer]:
+                        - generic [ref=e322]: 线索
+                      - tab "公司" [ref=e323] [cursor=pointer]:
+                        - generic [ref=e324]: 公司
+                    - generic:
+                      - tabpanel "线索"
+                  - link "查看全部" [ref=e325] [cursor=pointer]:
+                    - /url: /leads
+              - list [ref=e328]:
+                - listitem [ref=e329]:
+                  - link "演 演示线索-1779561520107 互动分 0 风险 新建" [ref=e330] [cursor=pointer]:
+                    - /url: /leads/dcc748aa-b168-4ae8-85ce-0e81f6233a5e
+                    - generic [ref=e331]: 演
+                    - generic [ref=e332]:
+                      - paragraph [ref=e333]: 演示线索-1779561520107
+                      - paragraph [ref=e334]: 互动分 0
+                    - generic [ref=e335]:
+                      - generic [ref=e336]: 风险
+                      - generic [ref=e338]: 新建
+                - listitem [ref=e340]:
+                  - link "星 星海教育 互动分 3 风险 不合格 查看不合格线索处理建议" [ref=e341] [cursor=pointer]:
+                    - /url: /leads/a1000000-0000-4000-8000-000000000004
+                    - generic [ref=e342]: 星
+                    - generic [ref=e343]:
+                      - paragraph [ref=e344]: 星海教育
+                      - paragraph [ref=e345]: 互动分 3
+                    - generic [ref=e346]:
+                      - generic [ref=e347]: 风险
+                      - generic [ref=e349]:
+                        - text: 不合格
+                        - button "查看不合格线索处理建议" [ref=e352]:
+                          - img [ref=e353]
+                - listitem [ref=e355]:
+                  - link "L Lead 1779561275132 互动分 0 风险 新建" [ref=e356] [cursor=pointer]:
+                    - /url: /leads/94e9f369-7707-4ee5-b058-733d547afc98
+                    - generic [ref=e357]: L
+                    - generic [ref=e358]:
+                      - paragraph [ref=e359]: Lead 1779561275132
+                      - paragraph [ref=e360]: 互动分 0
+                    - generic [ref=e361]:
+                      - generic [ref=e362]: 风险
+                      - generic [ref=e364]: 新建
+            - complementary [ref=e366]:
+              - complementary [ref=e367]:
+                - generic [ref=e369]:
+                  - img "AI 助手形象" [ref=e370]:
+                    - img [ref=e375]
+                  - generic [ref=e392]:
+                    - heading "洞察速览" [level=3] [ref=e393]
+                    - paragraph [ref=e394]: 实时分析关系信号，为你划重点
+                - generic [ref=e395]:
+                  - list [ref=e396]:
+                    - listitem [ref=e397]:
+                      - generic [ref=e401]:
+                        - generic [ref=e403]: 商机洞察
+                        - paragraph [ref=e404]: 飞书团队连续 3 天访问定价页，AI 预测成交概率 78%。
+                    - listitem [ref=e405]:
+                      - generic [ref=e409]:
+                        - generic [ref=e410]:
+                          - generic [ref=e411]: 流失风险
+                          - generic [ref=e412]: 紧急
+                        - paragraph [ref=e413]: 华创科技互动频次下降 65%，本周不跟进预测流失概率 70%。
+                    - listitem [ref=e414]:
+                      - generic [ref=e418]:
+                        - generic [ref=e420]: 规则洞察
+                        - paragraph [ref=e421]: 5 条线索超过 7 天未跟进，其中 3 条曾主动询价。
+                  - link "进入 AI 助手" [ref=e422] [cursor=pointer]:
+                    - /url: /leads/a1000000-0000-4000-8000-000000000001
+                    - text: 进入 AI 助手
+          - group [ref=e425]:
+            - generic "Preview 数据展望 · 演示样例 收起数据展望" [ref=e426] [cursor=pointer]:
+              - generic [ref=e427]:
+                - paragraph [ref=e428]: Preview
+                - heading "数据展望 · 演示样例" [level=2] [ref=e429]
+              - generic [ref=e431]: 收起数据展望
+            - generic [ref=e433]:
+              - generic [ref=e434]:
+                - generic [ref=e435]: Preview 演示
+                - paragraph [ref=e436]: 演示样例数据，仅供预览，不会写入业务表。
+              - generic [ref=e437]:
+                - generic [ref=e440]:
+                  - generic [ref=e441]:
+                    - heading "迷你商机漏斗" [level=3] [ref=e442]
+                    - paragraph [ref=e443]: 阶段转化示意
+                  - link "演示样例 → 报表" [ref=e444] [cursor=pointer]:
+                    - /url: /leads?tab=reports
+                - generic [ref=e450]:
+                  - generic [ref=e451]:
+                    - heading "团队成员健康一览" [level=3] [ref=e452]
+                    - link "查看详情 →" [ref=e453] [cursor=pointer]:
+                      - /url: /leads?tab=reports
+                  - generic [ref=e454]:
+                    - generic [ref=e455]:
+                      - generic [ref=e456]: 成员
+                      - generic [ref=e457]: 健康度
+                      - generic [ref=e458]: 情绪分
+                    - list [ref=e459]:
+                      - listitem [ref=e460]:
+                        - generic [ref=e461]:
+                          - generic [ref=e462]: 张
+                          - generic [ref=e463]: 张三
+                        - generic [ref=e465]: "91"
+                        - generic [ref=e467]: "88"
+                      - listitem [ref=e468]:
+                        - generic [ref=e469]:
+                          - generic [ref=e470]: 李
+                          - generic [ref=e471]: 李四
+                        - generic [ref=e473]: "62"
+                        - generic [ref=e475]: "58"
+                      - listitem [ref=e476]:
+                        - generic [ref=e477]:
+                          - generic [ref=e478]: 王
+                          - generic [ref=e479]: 王磊
+                        - generic [ref=e481]: "45"
+                        - generic [ref=e483]: "52"
+                      - listitem [ref=e484]:
+                        - generic [ref=e485]:
+                          - generic [ref=e486]: 赵
+                          - generic [ref=e487]: 赵敏
+                        - generic [ref=e489]: "78"
+                        - generic [ref=e491]: "81"
+                      - listitem [ref=e492]:
+                        - generic [ref=e493]:
+                          - generic [ref=e494]: 陈
+                          - generic [ref=e495]: 陈浩
+                        - generic [ref=e497]: "55"
+                        - generic [ref=e499]: "49"
+                    - generic [ref=e500]:
+                      - generic [ref=e501]: ≥80 优秀
+                      - generic [ref=e503]: 60–79 关注
+                      - generic [ref=e505]: <60 预警
+                    - generic [ref=e507]:
+                      - paragraph [ref=e508]: 均值 健康 66 · 情绪 66
+                      - link "查看详情 →" [ref=e509] [cursor=pointer]:
+                        - /url: /leads?tab=reports
+  - generic:
+    - img
+  - generic [ref=e510]:
+    - button "Toggle Nuxt DevTools" [ref=e511] [cursor=pointer]:
+      - img [ref=e512]
+    - generic "Page load time" [ref=e515]:
+      - generic [ref=e516]: "47"
+      - generic [ref=e517]: ms
+    - button "Toggle Component Inspector" [ref=e519] [cursor=pointer]:
+      - img [ref=e520]

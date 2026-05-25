@@ -8,11 +8,13 @@
 |------|------|------|
 | [00-api-design.md](./00-api-design.md) | MVP 全量 API 索引 | v0.1 |
 | [phase-2-crm-ai.md](./phase-2-crm-ai.md) | Phase 2 客户关系 + 情绪旅程 + AI Preview | v1.0 Accepted |
+| [phase-3-deals-dashboard-api.md](./phase-3-deals-dashboard-api.md) | Phase 3 商机 + 仪表盘 | v1.0 Accepted |
 
 ## 命名规范
 
 - 总索引：`00-api-design.md`
-- 模块详情：`{模块}-api.md`（如 `auth-api.md`）
+- **Phase 迭代契约**（与 PRD 同 slug）：`phase-N-{slug}-api.md`（如 `phase-2-crm-ai.md`、`phase-3-deals-dashboard-api.md`）
+- **单模块详约**（可选拆分）：`{模块}-api.md`（如 `auth-api.md`）
 
 ## 单接口描述模板
 

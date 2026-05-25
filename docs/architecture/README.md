@@ -9,6 +9,8 @@
 | [00-main-architecture.md](./00-main-architecture.md) | 系统上下文、技术栈、分层、风险 |
 | [01-multi-tenancy.md](./01-multi-tenancy.md) | 多租户方案与实现要点 |
 | [02-rbac-design.md](./02-rbac-design.md) | RBAC + ABAC 权限模型 |
+| [03-phase-2-crm-schema.md](./03-phase-2-crm-schema.md) | Phase 2 CRM 表结构 |
+| [04-phase-3-deals-dashboard-schema.md](./04-phase-3-deals-dashboard-schema.md) | Phase 3 Deals + Dashboard |
 
 ## ADR 决策记录
 

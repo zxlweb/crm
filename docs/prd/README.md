@@ -6,6 +6,7 @@
 |------|------|------|
 | [00-crm-overview.md](./00-crm-overview.md) | MVP 总览、角色、功能范围 | v0.2 |
 | [phase-2-relationship-crm-prd.md](./phase-2-relationship-crm-prd.md) | Phase 2 关系经营 + AI Preview + **§11.5 销售工作台** | v0.4 |
+| [phase-3-deals-dashboard-prd.md](./phase-3-deals-dashboard-prd.md) | Phase 3 商机 Pipeline + Dashboard 生产化 | v0.1 |
 
 ## 命名规范
 

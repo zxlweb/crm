@@ -24,20 +24,49 @@
 
 
 
-        <LeadsLeadDecisionPanel :lead="lead" :demo-badge-only-when-preview="true" />
+        <LeadsLeadDecisionPanel
+          ref="decisionPanelRef"
+          :lead="lead"
+          :emotion-refresh-key="emotionRefreshKey"
+          :demo-badge-only-when-preview="true"
+        />
 
         <CardShell :title="$t('leadsTabTimeline')" :subtitle="$t('leadsSectionTimelineHint')" class="rounded-2xl">
-          <div id="timeline" data-testid="lead-activity-timeline-section">
-            <CrmActivityTimeline :lead-id="lead.id" />
+          <template v-if="canCreateActivity" #header-extra>
+            <div class="mt-3 flex justify-end">
+              <UiButton
+                size="sm"
+                variant="secondary"
+                icon="i-heroicons-plus-20-solid"
+                data-testid="activity-create-btn"
+                @click="activityOpen = true"
+              >
+                {{ $t('activityCreateBtn') }}
+              </UiButton>
+            </div>
+          </template>
+          <div id="timeline" class="space-y-6" data-testid="lead-activity-timeline-section">
+            <div>
+              <h3 class="mb-2 text-sm font-semibold text-ds-fg-heading">{{ $t('activitySummaryTitle') }}</h3>
+              <p class="mb-3 text-xs text-ds-fg-muted">{{ $t('activitySummaryHint') }}</p>
+              <CrmActivitySummaryChart ref="summaryRef" subject-type="lead" :subject-id="lead.id" />
+            </div>
+            <div>
+              <h3 class="mb-3 text-sm font-semibold text-ds-fg-heading">{{ $t('activityTimelineTitle') }}</h3>
+              <CrmActivityTimeline ref="timelineRef" subject-type="lead" :subject-id="lead.id" />
+            </div>
           </div>
         </CardShell>
       </div>
 
       <AiRelationPanel
         class="xl:sticky xl:top-4 xl:self-start"
-        :show-preview="isPreviewMode && stubInsights.length > 0"
-        :insights="stubInsights"
-        :engagement-score="lead.engagement_score"
+        :show-preview="isPreviewMode"
+        :insights="panelInsights"
+        :engagement-score="panelEngagementScore"
+        :churn-score="aiPreview.churnRiskScore"
+        :disclaimer="aiPreview.disclaimer"
+        :generate-copilot="aiPreview.generateCopilot"
       />
     </div>
 
@@ -68,6 +97,16 @@
       </template>
     </UiModal>
 
+    <UiModal v-model:open="activityOpen" :title="$t('activityCreateTitle')">
+      <CrmActivityForm
+        subject-type="lead"
+        :subject-id="lead?.id ?? ''"
+        :loading="activitySaving"
+        @submit="submitActivity"
+        @cancel="activityOpen = false"
+      />
+    </UiModal>
+
     <UiModal v-model:open="convertOpen" :title="$t('leadsConvertTitle')">
       <p class="mb-4 text-sm text-ds-fg-muted">{{ $t('leadsConvertDesc') }}</p>
       <form class="space-y-4" @submit.prevent="submitConvert">
@@ -89,9 +128,8 @@
 </template>
 
 <script setup lang="ts">
-import { DEMO_TENANT_ID } from '~/constants/demo'
-import { DEMO_LEAD_ID } from '~/fixtures/leads.mock'
 import { canTransitionLeadStatus } from '~/utils/lead-status-transition'
+import type { ActivityCreateInput } from '~/types/activity'
 import type { Lead, LeadStatus } from '~/types/lead'
 
 definePageMeta({ layout: 'app', middleware: 'auth' })
@@ -100,6 +138,7 @@ const route = useRoute()
 const { t } = useI18n()
 const permission = usePermission()
 const leadsApi = useLeads()
+const activitiesApi = useActivities()
 const ownerProfiles = useOwnerProfile()
 
 const lead = ref<Lead | null>(null)
@@ -107,7 +146,13 @@ const pending = ref(true)
 const loadError = ref('')
 const editOpen = ref(false)
 const convertOpen = ref(false)
+const activityOpen = ref(false)
+const activitySaving = ref(false)
 const saving = ref(false)
+const timelineRef = useTemplateRef<{ reload: () => Promise<void> }>('timelineRef')
+const summaryRef = useTemplateRef<{ reload: () => Promise<void> }>('summaryRef')
+const decisionPanelRef = useTemplateRef<{ reloadEmotionJourney: () => Promise<void> }>('decisionPanelRef')
+const emotionRefreshKey = ref(0)
 const statusSaving = ref(false)
 const convertSaving = ref(false)
 
@@ -117,27 +162,28 @@ const formAmount = ref('0')
 const formTagsText = ref('')
 const convertAccountName = ref('')
 
-const tenantCookie = useCookie('crm.tenant_id')
+const leadId = computed(() => lead.value?.id ?? null)
+const aiPreview = useAiPreview(leadId)
 
 const canUpdate = computed(() => permission.can('leads', 'update'))
+const canCreateActivity = computed(() => permission.can('activities', 'create'))
 
 const ownerProfile = computed(() => ownerProfiles.resolve(lead.value?.owner_id))
 
-const isPreviewMode = computed(
-  () =>
-    route.query.preview === '1' ||
-    lead.value?.id === DEMO_LEAD_ID ||
-    tenantCookie.value === DEMO_TENANT_ID,
-)
+const isPreviewMode = aiPreview.isPreviewMode
+const previewInsights = aiPreview.previewInsights
 
+const fallbackEngagement = computed(() => lead.value?.engagement_score ?? null)
 
-
-const stubInsights = computed(() => {
-  if (!isPreviewMode.value) return []
-  return [
-    { id: 'INS-001', title: t('aiStubInsight1Title'), body: t('aiStubInsight1Body') },
-    { id: 'INS-002', title: t('aiStubInsight2Title'), body: t('aiStubInsight2Body') },
-  ]
+const {
+  insights: panelInsights,
+  engagementScore: panelEngagementScore,
+  reload: reloadInsights,
+} = useDetailInsights({
+  subjectType: 'lead',
+  subjectId: leadId,
+  previewInsights,
+  fallbackEngagement,
 })
 
 function parseTags(text: string): string[] {
@@ -216,6 +262,34 @@ async function submitEdit() {
   }
 }
 
+async function reloadAfterActivityChange() {
+  emotionRefreshKey.value += 1
+  await nextTick()
+  await Promise.all([
+    timelineRef.value?.reload?.(),
+    summaryRef.value?.reload?.(),
+    reloadInsights(),
+    decisionPanelRef.value?.reloadEmotionJourney?.(),
+  ])
+}
+
+async function submitActivity(payload: ActivityCreateInput) {
+  if (!lead.value) return
+  activitySaving.value = true
+  loadError.value = ''
+  try {
+    await activitiesApi.create(payload)
+    activityOpen.value = false
+    await nextTick()
+    await reloadAfterActivityChange()
+    lead.value = await leadsApi.fetchById(lead.value.id)
+  } catch (e) {
+    loadError.value = e instanceof Error ? e.message : t('loadFailed')
+  } finally {
+    activitySaving.value = false
+  }
+}
+
 async function submitConvert() {
   if (!lead.value || !convertAccountName.value.trim()) return
   convertSaving.value = true
@@ -226,6 +300,9 @@ async function submitConvert() {
     })
     convertOpen.value = false
     fillForm(lead.value)
+    emotionRefreshKey.value += 1
+    await nextTick()
+    await decisionPanelRef.value?.reloadEmotionJourney?.()
   } catch (e) {
     const msg = e instanceof Error ? e.message : t('loadFailed')
     loadError.value =

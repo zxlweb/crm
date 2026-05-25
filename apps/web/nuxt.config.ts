@@ -57,6 +57,8 @@ export default defineNuxtConfig({
     { path: '~/components/feature/crm', prefix: 'Crm', pathPrefix: false },
     { path: '~/components/feature/leads', prefix: 'Leads', pathPrefix: false },
     { path: '~/components/feature/accounts', prefix: 'Accounts', pathPrefix: false },
+    { path: '~/components/feature/contacts', prefix: 'Contacts', pathPrefix: false },
+    { path: '~/components/feature/deals', prefix: 'Deals', pathPrefix: false },
     { path: '~/components/feature/dashboard', prefix: 'Dashboard', pathPrefix: false },
     { path: '~/components/feature/ai', prefix: 'Ai', pathPrefix: false },
     { path: '~/components/feature/design', pathPrefix: false },
@@ -81,6 +83,10 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080',
       /** 仅显式 true 时用 mock；默认走真实 /api/leads */
       useLeadsMock: process.env.NUXT_PUBLIC_USE_LEADS_MOCK === 'true',
+      /** 仅显式 true 时用 mock；默认走真实 API */
+      useDealsMock: process.env.NUXT_PUBLIC_USE_DEALS_MOCK === 'true',
+      /** 仅显式 true 时用 mock；默认走真实 /api/dashboard/* */
+      useDashboardMock: process.env.NUXT_PUBLIC_USE_DASHBOARD_MOCK === 'true',
     },
   },
 })

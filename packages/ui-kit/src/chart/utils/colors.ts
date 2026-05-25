@@ -25,11 +25,11 @@ export const CHART_COLOR_FALLBACK: ChartThemeColors = {
   areaStart: 'rgba(167, 139, 250, 0.28)',
   areaMid: 'rgba(196, 181, 253, 0.14)',
   areaEnd: 'transparent',
-  tooltipBg: '#1a1a1a',
-  tooltipBorder: 'rgba(255,255,255,0.08)',
-  tooltipFg: '#fafafa',
-  glow: 'rgba(167,139,250,0.55)',
-  dotStroke: '#141414',
+  tooltipBg: '#12132b',
+  tooltipBorder: 'rgba(99, 102, 241, 0.22)',
+  tooltipFg: '#f1f5f9',
+  glow: 'rgba(147, 51, 234, 0.5)',
+  dotStroke: '#12132b',
   barTrack: 'rgba(139, 92, 246, 0.1)',
 }
 

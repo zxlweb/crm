@@ -13,13 +13,14 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewLeadHandlers(svc *leadapp.Service, rec *audit.Recorder) *LeadHandlers {
-	return &LeadHandlers{svc: svc, audit: rec}
+func NewLeadHandlers(svc *leadapp.Service, rec *audit.Recorder, emotionSvc *emotion.Service) *LeadHandlers {
+	return &LeadHandlers{svc: svc, audit: rec, emotion: emotionSvc}
 }
 
 type LeadHandlers struct {
-	svc   *leadapp.Service
-	audit *audit.Recorder
+	svc     *leadapp.Service
+	audit   *audit.Recorder
+	emotion *emotion.Service
 }
 
 func (h *LeadHandlers) List(c *gin.Context) {
@@ -35,6 +36,7 @@ func (h *LeadHandlers) List(c *gin.Context) {
 		Source:             c.Query("source"),
 		LifecycleStage:     c.Query("lifecycle_stage"),
 		RelationshipHealth: c.Query("relationship_health"),
+		Segment:            c.Query("segment"),
 	}
 	if oid := c.Query("owner_id"); oid != "" {
 		id, err := uuid.Parse(oid)
@@ -46,6 +48,10 @@ func (h *LeadHandlers) List(c *gin.Context) {
 	}
 	result, err := h.svc.List(c.Request.Context(), tenantID, userID, q)
 	if err != nil {
+		if errors.Is(err, leadapp.ErrInvalidSegment) {
+			response.BadRequest(c, "invalid_segment_code")
+			return
+		}
 		response.InternalError(c, "获取线索列表失败")
 		return
 	}
@@ -210,11 +216,20 @@ func (h *LeadHandlers) Convert(c *gin.Context) {
 	if req.CreateAccount != nil && req.CreateAccount.Name != "" {
 		createAcc = &leadapp.ConvertAccountInput{Name: req.CreateAccount.Name}
 	}
+	var createDeal *leadapp.ConvertDealInput
+	if req.CreateDeal != nil && req.CreateDeal.Title != "" {
+		createDeal = &leadapp.ConvertDealInput{
+			Title:  req.CreateDeal.Title,
+			Amount: req.CreateDeal.Amount,
+			Stage:  req.CreateDeal.Stage,
+		}
+	}
 	old, _ := h.svc.Get(c.Request.Context(), tenantID, userID, id)
 	dto, err := h.svc.Convert(c.Request.Context(), tenantID, userID, id, leadapp.ConvertInput{
 		AccountID:     req.AccountID,
 		ContactID:     req.ContactID,
 		CreateAccount: createAcc,
+		CreateDeal:    createDeal,
 	})
 	if err != nil {
 		if errors.Is(err, leadapp.ErrNotFound) {
@@ -234,8 +249,34 @@ func (h *LeadHandlers) Convert(c *gin.Context) {
 		response.InternalError(c, "转化线索失败")
 		return
 	}
-	recordAudit(c, h.audit, tenantID, "lead.convert", "lead", &id, dto, old)
+	action := "lead.convert"
+	if dto.DealID != nil {
+		action = "deal.convert_from_lead"
+	}
+	recordAudit(c, h.audit, tenantID, action, "lead", &id, dto, old)
 	response.Success(c, dto)
+}
+
+func (h *LeadHandlers) EvaluateInsights(c *gin.Context) {
+	tenantID, userID, ok := leadContext(c)
+	if !ok {
+		return
+	}
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "ID 格式无效")
+		return
+	}
+	data, err := h.svc.EvaluateInsights(c.Request.Context(), tenantID, userID, id)
+	if err != nil {
+		if errors.Is(err, leadapp.ErrNotFound) {
+			response.NotFound(c, "线索不存在")
+			return
+		}
+		response.InternalError(c, "洞察求值失败")
+		return
+	}
+	response.Success(c, data)
 }
 
 func (h *LeadHandlers) EmotionJourney(c *gin.Context) {
@@ -257,8 +298,30 @@ func (h *LeadHandlers) EmotionJourney(c *gin.Context) {
 		response.InternalError(c, "获取情绪旅程失败")
 		return
 	}
-	_ = c.Query("range")
-	data := emotion.EmptyLeadJourney(id, dto.LifecycleStage)
+	rangeQ := c.DefaultQuery("range", "90d")
+	if h.emotion == nil {
+		response.Success(c, emotion.EmptyLeadJourney(id, dto.LifecycleStage))
+		return
+	}
+	in := emotion.SubjectInput{
+		SubjectType:      "lead",
+		SubjectID:        id,
+		LifecycleCurrent: dto.LifecycleStage,
+		CreatedAt:        dto.CreatedAt,
+	}
+	if dto.Status == "converted" && dto.ConvertedAccountID != nil {
+		at := dto.UpdatedAt
+		in.ConvertedAt = &at
+	}
+	data, err := h.emotion.BuildJourney(c.Request.Context(), tenantID, in, rangeQ)
+	if err != nil {
+		if errors.Is(err, emotion.ErrInvalidRange) {
+			response.BadRequest(c, emotion.FormatRangeError())
+			return
+		}
+		response.InternalError(c, "获取情绪旅程失败")
+		return
+	}
 	response.Success(c, data)
 }
 
@@ -266,6 +329,13 @@ type leadConvertRequest struct {
 	AccountID     *uuid.UUID              `json:"account_id"`
 	ContactID     *uuid.UUID              `json:"contact_id"`
 	CreateAccount *leadConvertAccountBody `json:"create_account"`
+	CreateDeal    *leadConvertDealBody    `json:"create_deal"`
+}
+
+type leadConvertDealBody struct {
+	Title  string  `json:"title"`
+	Amount float64 `json:"amount"`
+	Stage  string  `json:"stage"`
 }
 
 type leadConvertAccountBody struct {
