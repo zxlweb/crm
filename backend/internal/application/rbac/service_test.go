@@ -7,6 +7,7 @@ import (
 
 	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/domain"
+	"crm-backend/internal/pkg/datascope"
 	"crm-backend/internal/repository"
 
 	"github.com/google/uuid"
@@ -106,6 +107,20 @@ func TestService_ListPermissionDictionary(t *testing.T) {
 	groups, err := svc.ListPermissionDictionary(context.Background())
 	if err != nil || len(groups) != 1 || len(groups[0].Actions) != 2 {
 		t.Fatalf("groups: %+v err=%v", groups, err)
+	}
+}
+
+func TestFilterMembersByScope_Department(t *testing.T) {
+	uid := uuid.MustParse("11111111-1111-4111-8111-111111111101")
+	other := uuid.MustParse("22222222-2222-4222-8222-222222222222")
+	rows := []repository.TenantMemberRow{
+		{UserID: uid, Department: "神龙云计算"},
+		{UserID: other, Department: "灵狐数据"},
+	}
+	scope := datascope.ScopeParams{Level: datascope.LevelDepartment, Department: "神龙云计算"}
+	out := filterMembersByScope(rows, scope)
+	if len(out) != 1 || out[0].UserID != uid {
+		t.Fatalf("got %+v", out)
 	}
 }
 

@@ -6,10 +6,12 @@
   <DashboardOverview
     v-else-if="snapshot"
     :snapshot="snapshot"
+    :data-scope="snapshot.dataScope"
     :greeting="greeting"
     :headline="headline"
     :priority-summary="prioritySummary"
     :weekly-follow-up-note="weeklyFollowUpNote"
+    :weekly-follow-up-count="snapshot.weeklyFollowUpCount"
     :insight-items="insightItems"
     :insight-detail-href="insightDetailHref"
     :can-create-lead="canCreateLead"
@@ -55,7 +57,8 @@ const isPreviewMode = computed(
   () => leadsApi.useMock.value || tenantCookie.value === DEMO_TENANT_ID,
 )
 
-const showZoneE = computed(() => true)
+/** 数据展望 · 演示样例：仅租户管理员（全租户视角），销售经理/代表不展示 */
+const showZoneE = computed(() => snapshot.value?.dataScope === 'all')
 const showTeamHeatmap = computed(() => isPreviewMode.value || permission.can('rbac', 'view'))
 const showTeamRanking = computed(() => snapshot.value?.canViewTeamRanking === true)
 const zoneEDefaultOpen = computed(
@@ -109,7 +112,24 @@ async function reload() {
     snapshot.value = await dashboard.loadSnapshot(isPreviewMode.value)
     insightItems.value = dashboard.loadInsightItems(isPreviewMode.value)
   } catch (e) {
-    loadError.value = e instanceof Error ? e.message : t('loadFailed')
+    const msg = e instanceof Error ? e.message : ''
+    const forbidden = msg.includes('403') || msg.includes('无权限') || msg.includes('Forbidden')
+    if (forbidden && !auth.isSuperAdmin.value) {
+      try {
+        const list = await tenant.fetchTenants()
+        const tid = tenant.currentTenantId.value
+        const valid = !!tid && list.some((t) => t.id === tid)
+        if (list.length > 0) {
+          await tenant.switchTenant(valid ? tid! : list[0].id)
+          snapshot.value = await dashboard.loadSnapshot(isPreviewMode.value)
+          insightItems.value = dashboard.loadInsightItems(isPreviewMode.value)
+          return
+        }
+      } catch {
+        // fall through
+      }
+    }
+    loadError.value = msg || t('loadFailed')
   } finally {
     pending.value = false
   }

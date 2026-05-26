@@ -69,12 +69,16 @@ const props = withDefaults(
     dealsOpenAmount: number
     avgEngagement: number
     atRiskTotal: number
+    weeklyFollowUpCount?: number
     kpiTrends: DashboardKpiTrends
     sparklines?: DashboardSparklines
     variant?: 'default' | 'hero'
+    mode?: 'full' | 'manager'
   }>(),
   {
     variant: 'default',
+    mode: 'full',
+    weeklyFollowUpCount: 0,
     sparklines: () => ({ leads: [], deals: [] }),
   },
 )
@@ -83,6 +87,9 @@ const { t } = useI18n()
 const { formatDealAmount } = useDealLabels()
 
 const gridClass = computed(() => {
+  if (props.mode === 'manager') {
+    return 'grid grid-cols-1 gap-3 sm:grid-cols-3 xl:gap-4'
+  }
   if (props.variant === 'hero') {
     return 'grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5 xl:gap-4'
   }
@@ -118,6 +125,57 @@ const kpis = computed(() => {
   } else if (props.avgEngagement > 0) {
     engagementTrend = t('dashboardKpiTrendEngagementFlat')
     engagementTrendDirection = 'flat'
+  }
+
+  const managerKpis = [
+    {
+      key: 'deals',
+      label: t('dashboardKpiDealsOpen'),
+      value: props.dealsOpenCount,
+      hint: formatDealAmount(props.dealsOpenAmount),
+      href: '/deals',
+      trend: dealsTrend,
+      trendDirection: 'up' as TrendDirection,
+      iconTone: 'brand' as const,
+      sparkline: props.sparklines.deals,
+      sparklineTone: 'up' as SparklineTone,
+      icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75' }, [
+        h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }),
+      ]),
+    },
+    {
+      key: 'at-risk',
+      label: t('dashboardKpiAtRisk'),
+      value: props.atRiskTotal,
+      hint: t('dashboardKpiAtRiskHint'),
+      href: '/leads?health=low',
+      trend: atRiskTrend,
+      trendDirection: atRiskTrendDirection,
+      iconTone: 'accent' as const,
+      icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75' }, [
+        h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' }),
+      ]),
+    },
+    {
+      key: 'follow-ups',
+      label: t('dashboardKpiFollowUps'),
+      value: props.weeklyFollowUpCount,
+      hint: t('dashboardKpiFollowUpsHint'),
+      href: '/leads',
+      trend:
+        props.weeklyFollowUpCount > 0
+          ? t('dashboardKpiFollowUpsTrend', { count: props.weeklyFollowUpCount })
+          : t('dashboardKpiFollowUpsTrendNone'),
+      trendDirection: (props.weeklyFollowUpCount > 0 ? 'up' : 'flat') as TrendDirection,
+      iconTone: 'info' as const,
+      icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75' }, [
+        h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' }),
+      ]),
+    },
+  ]
+
+  if (props.mode === 'manager') {
+    return managerKpis
   }
 
   return [

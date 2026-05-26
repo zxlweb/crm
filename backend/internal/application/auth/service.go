@@ -154,6 +154,14 @@ func (s *Service) Login(ctx context.Context, email, plainPassword, clientIP stri
 	if err != nil {
 		return nil, err
 	}
+	// 单租户用户：登录响应直接带上 tenant/role/department，避免 FE 仅写 cookie 导致 Casbin 租户不一致
+	if len(result.Tenants) == 1 {
+		if tid, parseErr := uuid.Parse(result.Tenants[0].ID); parseErr == nil {
+			if bound, bindErr := s.issueTokensForTenant(ctx, user, &tid, nil); bindErr == nil {
+				result = bound
+			}
+		}
+	}
 	s.auditLoginWithIP(ctx, user.ID, result, clientIP)
 	return result, nil
 }

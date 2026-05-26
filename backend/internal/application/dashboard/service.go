@@ -104,10 +104,12 @@ type FunnelDTO struct {
 }
 
 type QuotaDTO struct {
-	TargetAmount     float64 `json:"target_amount"`
-	WonAmountMTD     float64 `json:"won_amount_mtd"`
-	CompletionRate   float64 `json:"completion_rate"`
-	Period           string  `json:"period"`
+	TargetAmount   float64 `json:"target_amount"`
+	WonAmountMTD   float64 `json:"won_amount_mtd"`
+	CompletionRate float64 `json:"completion_rate"`
+	Period         string  `json:"period"`
+	QuotaScope     string  `json:"quota_scope,omitempty"`
+	Department     string  `json:"department,omitempty"`
 }
 
 type TeamRankingItemDTO struct {
@@ -230,12 +232,14 @@ func (s *Service) Quota(ctx context.Context, tenantID, userID uuid.UUID) (*Quota
 	scope := s.dataScope(ctx, tenantID, userID)
 	target := 0.0
 	period := time.Now().UTC().Format("2006-01")
+	quotaScope := "tenant"
+	department := ""
 	if s.tenants != nil {
 		if t, err := s.tenants.FindByID(ctx, tenantID); err == nil && t != nil {
 			cfg := crm.ParseTenantCRMConfig(t.Config)
-			target = cfg.SalesQuota.Amount
-			if cfg.SalesQuota.Period != "" {
-				period = cfg.SalesQuota.Period
+			target, period, quotaScope = cfg.ResolveQuotaTarget(scope.Level, scope.Department)
+			if quotaScope == "department" {
+				department = scope.Department
 			}
 		}
 	}
@@ -252,6 +256,7 @@ func (s *Service) Quota(ctx context.Context, tenantID, userID uuid.UUID) (*Quota
 	}
 	return &QuotaDTO{
 		TargetAmount: target, WonAmountMTD: won, CompletionRate: rate, Period: period,
+		QuotaScope: quotaScope, Department: department,
 	}, nil
 }
 

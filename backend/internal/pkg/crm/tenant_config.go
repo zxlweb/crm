@@ -3,6 +3,7 @@ package crm
 import (
 	"encoding/json"
 	"strings"
+	"time"
 
 	"gorm.io/datatypes"
 )
@@ -31,6 +32,8 @@ type TenantCRMConfig struct {
 	InsightThresholds     InsightThresholds      `json:"insight_thresholds"`
 	SentimentKeywordRules []SentimentKeywordRule `json:"sentiment_keyword_rules"`
 	SalesQuota            SalesQuota             `json:"sales_quota"`
+	// DepartmentQuotas maps user_tenants.department → monthly target (sales managers).
+	DepartmentQuotas map[string]SalesQuota `json:"department_quotas"`
 }
 
 func ParseTenantCRMConfig(raw datatypes.JSON) TenantCRMConfig {
@@ -60,7 +63,31 @@ func ParseTenantCRMConfig(raw datatypes.JSON) TenantCRMConfig {
 	if v, ok := m["sales_quota"]; ok {
 		_ = json.Unmarshal(v, &cfg.SalesQuota)
 	}
+	if v, ok := m["department_quotas"]; ok {
+		_ = json.Unmarshal(v, &cfg.DepartmentQuotas)
+	}
 	return cfg
+}
+
+// ResolveQuotaTarget picks tenant vs department monthly target for dashboard quota.
+func (cfg TenantCRMConfig) ResolveQuotaTarget(scopeLevel, department string) (target float64, period, quotaScope string) {
+	period = time.Now().UTC().Format("2006-01")
+	if cfg.SalesQuota.Period != "" {
+		period = cfg.SalesQuota.Period
+	}
+	quotaScope = "tenant"
+	target = cfg.SalesQuota.Amount
+	if scopeLevel == "department" && department != "" {
+		quotaScope = "department"
+		target = 0
+		if dq, ok := cfg.DepartmentQuotas[department]; ok {
+			target = dq.Amount
+			if dq.Period != "" {
+				period = dq.Period
+			}
+		}
+	}
+	return target, period, quotaScope
 }
 
 // DefaultSentimentKeywordRules matches PRD §4.6.2 examples.

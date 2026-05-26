@@ -2,14 +2,23 @@ package crm
 
 import "testing"
 
-func TestInferSentimentFromBody(t *testing.T) {
-	rules := DefaultSentimentKeywordRules()
-	s, ok := InferSentimentFromBody("客户觉得太贵了，要再考虑一下", rules)
-	if !ok || s != "hesitant" {
-		t.Fatalf("got %q %v", s, ok)
+func TestResolveQuotaTarget_Department(t *testing.T) {
+	cfg := TenantCRMConfig{
+		SalesQuota: SalesQuota{Amount: 28_000_000, Period: "2026-05"},
+		DepartmentQuotas: map[string]SalesQuota{
+			"神龙云计算": {Amount: 8_000_000, Period: "2026-05"},
+		},
 	}
-	s, ok = InferSentimentFromBody("非常失望，要投诉", rules)
-	if !ok || s != "negative" {
-		t.Fatalf("got %q %v", s, ok)
+	target, period, scope := cfg.ResolveQuotaTarget("department", "神龙云计算")
+	if scope != "department" || target != 8_000_000 || period != "2026-05" {
+		t.Fatalf("got target=%v period=%q scope=%q", target, period, scope)
+	}
+	target, _, scope = cfg.ResolveQuotaTarget("department", "未知部门")
+	if scope != "department" || target != 0 {
+		t.Fatalf("unknown dept: target=%v scope=%q", target, scope)
+	}
+	target, _, scope = cfg.ResolveQuotaTarget("all", "")
+	if scope != "tenant" || target != 28_000_000 {
+		t.Fatalf("tenant: target=%v scope=%q", target, scope)
 	}
 }

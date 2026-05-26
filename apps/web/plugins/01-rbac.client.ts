@@ -7,19 +7,34 @@ export default defineNuxtPlugin(async () => {
   const tenant = useTenant()
   const permission = usePermission()
   const rbac = useRbac()
+  const hydratedForTenant = useState<string | null>('rbac.hydratedForTenant', () => null)
 
-  async function hydratePermissions() {
+  async function hydratePermissions(force = false) {
     if (!auth.isAuthenticated.value || auth.isSuperAdmin.value) return
-    if (!tenant.currentTenantId.value) return
-    if (Object.keys(permission.permissions.value).length > 0) return
+    const tid = tenant.currentTenantId.value
+    if (!tid) return
+    if (!force && hydratedForTenant.value === tid && Object.keys(permission.permissions.value).length > 0) {
+      return
+    }
     try {
       await rbac.loadMyPermissions()
+      hydratedForTenant.value = tid
     } catch {
       // 不阻断导航；页面内 API 错误自行展示
     }
   }
 
   await hydratePermissions()
+
+  watch(
+    () => tenant.currentTenantId.value,
+    (tid, prev) => {
+      if (tid && tid !== prev) {
+        hydratedForTenant.value = null
+        void hydratePermissions(true)
+      }
+    },
+  )
 
   const router = useRouter()
   router.afterEach(() => {

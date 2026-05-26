@@ -188,7 +188,7 @@ const filteredMembers = computed(() => {
   const q = search.value.trim().toLowerCase()
   if (!q) return members.value
   return members.value.filter((m) => {
-    const hay = `${m.name} ${m.email} ${m.roles.map((r) => r.name).join(' ')}`.toLowerCase()
+    const hay = `${m.name} ${m.email} ${m.department ?? ''} ${m.roles.map((r) => r.name).join(' ')}`.toLowerCase()
     return hay.includes(q)
   })
 })
@@ -213,12 +213,11 @@ async function load() {
   loading.value = true
   loadError.value = ''
   try {
-    const [memberRows, roleRows] = await Promise.all([
-      rbac.fetchMembers(),
-      rbac.fetchRoles(),
-    ])
+    const memberRows = await rbac.fetchMembers()
     members.value = memberRows
-    allRoles.value = roleRows
+    if (canManage.value) {
+      allRoles.value = await rbac.fetchRoles()
+    }
   } catch (e) {
     loadError.value = e instanceof Error ? e.message : t('loadFailed')
   } finally {

@@ -15,11 +15,22 @@ export default defineNuxtPlugin(async () => {
   if (!tenant.currentTenantId.value || tenant.tenants.value.length === 0) {
     try {
       const list = await tenant.fetchTenants()
-      if (!tenant.currentTenantId.value && list.length > 0) {
-        await tenant.switchTenant(list[0].id)
+      if (list.length > 0) {
+        const cookieValid = list.some((t) => t.id === tenant.currentTenantId.value)
+        const targetId = cookieValid ? tenant.currentTenantId.value! : list[0].id
+        await tenant.switchTenant(targetId)
       }
     } catch {
       // 顶栏切换器会提示用户手动选择
+    }
+  } else if (tenant.currentTenantId.value) {
+    const cookieValid = tenant.tenants.value.some((t) => t.id === tenant.currentTenantId.value)
+    if (!cookieValid && tenant.tenants.value.length > 0) {
+      try {
+        await tenant.switchTenant(tenant.tenants.value[0].id)
+      } catch {
+        // ignore
+      }
     }
   }
 

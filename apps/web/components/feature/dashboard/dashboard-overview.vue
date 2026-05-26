@@ -1,5 +1,9 @@
 <template>
-  <div class="dashboard-page relative" data-testid="dashboard-page">
+  <div
+    class="dashboard-page relative"
+    data-testid="dashboard-page"
+    :data-dashboard-layout="dashboardLayoutTag"
+  >
     <div
       class="pointer-events-none absolute inset-x-0 top-0 h-72 overflow-hidden"
       aria-hidden="true"
@@ -24,11 +28,14 @@
         :is-preview-mode="isPreviewMode"
       />
 
-      <!-- Focus Stream — "right now, look at these" -->
+      <!-- Focus Stream — merged attention queue for managers -->
       <DashboardFocusStream
+        v-if="showFocusStream"
         :priorities="snapshot.priorities"
         :insights="insightItems"
         :insight-detail-href="insightDetailHref"
+        :max-priorities="focusMaxPriorities"
+        :max-cards="focusMaxCards"
       />
 
       <!-- KPI Row · at-a-glance numbers -->
@@ -36,22 +43,29 @@
         <h2 id="dashboard-metrics-heading" class="sr-only">{{ headline }}</h2>
         <DashboardKpiRow
           variant="hero"
+          :mode="kpiMode"
           :leads-total="snapshot.leadsTotal"
           :accounts-total="snapshot.accountsTotal"
           :deals-open-count="snapshot.dealsOpenCount"
           :deals-open-amount="snapshot.dealsOpenAmount"
           :avg-engagement="snapshot.avgEngagement"
           :at-risk-total="snapshot.atRiskTotal"
+          :weekly-follow-up-count="weeklyFollowUpCount"
           :kpi-trends="snapshot.kpiTrends"
           :sparklines="snapshot.sparklines"
         />
       </section>
 
       <!-- Analytics — trends/charts -->
-      <DashboardAnalyticsPanel :show-team-ranking="showTeamRanking" data-testid="dashboard-zone-analytics" />
+      <DashboardAnalyticsPanel
+        :show-team-ranking="showTeamRanking"
+        :layout-mode="analyticsLayoutMode"
+        data-testid="dashboard-zone-analytics"
+      />
 
-      <!-- Priority + Calendar — today's lists -->
+      <!-- Priority + Calendar — today's lists (reps; managers use focus stream above) -->
       <div
+        v-if="showPrioritySection"
         id="dashboard-priority-section"
         class="grid scroll-mt-24 gap-4 xl:grid-cols-[minmax(0,1fr)_min(340px,100%)] xl:items-start"
         data-testid="dashboard-zone-priority-calendar"
@@ -73,8 +87,9 @@
         />
       </div>
 
-      <!-- Pipeline activity — recent updates to leads & accounts -->
+      <!-- Pipeline activity — reps only (managers/admins use analytics above) -->
       <DashboardPipelineTabs
+        v-if="showOperationalFeed"
         :leads="snapshot.pipelineLeads"
         :accounts="snapshot.pipelineAccounts"
       />
@@ -136,15 +151,18 @@
 </template>
 
 <script setup lang="ts">
+import type { DashboardDataScope } from '~/types/dashboard-stats'
 import type { DashboardInsightItem, DashboardSnapshot } from '~/types/dashboard'
 
 const props = withDefaults(
   defineProps<{
     snapshot: DashboardSnapshot
+    dataScope?: DashboardDataScope
     greeting: string
     headline: string
     prioritySummary: string
     weeklyFollowUpNote?: string
+    weeklyFollowUpCount?: number
     insightItems: DashboardInsightItem[]
     insightDetailHref?: string
     canCreateLead: boolean
@@ -168,6 +186,44 @@ const props = withDefaults(
 const showZoneE = computed(() => props.showZoneE)
 const showTeamHeatmap = computed(() => props.showTeamHeatmap)
 const showTeamRanking = computed(() => props.showTeamRanking)
+
+const resolvedScope = computed(
+  () => props.dataScope ?? props.snapshot.dataScope ?? 'self',
+)
+
+const isManagerDashboard = computed(
+  () => resolvedScope.value === 'department' && props.showTeamRanking,
+)
+
+const isTenantAdminDashboard = computed(() => resolvedScope.value === 'all')
+
+const showFocusStream = computed(() => !isTenantAdminDashboard.value)
+
+const focusMaxPriorities = computed(() => (isManagerDashboard.value ? 5 : 2))
+const focusMaxCards = computed(() => (isManagerDashboard.value ? 8 : 6))
+
+const showOperationalFeed = computed(
+  () => !isManagerDashboard.value && !isTenantAdminDashboard.value,
+)
+
+/** 今日重点 + 今日日程 — 仅销售代表 */
+const showPrioritySection = computed(() => showOperationalFeed.value)
+
+const kpiMode = computed(() => (isManagerDashboard.value ? 'manager' : 'full'))
+
+const analyticsLayoutMode = computed(() =>
+  isManagerDashboard.value ? 'manager' : 'default',
+)
+
+const weeklyFollowUpCount = computed(
+  () => props.weeklyFollowUpCount ?? props.snapshot.weeklyFollowUpCount ?? 0,
+)
+
+const dashboardLayoutTag = computed(() => {
+  if (isManagerDashboard.value) return 'manager'
+  if (isTenantAdminDashboard.value) return 'admin'
+  return 'rep'
+})
 
 const zoneEDetailsRef = ref<HTMLDetailsElement | null>(null)
 const zoneEOpen = ref(props.zoneEDefaultOpen)

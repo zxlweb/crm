@@ -5,7 +5,7 @@
         <h2 class="text-base font-semibold tracking-tight text-ds-fg-heading sm:text-lg">
           {{ $t('dashboardAnalyticsTitle') }}
         </h2>
-        <p class="mt-0.5 text-xs text-ds-fg-muted">{{ $t('dashboardAnalyticsHint') }}</p>
+        <p class="mt-0.5 text-xs text-ds-fg-muted">{{ analyticsHint }}</p>
       </div>
       <NuxtLink
         to="/deals"
@@ -18,10 +18,7 @@
 
     <UAlert v-if="loadError" color="red" variant="soft" :title="loadError" />
 
-    <div
-      class="grid gap-4"
-      :class="showTeamRanking ? 'xl:grid-cols-3' : 'xl:grid-cols-2'"
-    >
+    <div class="grid gap-4" :class="analyticsGridClass">
       <article
         class="ds-analytics-card relative overflow-hidden rounded-2xl border border-ds-border-muted bg-ds-bg-elevated shadow-ds-sm"
         :data-featured="true"
@@ -39,7 +36,7 @@
         <header class="flex items-start justify-between gap-3 px-4 pb-2 pt-4 sm:px-5">
           <div class="min-w-0">
             <h3 class="text-sm font-semibold text-ds-fg-heading">
-              {{ $t('dashboardQuotaTitle') }}
+              {{ quotaTitle }}
             </h3>
             <p class="mt-0.5 text-xs text-ds-fg-muted">{{ quotaSubtitle }}</p>
           </div>
@@ -75,7 +72,7 @@
                 </span>
               </p>
               <p class="text-sm text-ds-fg-muted">{{ $t('dashboardQuotaWonMtdLabel') }}</p>
-              <p class="text-xs text-ds-fg-subtle">{{ $t('dashboardQuotaNoTargetHint') }}</p>
+              <p class="text-xs text-ds-fg-subtle">{{ quotaNoTargetHint }}</p>
             </div>
           </LeadsReportChartSlot>
         </div>
@@ -167,8 +164,9 @@ const props = withDefaults(
   defineProps<{
     /** department / all 数据范围，或租户管理员 */
     showTeamRanking?: boolean
+    layoutMode?: 'default' | 'manager'
   }>(),
-  { showTeamRanking: false },
+  { showTeamRanking: false, layoutMode: 'default' },
 )
 
 const { t, locale } = useI18n()
@@ -183,6 +181,27 @@ const ranking = ref<DashboardTeamRanking | null>(null)
 
 const chartLocale = computed(() => locale.value)
 const showTeamRanking = computed(() => props.showTeamRanking)
+const isManagerLayout = computed(() => props.layoutMode === 'manager')
+
+const analyticsHint = computed(() =>
+  isManagerLayout.value ? t('dashboardAnalyticsManagerHint') : t('dashboardAnalyticsHint'),
+)
+
+const quotaTitle = computed(() =>
+  quota.value?.quota_scope === 'department'
+    ? t('dashboardDeptQuotaTitle')
+    : t('dashboardQuotaTitle'),
+)
+
+const analyticsGridClass = computed(() => {
+  if (isManagerLayout.value && showTeamRanking.value) {
+    return 'xl:grid-cols-3'
+  }
+  if (showTeamRanking.value) {
+    return 'xl:grid-cols-3'
+  }
+  return 'xl:grid-cols-2'
+})
 
 const brandGradientText = {
   background: 'var(--ds-brand-gradient)',
@@ -197,8 +216,29 @@ const quotaPercent = computed(() =>
   quota.value ? Math.round(quota.value.completion_rate * 100) : 0,
 )
 
+const quotaNoTargetHint = computed(() =>
+  quota.value?.quota_scope === 'department'
+    ? t('dashboardDeptQuotaNoTargetHint')
+    : t('dashboardQuotaNoTargetHint'),
+)
+
 const quotaSubtitle = computed(() => {
-  if (!quota.value) return t('dashboardQuotaHint')
+  if (!quota.value) {
+    return isManagerLayout.value ? t('dashboardDeptQuotaHint') : t('dashboardQuotaHint')
+  }
+  if (quota.value.quota_scope === 'department') {
+    const dept = quota.value.department?.trim()
+    if (!quotaHasTarget.value) {
+      return dept
+        ? t('dashboardDeptQuotaNoTargetSubtitle', { department: dept })
+        : t('dashboardDeptQuotaNoTargetSubtitleGeneric')
+    }
+    return t('dashboardDeptQuotaPeriodHint', {
+      department: dept,
+      period: quota.value.period,
+      target: formatDealAmount(quota.value.target_amount),
+    })
+  }
   if (!quotaHasTarget.value) {
     return t('dashboardQuotaNoTargetSubtitle')
   }

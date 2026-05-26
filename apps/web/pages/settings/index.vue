@@ -58,22 +58,8 @@
       </div>
     </header>
 
-    <!-- Loading -->
-    <div v-if="pending" class="flex items-center justify-center py-24">
-      <div class="h-8 w-8 animate-spin rounded-full border-2 border-ds-brand-muted border-t-ds-brand" />
-    </div>
-
-    <!-- Error -->
-    <p
-      v-else-if="loadError"
-      class="flex items-start gap-3 rounded-xl border border-ds-danger/20 bg-ds-danger-subtle px-4 py-3 text-sm text-ds-danger"
-    >
-      <UIcon name="i-heroicons-exclamation-triangle" class="h-5 w-5 shrink-0" aria-hidden="true" />
-      <span>{{ loadError }}</span>
-    </p>
-
-    <!-- Master-detail layout -->
-    <div v-else class="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+    <!-- Master-detail layout（成员/角色不依赖租户配置加载） -->
+    <div class="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside class="lg:sticky lg:top-6 lg:self-start">
         <div class="ds-card rounded-2xl p-3">
           <SettingsNav
@@ -115,8 +101,18 @@
             </div>
           </header>
           <div class="p-6 sm:p-8">
+            <div v-if="pending" class="flex justify-center py-16">
+              <div class="h-8 w-8 animate-spin rounded-full border-2 border-ds-brand-muted border-t-ds-brand" />
+            </div>
+            <p
+              v-else-if="loadError"
+              class="flex items-start gap-3 rounded-xl border border-ds-danger/20 bg-ds-danger-subtle px-4 py-3 text-sm text-ds-danger"
+            >
+              <UIcon name="i-heroicons-exclamation-triangle" class="h-5 w-5 shrink-0" aria-hidden="true" />
+              <span>{{ loadError }}</span>
+            </p>
             <TenantSettingsForm
-              v-if="settings"
+              v-else-if="settings"
               :settings="settings"
               :readonly="!canEditSettings"
               @save="handleSave"

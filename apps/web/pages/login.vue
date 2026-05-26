@@ -256,9 +256,20 @@ function setMode(next: AuthMode) {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (auth.isAuthenticated.value) {
-    navigateTo('/')
+    const tenant = useTenant()
+    try {
+      const list = await tenant.fetchTenants()
+      const tid = tenant.currentTenantId.value
+      const valid = !!tid && list.some((t) => t.id === tid)
+      if (list.length > 0 && !auth.isSuperAdmin.value) {
+        await tenant.switchTenant(valid ? tid! : list[0].id)
+      }
+    } catch {
+      // 仍进入首页，由 tenant 插件尝试修复
+    }
+    await navigateTo(auth.isSuperAdmin.value ? '/admin' : '/')
     return
   }
   if (route.query.mode === 'register') {
@@ -274,17 +285,35 @@ onMounted(() => {
 async function finishSession(data: LoginResponse) {
   auth.setSession(data.access_token, data.refresh_token, data.user)
   tenant.setTenantList(data.tenants)
-  if (data.current_tenant) tenant.setTenant(data.current_tenant.id)
-  else if (data.tenants.length > 0) tenant.setTenant(data.tenants[0].id)
-  tenant.applyDepartmentFromLogin(data)
-  useActiveRole().applyFromLogin(data)
-  if (tenant.currentTenantId.value) {
+
+  const targetTenantId = data.current_tenant?.id ?? data.tenants[0]?.id
+  if (targetTenantId && !data.user.is_super_admin) {
+    // 必须 switch-tenant：把租户/角色写入 JWT，并清掉残留的 demo 租户 cookie（否则 Casbin 403、全站无数据）
     try {
-      await useRbac().loadMyPermissions()
+      await tenant.switchTenant(targetTenantId)
     } catch {
-      // 注册/登录已成功；权限列表加载失败不阻断进入系统
+      tenant.setTenant(targetTenantId)
+      tenant.applyDepartmentFromLogin(data)
+      useActiveRole().applyFromLogin(data)
+      try {
+        await useRbac().loadMyPermissions()
+      } catch {
+        // 登录已成功；权限稍后由 rbac 插件补拉
+      }
+    }
+  } else {
+    if (targetTenantId) tenant.setTenant(targetTenantId)
+    tenant.applyDepartmentFromLogin(data)
+    useActiveRole().applyFromLogin(data)
+    if (targetTenantId && !data.user.is_super_admin) {
+      try {
+        await useRbac().loadMyPermissions()
+      } catch {
+        // ignore
+      }
     }
   }
+
   await navigateTo(data.user.is_super_admin ? '/admin' : '/')
 }
 

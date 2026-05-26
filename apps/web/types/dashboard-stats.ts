@@ -52,6 +52,8 @@ export type DashboardQuota = {
   won_amount_mtd: number
   completion_rate: number
   period: string
+  quota_scope?: 'tenant' | 'department'
+  department?: string
 }
 
 export type DashboardTeamRankingItem = {

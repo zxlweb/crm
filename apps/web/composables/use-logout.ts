@@ -10,6 +10,7 @@ export function useLogout() {
     tenant.clearTenant()
     activeRole.clearRoles()
     setPermissions([])
+    useState<string | null>('rbac.hydratedForTenant').value = null
     await navigateTo('/login')
   }
 
