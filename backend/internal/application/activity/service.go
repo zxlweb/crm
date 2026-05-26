@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/domain"
 	"crm-backend/internal/pkg/crm"
 	"crm-backend/internal/pkg/datascope"
@@ -34,6 +35,7 @@ type Service struct {
 	contacts repository.ContactRepository
 	tenants  repository.TenantRepository
 	enforcer *casbin.Enforcer
+	scope    appscope.Provider
 }
 
 func NewService(
@@ -43,8 +45,13 @@ func NewService(
 	contacts repository.ContactRepository,
 	tenants repository.TenantRepository,
 	enforcer *casbin.Enforcer,
+	scope appscope.Provider,
 ) *Service {
-	return &Service{repo: repo, leads: leads, accounts: accounts, contacts: contacts, tenants: tenants, enforcer: enforcer}
+	return &Service{repo: repo, leads: leads, accounts: accounts, contacts: contacts, tenants: tenants, enforcer: enforcer, scope: scope}
+}
+
+func (s *Service) dataScope(ctx context.Context, tenantID, userID uuid.UUID) datascope.ScopeParams {
+	return s.scope.Params(ctx, tenantID, userID)
 }
 
 type ActivityDTO struct {
@@ -398,22 +405,22 @@ func validateUpdate(in UpdateInput) error {
 }
 
 func (s *Service) assertSubjectAccess(ctx context.Context, tenantID, userID uuid.UUID, subjectType string, subjectID uuid.UUID) error {
-	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	switch subjectType {
 	case "lead":
-		_, err := s.leads.GetByID(ctx, tenantID, subjectID, viewAll, userID)
+		_, err := s.leads.GetByID(ctx, tenantID, subjectID, scope)
 		if errors.Is(err, repository.ErrLeadNotFound) {
 			return ErrSubjectNotFound
 		}
 		return err
 	case "account":
-		_, err := s.accounts.GetByID(ctx, tenantID, subjectID, viewAll, userID)
+		_, err := s.accounts.GetByID(ctx, tenantID, subjectID, scope)
 		if errors.Is(err, repository.ErrAccountNotFound) {
 			return ErrSubjectNotFound
 		}
 		return err
 	case "contact":
-		_, err := s.contacts.GetByID(ctx, tenantID, subjectID, viewAll, userID)
+		_, err := s.contacts.GetByID(ctx, tenantID, subjectID, scope)
 		if errors.Is(err, repository.ErrContactNotFound) {
 			return ErrSubjectNotFound
 		}
@@ -436,20 +443,20 @@ func (s *Service) refreshSubject(ctx context.Context, tenantID, userID uuid.UUID
 	if score > 100 {
 		score = 100
 	}
-	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	switch subjectType {
 	case "lead":
-		if _, err := s.leads.GetByID(ctx, tenantID, subjectID, viewAll, userID); err != nil {
+		if _, err := s.leads.GetByID(ctx, tenantID, subjectID, scope); err != nil {
 			return err
 		}
 		return s.leads.UpdateEngagementFromActivity(ctx, tenantID, subjectID, userID, latest, score)
 	case "account":
-		if _, err := s.accounts.GetByID(ctx, tenantID, subjectID, viewAll, userID); err != nil {
+		if _, err := s.accounts.GetByID(ctx, tenantID, subjectID, scope); err != nil {
 			return err
 		}
 		return s.accounts.UpdateEngagementFromActivity(ctx, tenantID, subjectID, userID, latest, score)
 	case "contact":
-		if _, err := s.contacts.GetByID(ctx, tenantID, subjectID, viewAll, userID); err != nil {
+		if _, err := s.contacts.GetByID(ctx, tenantID, subjectID, scope); err != nil {
 			return err
 		}
 		return s.contacts.UpdateEngagementFromActivity(ctx, tenantID, subjectID, userID, latest, score)

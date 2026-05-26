@@ -60,11 +60,12 @@ export const MOCK_DASHBOARD_QUOTA: DashboardQuota = {
 }
 
 export const MOCK_DASHBOARD_TEAM_RANKING: DashboardTeamRanking = {
+  group_by: 'department',
   items: [
-    { user_id: 'user-demo-001', name: '张三', value: 1200000, rank: 1 },
-    { user_id: 'user-demo-002', name: '李四', value: 980000, rank: 2 },
-    { user_id: 'user-demo-003', name: '王磊', value: 760000, rank: 3 },
-    { user_id: 'user-demo-004', name: '赵敏', value: 540000, rank: 4 },
+    { department: '灵狐数据', name: '灵狐数据', value: 1200000, rank: 1 },
+    { department: '神龙云计算', name: '神龙云计算', value: 980000, rank: 2 },
+    { department: '麒麟事业群', name: '麒麟事业群', value: 760000, rank: 3 },
+    { department: '莫邪互娱', name: '莫邪互娱', value: 540000, rank: 4 },
   ],
 }
 

@@ -279,7 +279,7 @@
             </div>
             <div class="flex items-end">
               <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-ds-border-muted bg-ds-bg-muted/40 px-3 py-2 text-sm">
-                <input v-model="formRequired" type="checkbox" class="h-4 w-4 cursor-pointer rounded border-ds-border text-ds-brand">
+                <input v-model="formRequired" type="checkbox" class="ds-checkbox h-4 w-4 cursor-pointer rounded">
                 <span class="text-ds-fg-heading">{{ $t('cfColRequired') }}</span>
               </label>
             </div>

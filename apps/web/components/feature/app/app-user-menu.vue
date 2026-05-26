@@ -85,6 +85,12 @@
                   {{ workspaceLabel }}
                 </span>
                 <span
+                  v-if="departmentLabel"
+                  class="inline-flex items-center rounded-full border border-ds-success/30 bg-ds-success-subtle px-2 py-0.5 text-[10px] font-medium text-ds-success"
+                >
+                  {{ departmentLabel }}
+                </span>
+                <span
                   v-if="roleLabel"
                   class="inline-flex items-center rounded-full border border-ds-border bg-ds-bg-elevated px-2 py-0.5 text-[10px] font-medium text-ds-fg-muted"
                 >
@@ -389,8 +395,10 @@ const tenantLabel = computed(() => {
 
 const roleLabel = computed(() => activeRole.currentRole.value?.name ?? '')
 
+const departmentLabel = computed(() => tenant.currentDepartment.value?.trim() ?? '')
+
 const contextLine = computed(() => {
-  const parts = [tenantLabel.value, roleLabel.value].filter(Boolean)
+  const parts = [tenantLabel.value, departmentLabel.value, roleLabel.value].filter(Boolean)
   return parts.join(' · ')
 })
 

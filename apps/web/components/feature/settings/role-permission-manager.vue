@@ -177,7 +177,7 @@
               <input
                 :id="`mod-${mod.key}`"
                 type="checkbox"
-                class="h-4 w-4 cursor-pointer rounded border-ds-border text-ds-brand"
+                class="ds-checkbox h-4 w-4 shrink-0 cursor-pointer rounded"
                 :disabled="!canManage"
                 :checked="isModuleChecked(mod)"
                 :indeterminate="isModuleIndeterminate(mod)"
@@ -198,7 +198,7 @@
                   <input
                     :id="`res-${res.resource}`"
                     type="checkbox"
-                    class="h-4 w-4 cursor-pointer rounded border-ds-border text-ds-brand"
+                    class="ds-checkbox h-4 w-4 shrink-0 cursor-pointer rounded"
                     :disabled="!canManage"
                     :checked="isResourceChecked(res)"
                     :indeterminate="isResourceIndeterminate(res)"
@@ -214,7 +214,7 @@
                       :id="`perm-${perm.id}`"
                       v-model="draftPermIds"
                       type="checkbox"
-                      class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-ds-border text-ds-brand"
+                      class="ds-checkbox mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded"
                       :value="perm.id"
                       :disabled="!canManage"
                       :data-testid="`perm-${perm.resource}-${perm.action}`"

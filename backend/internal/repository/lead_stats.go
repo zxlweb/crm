@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"crm-backend/internal/pkg/crm"
+	"crm-backend/internal/pkg/datascope"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -14,8 +15,7 @@ import (
 type LeadStatsFilter struct {
 	From    *time.Time
 	To      *time.Time
-	ViewAll bool
-	UserID  uuid.UUID
+	Scope datascope.ScopeParams
 }
 
 type LabelCount struct {
@@ -29,10 +29,7 @@ type TrendPoint struct {
 }
 
 func (r *GormLeadRepository) scopedStats(ctx context.Context, tenantID uuid.UUID, f LeadStatsFilter) *gorm.DB {
-	q := r.base(ctx, tenantID)
-	if !f.ViewAll {
-		q = q.Where("(owner_id = ? OR owner_id IS NULL)", f.UserID)
-	}
+	q := datascope.ApplyOwnerScope(r.base(ctx, tenantID), f.Scope)
 	if f.From != nil {
 		q = q.Where("created_at >= ?", *f.From)
 	}

@@ -52,6 +52,7 @@ export function useActiveRole() {
       body: JSON.stringify({ role_id: roleId }),
     })
     auth.setSession(data.access_token, data.refresh_token, data.user)
+    useTenant().applyDepartmentFromLogin(data)
     applyFromLogin(data)
     if (!auth.isSuperAdmin.value) {
       try {

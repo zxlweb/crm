@@ -9,6 +9,22 @@ export type RoleItem = {
   user_count: number
 }
 
+export type MemberRoleItem = {
+  id: string
+  name: string
+  is_system: boolean
+}
+
+export type MemberItem = {
+  id: string
+  email: string
+  name: string
+  avatar_url: string
+  department?: string
+  roles: MemberRoleItem[]
+  joined_at: string
+}
+
 export type PermissionDictItem = {
   id: string
   resource: string
@@ -36,6 +52,17 @@ export function useRbac() {
 
   function fetchRoles() {
     return api.request<RoleItem[]>('/api/rbac/roles')
+  }
+
+  function fetchMembers() {
+    return api.request<MemberItem[]>('/api/rbac/members')
+  }
+
+  function assignMemberRoles(userId: string, roleIds: string[]) {
+    return api.request<RoleItem[]>(`/api/rbac/members/${userId}/roles`, {
+      method: 'PUT',
+      body: JSON.stringify({ role_ids: roleIds }),
+    })
   }
 
   function createRole(payload: { name: string; description?: string }) {
@@ -71,6 +98,8 @@ export function useRbac() {
     fetchPermissionDictionary,
     fetchPermissionItems,
     fetchRoles,
+    fetchMembers,
+    assignMemberRoles,
     createRole,
     updateRole,
     assignRolePermissions,

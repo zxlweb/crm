@@ -53,6 +53,7 @@ export type DashboardSnapshot = {
   kpiTrends: DashboardKpiTrends
   sparklines: DashboardSparklines
   dataScope?: string
+  canViewTeamRanking?: boolean
   summaryFromApi?: boolean
 }
 

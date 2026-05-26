@@ -9,6 +9,7 @@ const TENANT_COOKIE_OPTS = {
 export function useTenant() {
   const auth = useAuth()
   const currentTenantId = useCookie<string | null>('crm.tenant_id', TENANT_COOKIE_OPTS)
+  const currentDepartment = useCookie<string | null>('crm.department', TENANT_COOKIE_OPTS)
   const tenants = useState<AuthTenant[]>('tenant.list', () => [])
 
   const currentTenant = computed(() =>
@@ -28,7 +29,13 @@ export function useTenant() {
 
   function clearTenant() {
     currentTenantId.value = null
+    currentDepartment.value = null
     tenants.value = []
+  }
+
+  /** 从登录/切换租户/刷新 Token 响应写入当前事业部（user_tenants.department） */
+  function applyDepartmentFromLogin(data: Pick<LoginResponse, 'department'>) {
+    currentDepartment.value = data.department?.trim() || null
   }
 
   /** 拉取当前用户可访问的租户（无需 X-Tenant-ID） */
@@ -48,6 +55,7 @@ export function useTenant() {
     auth.setSession(data.access_token, data.refresh_token, data.user)
     setTenantList(data.tenants)
     setTenant(tenantId)
+    applyDepartmentFromLogin(data)
     useActiveRole().applyFromLogin(data)
     if (!auth.isSuperAdmin.value) {
       try {
@@ -62,10 +70,12 @@ export function useTenant() {
   return {
     currentTenantId,
     currentTenant,
+    currentDepartment,
     tenants,
     setTenant,
     setTenantList,
     clearTenant,
+    applyDepartmentFromLogin,
     fetchTenants,
     switchTenant,
   }

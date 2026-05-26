@@ -7,6 +7,7 @@ import (
 	"sort"
 	"time"
 
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/domain"
 	"crm-backend/internal/pkg/crm"
 	"crm-backend/internal/pkg/datascope"
@@ -26,6 +27,7 @@ type Service struct {
 	tenants   repository.TenantRepository
 	users     repository.UserRepository
 	enforcer  *casbin.Enforcer
+	scope     appscope.Provider
 }
 
 func NewService(
@@ -36,11 +38,16 @@ func NewService(
 	tenants repository.TenantRepository,
 	users repository.UserRepository,
 	enforcer *casbin.Enforcer,
+	scope appscope.Provider,
 ) *Service {
 	return &Service{
 		leads: leads, accounts: accounts, deals: deals, activities: activities,
-		tenants: tenants, users: users, enforcer: enforcer,
+		tenants: tenants, users: users, enforcer: enforcer, scope: scope,
 	}
+}
+
+func (s *Service) dataScope(ctx context.Context, tenantID, userID uuid.UUID) datascope.ScopeParams {
+	return s.scope.Params(ctx, tenantID, userID)
 }
 
 type KPIsDTO struct {
@@ -79,8 +86,9 @@ type PriorityDTO struct {
 }
 
 type SummaryDTO struct {
-	DataScope  string         `json:"data_scope"`
-	KPIs       KPIsDTO        `json:"kpis"`
+	DataScope            string         `json:"data_scope"`
+	CanViewTeamRanking   bool           `json:"can_view_team_ranking"`
+	KPIs                 KPIsDTO        `json:"kpis"`
 	KPITrends  KPITrendsDTO   `json:"kpi_trends"`
 	Sparklines SparklinesDTO  `json:"sparklines"`
 	Priorities []PriorityDTO  `json:"priorities"`
@@ -103,14 +111,16 @@ type QuotaDTO struct {
 }
 
 type TeamRankingItemDTO struct {
-	UserID uuid.UUID `json:"user_id"`
-	Name   string    `json:"name"`
-	Value  float64   `json:"value"`
-	Rank   int       `json:"rank"`
+	UserID     *uuid.UUID `json:"user_id,omitempty"`
+	Department string     `json:"department,omitempty"`
+	Name       string     `json:"name"`
+	Value      float64    `json:"value"`
+	Rank       int        `json:"rank"`
 }
 
 type TeamRankingDTO struct {
-	Items []TeamRankingItemDTO `json:"items"`
+	GroupBy string               `json:"group_by"`
+	Items   []TeamRankingItemDTO `json:"items"`
 }
 
 type TodoItemDTO struct {
@@ -127,34 +137,35 @@ type TodoDTO struct {
 }
 
 func (s *Service) Summary(ctx context.Context, tenantID, userID uuid.UUID, preview bool) (*SummaryDTO, error) {
-	viewAll := s.viewAll(ctx, userID, tenantID)
-	scope := datascope.ResolveDataScope(ctx, s.enforcer, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	opts := s.segmentOpts(ctx, tenantID)
 
-	leadsTotal, _ := s.leads.CountScoped(ctx, tenantID, viewAll, userID)
-	accountsTotal, _ := s.accounts.CountScoped(ctx, tenantID, viewAll, userID)
-	dealsTotal, _ := s.deals.CountScoped(ctx, tenantID, viewAll, userID)
+	leadsTotal, _ := s.leads.CountScoped(ctx, tenantID, scope)
+	accountsTotal, _ := s.accounts.CountScoped(ctx, tenantID, scope)
+	dealsTotal, _ := s.deals.CountScoped(ctx, tenantID, scope)
 
 	_, pipeSummary, _ := s.deals.Pipeline(ctx, tenantID, repository.DealPipelineFilter{
-		ViewAll: viewAll, UserID: userID, PerStage: 1,
+		Scope: scope, PerStage: 1,
 	})
 
-	leadAtRisk, _ := s.leads.CountLowEngagement(ctx, tenantID, viewAll, userID)
-	accAtRisk, _ := s.accounts.CountLowEngagement(ctx, tenantID, viewAll, userID)
+	leadAtRisk, _ := s.leads.CountLowEngagement(ctx, tenantID, scope)
+	accAtRisk, _ := s.accounts.CountLowEngagement(ctx, tenantID, scope)
 
-	avgLead, _ := s.leads.AvgEngagement(ctx, tenantID, viewAll, userID)
+	avgLead, _ := s.leads.AvgEngagement(ctx, tenantID, scope)
 	avgEng := int(avgLead)
 
 	weekStart := time.Now().UTC().AddDate(0, 0, -7)
-	weeklyFollow, _ := s.activities.CountSince(ctx, tenantID, weekStart)
-	if !viewAll {
-		leadTouches, _ := s.activities.CountLeadTouchesSince(ctx, tenantID, weekStart, viewAll, userID)
-		accTouches, _ := s.activities.CountAccountTouchesSince(ctx, tenantID, weekStart, viewAll, userID)
+	var weeklyFollow int64
+	if scope.Level == datascope.LevelAll {
+		weeklyFollow, _ = s.activities.CountSince(ctx, tenantID, weekStart)
+	} else {
+		leadTouches, _ := s.activities.CountLeadTouchesSince(ctx, tenantID, weekStart, scope)
+		accTouches, _ := s.activities.CountAccountTouchesSince(ctx, tenantID, weekStart, scope)
 		weeklyFollow = leadTouches + accTouches
 	}
 
-	leadSpark, _ := s.leads.DailyCreatedCounts(ctx, tenantID, viewAll, userID, 7)
-	dealSpark, _ := s.deals.DailyCreatedCounts(ctx, tenantID, viewAll, userID, 7)
+	leadSpark, _ := s.leads.DailyCreatedCounts(ctx, tenantID, scope, 7)
+	dealSpark, _ := s.deals.DailyCreatedCounts(ctx, tenantID, scope, 7)
 	if leadSpark == nil {
 		leadSpark = make([]int64, 7)
 	}
@@ -162,8 +173,8 @@ func (s *Service) Summary(ctx context.Context, tenantID, userID uuid.UUID, previ
 		dealSpark = make([]int64, 7)
 	}
 
-	leadTouches, _ := s.activities.CountLeadTouchesSince(ctx, tenantID, weekStart, viewAll, userID)
-	accTouches, _ := s.activities.CountAccountTouchesSince(ctx, tenantID, weekStart, viewAll, userID)
+	leadTouches, _ := s.activities.CountLeadTouchesSince(ctx, tenantID, weekStart, scope)
+	accTouches, _ := s.activities.CountAccountTouchesSince(ctx, tenantID, weekStart, scope)
 	dealsNew := int64(0)
 	if len(dealSpark) > 0 {
 		for _, c := range dealSpark {
@@ -171,11 +182,12 @@ func (s *Service) Summary(ctx context.Context, tenantID, userID uuid.UUID, previ
 		}
 	}
 
-	priorities := s.buildPriorities(ctx, tenantID, userID, viewAll, opts, preview)
+	priorities := s.buildPriorities(ctx, tenantID, userID, scope, opts, preview)
 
 	_ = opts
 	return &SummaryDTO{
-		DataScope: scope,
+		DataScope:          scope.APIScope(),
+		CanViewTeamRanking: s.scope.CanViewTeamRanking(ctx, tenantID, userID, scope),
 		KPIs: KPIsDTO{
 			LeadsTotal: leadsTotal, AccountsTotal: accountsTotal, DealsTotal: dealsTotal,
 			DealsOpenCount: pipeSummary.OpenCount, DealsOpenAmount: pipeSummary.OpenAmount,
@@ -190,10 +202,10 @@ func (s *Service) Summary(ctx context.Context, tenantID, userID uuid.UUID, previ
 	}, nil
 }
 
-func (s *Service) Funnel(ctx context.Context, tenantID, userID uuid.UUID, scope string) (*FunnelDTO, error) {
-	viewAll := s.viewAll(ctx, userID, tenantID)
-	if scope == "leads" {
-		rows, err := s.leads.StatsFunnel(ctx, tenantID, repository.LeadStatsFilter{ViewAll: viewAll, UserID: userID})
+func (s *Service) Funnel(ctx context.Context, tenantID, userID uuid.UUID, scopeParam string) (*FunnelDTO, error) {
+	scope := s.dataScope(ctx, tenantID, userID)
+	if scopeParam == "leads" {
+		rows, err := s.leads.StatsFunnel(ctx, tenantID, repository.LeadStatsFilter{Scope: scope})
 		if err != nil {
 			return nil, err
 		}
@@ -203,7 +215,7 @@ func (s *Service) Funnel(ctx context.Context, tenantID, userID uuid.UUID, scope 
 		}
 		return &FunnelDTO{Stages: stages}, nil
 	}
-	rows, err := s.deals.CountByStage(ctx, tenantID, viewAll, userID)
+	rows, err := s.deals.CountByStage(ctx, tenantID, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +227,7 @@ func (s *Service) Funnel(ctx context.Context, tenantID, userID uuid.UUID, scope 
 }
 
 func (s *Service) Quota(ctx context.Context, tenantID, userID uuid.UUID) (*QuotaDTO, error) {
-	viewAll := s.viewAll(ctx, userID, tenantID)
+	scope := s.dataScope(ctx, tenantID, userID)
 	target := 0.0
 	period := time.Now().UTC().Format("2006-01")
 	if s.tenants != nil {
@@ -228,7 +240,7 @@ func (s *Service) Quota(ctx context.Context, tenantID, userID uuid.UUID) (*Quota
 		}
 	}
 	_, summary, err := s.deals.Pipeline(ctx, tenantID, repository.DealPipelineFilter{
-		ViewAll: viewAll, UserID: userID, PerStage: 1,
+		Scope: scope, PerStage: 1,
 	})
 	if err != nil {
 		return nil, err
@@ -244,13 +256,30 @@ func (s *Service) Quota(ctx context.Context, tenantID, userID uuid.UUID) (*Quota
 }
 
 func (s *Service) TeamRanking(ctx context.Context, tenantID, userID uuid.UUID, metric string, limit int) (*TeamRankingDTO, error) {
-	if !datascope.CanViewTeamData(ctx, s.enforcer, userID.String(), tenantID.String()) {
+	scope := s.dataScope(ctx, tenantID, userID)
+	if !s.scope.CanViewTeamRanking(ctx, tenantID, userID, scope) {
 		return nil, ErrTeamRankingDenied
 	}
 	if metric == "" {
 		metric = "won_amount"
 	}
-	rows, err := s.deals.TeamRanking(ctx, tenantID, metric, limit)
+	if scope.Level == datascope.LevelAll {
+		rows, err := s.deals.TeamRankingByDepartment(ctx, tenantID, metric, limit)
+		if err != nil {
+			return nil, err
+		}
+		items := make([]TeamRankingItemDTO, 0, len(rows))
+		for i, row := range rows {
+			items = append(items, TeamRankingItemDTO{
+				Department: row.Department,
+				Name:       row.Department,
+				Value:      row.Value,
+				Rank:       i + 1,
+			})
+		}
+		return &TeamRankingDTO{GroupBy: "department", Items: items}, nil
+	}
+	rows, err := s.deals.TeamRanking(ctx, tenantID, metric, limit, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -262,20 +291,21 @@ func (s *Service) TeamRanking(ctx context.Context, tenantID, userID uuid.UUID, m
 				name = u.Name
 			}
 		}
+		uid := row.OwnerID
 		items = append(items, TeamRankingItemDTO{
-			UserID: row.OwnerID, Name: name, Value: row.Value, Rank: i + 1,
+			UserID: &uid, Name: name, Value: row.Value, Rank: i + 1,
 		})
 	}
-	return &TeamRankingDTO{Items: items}, nil
+	return &TeamRankingDTO{GroupBy: "user", Items: items}, nil
 }
 
 func (s *Service) Todo(_ context.Context, _ uuid.UUID, _ uuid.UUID, _ string) (*TodoDTO, error) {
 	return &TodoDTO{Items: []TodoItemDTO{}}, nil
 }
 
-func (s *Service) buildPriorities(ctx context.Context, tenantID, userID uuid.UUID, viewAll bool, opts crm.SegmentApplyOpts, preview bool) []PriorityDTO {
+func (s *Service) buildPriorities(ctx context.Context, tenantID, userID uuid.UUID, scope datascope.ScopeParams, opts crm.SegmentApplyOpts, preview bool) []PriorityDTO {
 	_ = preview
-	candidates, err := s.leads.ListPriorityCandidates(ctx, tenantID, viewAll, userID, 20)
+	candidates, err := s.leads.ListPriorityCandidates(ctx, tenantID, scope, 20)
 	if err != nil || len(candidates) == 0 {
 		return []PriorityDTO{}
 	}
@@ -319,10 +349,6 @@ func (s *Service) buildPriorities(ctx context.Context, tenantID, userID uuid.UUI
 		})
 	}
 	return out
-}
-
-func (s *Service) viewAll(ctx context.Context, userID, tenantID uuid.UUID) bool {
-	return datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
 }
 
 func (s *Service) segmentOpts(ctx context.Context, tenantID uuid.UUID) crm.SegmentApplyOpts {

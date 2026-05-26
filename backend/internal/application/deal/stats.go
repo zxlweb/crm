@@ -40,10 +40,9 @@ type WinRateDTO struct {
 
 func (s *Service) statsFilter(ctx context.Context, tenantID, userID uuid.UUID, q StatsQuery) repository.DealStatsFilter {
 	return repository.DealStatsFilter{
-		From:    q.From,
-		To:      q.To,
-		ViewAll: s.viewAll(ctx, userID.String(), tenantID.String()),
-		UserID:  userID,
+		From:  q.From,
+		To:    q.To,
+		Scope: s.dataScope(ctx, tenantID, userID),
 	}
 }
 

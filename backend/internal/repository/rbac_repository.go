@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 
 	"crm-backend/internal/domain"
 
@@ -13,6 +14,7 @@ import (
 var (
 	ErrRoleNotFound       = errors.New("role not found")
 	ErrPermissionNotFound = errors.New("permission not found")
+	ErrMemberNotInTenant  = errors.New("user not in tenant")
 )
 
 type RoleWithPermissions struct {
@@ -21,14 +23,29 @@ type RoleWithPermissions struct {
 	UserCount     int64
 }
 
+type TenantMemberRow struct {
+	UserID     uuid.UUID
+	Email      string
+	Name       string
+	AvatarURL  string
+	Department string
+	CreatedAt  time.Time
+	RoleID     *uuid.UUID
+	RoleName   string
+	IsSystem   bool
+}
+
 type RBACRepository interface {
 	ListPermissions(ctx context.Context) ([]domain.Permission, error)
+	ListTenantMembers(ctx context.Context, tenantID uuid.UUID) ([]TenantMemberRow, error)
+	UserBelongsToTenant(ctx context.Context, tenantID, userID uuid.UUID) (bool, error)
 	ListRoles(ctx context.Context, tenantID uuid.UUID) ([]RoleWithPermissions, error)
 	FindRole(ctx context.Context, tenantID, roleID uuid.UUID) (*RoleWithPermissions, error)
 	CreateRole(ctx context.Context, role *domain.Role) error
 	UpdateRole(ctx context.Context, tenantID, roleID uuid.UUID, name, description string) error
 	SetRolePermissions(ctx context.Context, roleID uuid.UUID, permissionIDs []uuid.UUID) error
 	ListUserRoles(ctx context.Context, tenantID, userID uuid.UUID) ([]domain.Role, error)
+	ListUserRoleNames(ctx context.Context, tenantID, userID uuid.UUID) ([]string, error)
 	SetUserRoles(ctx context.Context, tenantID, userID uuid.UUID, roleIDs []uuid.UUID) error
 	ListUserPermissions(ctx context.Context, tenantID, userID uuid.UUID) ([]domain.Permission, error)
 	ListRolePermissions(ctx context.Context, roleID uuid.UUID) ([]domain.Permission, error)
@@ -49,6 +66,38 @@ func (r *GormRBACRepository) ListPermissions(ctx context.Context) ([]domain.Perm
 	var rows []domain.Permission
 	err := r.db.WithContext(ctx).Order("resource, action").Find(&rows).Error
 	return rows, err
+}
+
+func (r *GormRBACRepository) ListTenantMembers(ctx context.Context, tenantID uuid.UUID) ([]TenantMemberRow, error) {
+	var rows []TenantMemberRow
+	err := r.db.WithContext(ctx).
+		Table("users u").
+		Select(`
+			u.id AS user_id,
+			u.email,
+			u.name,
+			u.avatar_url,
+			u.created_at,
+			ut.department,
+			r.id AS role_id,
+			COALESCE(r.name, '') AS role_name,
+			COALESCE(r.is_system, false) AS is_system
+		`).
+		Joins("INNER JOIN user_tenants ut ON ut.user_id = u.id AND ut.tenant_id = ?", tenantID).
+		Joins("LEFT JOIN user_roles ur ON ur.user_id = u.id AND ur.tenant_id = ?", tenantID).
+		Joins("LEFT JOIN roles r ON r.id = ur.role_id").
+		Where("u.deleted_at IS NULL").
+		Order("u.name NULLS LAST, u.email, r.name").
+		Scan(&rows).Error
+	return rows, err
+}
+
+func (r *GormRBACRepository) UserBelongsToTenant(ctx context.Context, tenantID, userID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Table("user_tenants").
+		Where("tenant_id = ? AND user_id = ?", tenantID, userID).
+		Count(&count).Error
+	return count > 0, err
 }
 
 func (r *GormRBACRepository) ListRoles(ctx context.Context, tenantID uuid.UUID) ([]RoleWithPermissions, error) {
@@ -142,7 +191,26 @@ func (r *GormRBACRepository) ListUserRoles(ctx context.Context, tenantID, userID
 	return roles, err
 }
 
+func (r *GormRBACRepository) ListUserRoleNames(ctx context.Context, tenantID, userID uuid.UUID) ([]string, error) {
+	var names []string
+	err := r.db.WithContext(ctx).
+		Table("roles r").
+		Select("r.name").
+		Joins("INNER JOIN user_roles ur ON ur.role_id = r.id").
+		Where("ur.user_id = ? AND ur.tenant_id = ?", userID, tenantID).
+		Order("r.name").
+		Pluck("r.name", &names).Error
+	return names, err
+}
+
 func (r *GormRBACRepository) SetUserRoles(ctx context.Context, tenantID, userID uuid.UUID, roleIDs []uuid.UUID) error {
+	ok, err := r.UserBelongsToTenant(ctx, tenantID, userID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return ErrMemberNotInTenant
+	}
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("user_id = ? AND tenant_id = ?", userID, tenantID).Delete(&domain.UserRole{}).Error; err != nil {
 			return err

@@ -8,6 +8,7 @@ import (
 
 	"crm-backend/internal/domain"
 	"crm-backend/internal/infrastructure/persistence"
+	"crm-backend/internal/pkg/datascope"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -33,8 +34,8 @@ type ActivityRepository interface {
 	LatestOccurredAt(ctx context.Context, tenantID uuid.UUID, subjectType string, subjectID uuid.UUID) (*time.Time, error)
 	CountBySubject(ctx context.Context, tenantID uuid.UUID, subjectType string, subjectID uuid.UUID) (int64, error)
 	CountSince(ctx context.Context, tenantID uuid.UUID, since time.Time) (int64, error)
-	CountLeadTouchesSince(ctx context.Context, tenantID uuid.UUID, since time.Time, viewAll bool, userID uuid.UUID) (int64, error)
-	CountAccountTouchesSince(ctx context.Context, tenantID uuid.UUID, since time.Time, viewAll bool, userID uuid.UUID) (int64, error)
+	CountLeadTouchesSince(ctx context.Context, tenantID uuid.UUID, since time.Time, scope datascope.ScopeParams) (int64, error)
+	CountAccountTouchesSince(ctx context.Context, tenantID uuid.UUID, since time.Time, scope datascope.ScopeParams) (int64, error)
 }
 
 type GormActivityRepository struct {

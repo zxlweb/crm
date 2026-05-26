@@ -36,6 +36,7 @@ type UserRepository interface {
 	FindByID(ctx context.Context, userID uuid.UUID) (*domain.User, error)
 	ListActiveTenantsForUser(ctx context.Context, userID uuid.UUID) ([]TenantBrief, error)
 	UserBelongsToTenant(ctx context.Context, userID, tenantID uuid.UUID) (bool, error)
+	UserDepartment(ctx context.Context, tenantID, userID uuid.UUID) (string, error)
 	RegisterWithTenant(ctx context.Context, in RegisterInput) (*domain.User, uuid.UUID, error)
 }
 
@@ -80,6 +81,18 @@ func (r *GormUserRepository) ListActiveTenantsForUser(ctx context.Context, userI
 		Where("ut.user_id = ? AND t.is_active = ?", userID, true).
 		Scan(&rows).Error
 	return rows, err
+}
+
+func (r *GormUserRepository) UserDepartment(ctx context.Context, tenantID, userID uuid.UUID) (string, error) {
+	var row struct {
+		Department string
+	}
+	err := r.db.WithContext(ctx).
+		Table("user_tenants").
+		Select("department").
+		Where("tenant_id = ? AND user_id = ?", tenantID, userID).
+		Scan(&row).Error
+	return row.Department, err
 }
 
 func (r *GormUserRepository) UserBelongsToTenant(ctx context.Context, userID, tenantID uuid.UUID) (bool, error) {

@@ -40,6 +40,7 @@ function mapKpiTrends(raw?: ApiKpiTrends): DashboardKpiTrends {
 function normalizeSummary(raw: ApiDashboardSummary): DashboardSummary {
   return {
     data_scope: raw.data_scope,
+    can_view_team_ranking: raw.can_view_team_ranking,
     kpis: raw.kpis,
     kpi_trends: mapKpiTrends(raw.kpi_trends),
     sparklines: raw.sparklines ?? { leads: [], deals: [] },

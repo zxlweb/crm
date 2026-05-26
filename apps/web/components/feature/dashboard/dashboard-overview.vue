@@ -21,9 +21,6 @@
         :greeting="greeting"
         :headline="headline"
         :weekly-follow-up-note="weeklyFollowUpNote"
-        :can-create-lead="canCreateLead"
-        :can-create-account="canCreateAccount"
-        :read-only="readOnly"
         :is-preview-mode="isPreviewMode"
       />
 

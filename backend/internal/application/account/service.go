@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/domain"
 	"crm-backend/internal/pkg/crm"
 	"crm-backend/internal/pkg/datascope"
@@ -24,10 +25,15 @@ type Service struct {
 	repo     repository.AccountRepository
 	tenants  repository.TenantRepository
 	enforcer *casbin.Enforcer
+	scope    appscope.Provider
 }
 
-func NewService(repo repository.AccountRepository, tenants repository.TenantRepository, enforcer *casbin.Enforcer) *Service {
-	return &Service{repo: repo, tenants: tenants, enforcer: enforcer}
+func NewService(repo repository.AccountRepository, tenants repository.TenantRepository, enforcer *casbin.Enforcer, scope appscope.Provider) *Service {
+	return &Service{repo: repo, tenants: tenants, enforcer: enforcer, scope: scope}
+}
+
+func (s *Service) dataScope(ctx context.Context, tenantID, userID uuid.UUID) datascope.ScopeParams {
+	return s.scope.Params(ctx, tenantID, userID)
 }
 
 type AccountDTO struct {
@@ -82,7 +88,7 @@ type UpdateInput struct {
 }
 
 func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQuery) (*ListResult, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	page := q.Page
 	if page < 1 {
 		page = 1
@@ -103,8 +109,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 		Segment:            q.Segment,
 		SegmentOpts:        s.segmentOpts(ctx, tenantID),
 		OwnerID:            q.OwnerID,
-		ViewAll:            viewAll,
-		UserID:             userID,
+		Scope:              scope,
 	})
 	if err != nil {
 		return nil, err
@@ -117,7 +122,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 }
 
 func (s *Service) Get(ctx context.Context, tenantID, userID, id uuid.UUID) (*AccountDTO, error) {
-	a, err := s.repo.GetByID(ctx, tenantID, id, s.viewAll(ctx, userID.String(), tenantID.String()), userID)
+	a, err := s.repo.GetByID(ctx, tenantID, id, s.dataScope(ctx, tenantID, userID))
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +168,8 @@ func (s *Service) Create(ctx context.Context, tenantID, userID uuid.UUID, in Cre
 }
 
 func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in UpdateInput, full bool) (*AccountDTO, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	a, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID)
+	scope := s.dataScope(ctx, tenantID, userID)
+	a, err := s.repo.GetByID(ctx, tenantID, id, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -231,8 +236,8 @@ func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in
 }
 
 func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) error {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	if _, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID); err != nil {
+	scope := s.dataScope(ctx, tenantID, userID)
+	if _, err := s.repo.GetByID(ctx, tenantID, id, scope); err != nil {
 		return err
 	}
 	return s.repo.SoftDelete(ctx, tenantID, id)
@@ -261,10 +266,6 @@ func (s *Service) segmentOpts(ctx context.Context, tenantID uuid.UUID) crm.Segme
 	opts.DaysSilent = cfg.InsightThresholds.DaysSilent
 	opts.HighValueAmount = cfg.InsightThresholds.HighValueAmount
 	return opts
-}
-
-func (s *Service) viewAll(ctx context.Context, userID, tenantID string) bool {
-	return datascope.CanViewAllTenantData(ctx, s.enforcer, userID, tenantID)
 }
 
 func toDTO(a *domain.Account) AccountDTO {

@@ -144,6 +144,25 @@
         </section>
 
         <section
+          v-if="activeTab === 'members'"
+          class="ds-card overflow-hidden rounded-2xl"
+          data-testid="settings-section-members"
+        >
+          <header class="flex items-start gap-3 border-b border-ds-border-muted px-6 py-5">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ds-border-muted bg-ds-brand-subtle text-ds-fg-brand">
+              <UIcon name="i-heroicons-users" class="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div class="min-w-0">
+              <h2 class="text-lg font-semibold text-ds-fg-heading">{{ $t('membersSectionTitle') }}</h2>
+              <p class="mt-0.5 text-sm text-ds-fg-muted">{{ membersSectionDesc }}</p>
+            </div>
+          </header>
+          <div class="p-4 sm:p-6">
+            <TenantMembersManager />
+          </div>
+        </section>
+
+        <section
           v-if="activeTab === 'roles'"
           class="ds-card overflow-hidden rounded-2xl"
           data-testid="settings-section-roles"
@@ -181,12 +200,13 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const { t, locale } = useI18n()
 const { can } = usePermission()
+const tenant = useTenant()
 const settingsApi = useSettings()
 
 const pending = ref(true)
 const loadError = ref('')
 const settings = ref<TenantSettings | null>(null)
-type SettingsTab = 'general' | 'fields' | 'roles'
+type SettingsTab = 'general' | 'fields' | 'members' | 'roles'
 
 const route = useRoute()
 const router = useRouter()
@@ -195,6 +215,15 @@ const activeTab = ref<SettingsTab>('general')
 const canEditSettings = computed(() => can('settings', 'update'))
 const canEditFields = computed(() => can('custom_fields', 'update'))
 const canViewRoles = computed(() => can('rbac', 'view') || can('rbac', 'manage'))
+const canManageRbac = computed(() => can('rbac', 'manage'))
+
+const membersSectionDesc = computed(() => {
+  const dept = tenant.currentDepartment.value?.trim()
+  if (dept && !canManageRbac.value) {
+    return t('membersSectionDescDept', { department: dept })
+  }
+  return t('membersSectionDesc')
+})
 
 const navItems = computed<SettingsNavItem[]>(() => {
   const items: SettingsNavItem[] = [
@@ -213,6 +242,12 @@ const navItems = computed<SettingsNavItem[]>(() => {
   ]
   if (canViewRoles.value) {
     items.push({
+      key: 'members',
+      label: t('settingsTabMembers'),
+      description: t('settingsNavMembersDesc'),
+      icon: 'i-heroicons-users',
+    })
+    items.push({
       key: 'roles',
       label: t('settingsTabRoles'),
       description: t('settingsNavRolesDesc'),
@@ -230,6 +265,8 @@ const activeTabTip = computed(() => {
   switch (activeTab.value) {
     case 'fields':
       return t('settingsTipFields')
+    case 'members':
+      return t('settingsTipMembers')
     case 'roles':
       return t('settingsTipRoles')
     default:
@@ -240,6 +277,7 @@ const activeTabTip = computed(() => {
 function syncTabFromRoute() {
   const q = route.query.tab
   if (q === 'roles' && canViewRoles.value) activeTab.value = 'roles'
+  else if (q === 'members' && canViewRoles.value) activeTab.value = 'members'
   else if (q === 'fields') activeTab.value = 'fields'
   else if (q === 'general') activeTab.value = 'general'
 }

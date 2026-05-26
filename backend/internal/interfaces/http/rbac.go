@@ -78,6 +78,19 @@ func (h *RBACHandlers) MyRoles(c *gin.Context) {
 	response.Success(c, data)
 }
 
+func (h *RBACHandlers) ListMembers(c *gin.Context) {
+	tenantID, userID, ok := rbacContext(c)
+	if !ok {
+		return
+	}
+	data, err := h.svc.ListMembers(c.Request.Context(), tenantID, userID)
+	if err != nil {
+		response.InternalError(c, "获取成员列表失败")
+		return
+	}
+	response.Success(c, data)
+}
+
 func (h *RBACHandlers) ListRoles(c *gin.Context) {
 	tenantID, _, ok := rbacContext(c)
 	if !ok {
@@ -233,11 +246,19 @@ func (h *RBACHandlers) AssignUserRoles(c *gin.Context) {
 			response.BadRequest(c, "存在无效的角色 ID")
 			return
 		}
+		if errors.Is(err, rbacapp.ErrMemberNotInTenant) {
+			response.NotFound(c, "成员不存在或不属于当前租户")
+			return
+		}
 		response.InternalError(c, "分配角色失败")
 		return
 	}
 	recordAudit(c, h.audit, tenantID, "rbac.user.set_roles", "user", &userID, data, nil)
 	response.Success(c, data)
+}
+
+func (h *RBACHandlers) AssignMemberRoles(c *gin.Context) {
+	h.AssignUserRoles(c)
 }
 
 func (h *RBACHandlers) Check(c *gin.Context) {

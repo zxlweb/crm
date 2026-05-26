@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/pkg/crm"
 	"crm-backend/internal/pkg/datascope"
 	"crm-backend/internal/repository"
@@ -25,6 +26,7 @@ type Service struct {
 	accounts repository.AccountRepository
 	tenants  repository.TenantRepository
 	enforcer *casbin.Enforcer
+	scope    appscope.Provider
 }
 
 func NewService(
@@ -33,8 +35,13 @@ func NewService(
 	accounts repository.AccountRepository,
 	tenants repository.TenantRepository,
 	enforcer *casbin.Enforcer,
+	scope appscope.Provider,
 ) *Service {
-	return &Service{segments: segments, leads: leads, accounts: accounts, tenants: tenants, enforcer: enforcer}
+	return &Service{segments: segments, leads: leads, accounts: accounts, tenants: tenants, enforcer: enforcer, scope: scope}
+}
+
+func (s *Service) dataScope(ctx context.Context, tenantID, userID uuid.UUID) datascope.ScopeParams {
+	return s.scope.Params(ctx, tenantID, userID)
 }
 
 type SegmentDTO struct {
@@ -56,7 +63,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, withCoun
 		return nil, err
 	}
 	opts := s.segmentOpts(ctx, tenantID)
-	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	out := make([]SegmentDTO, len(templates))
 	for i, t := range templates {
 		dto := SegmentDTO{
@@ -66,7 +73,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, withCoun
 			Filter:         t.FilterJSON,
 		}
 		if withCount {
-			n, err := s.countForEntity(ctx, tenantID, userID, t.Code, "lead", opts, viewAll)
+			n, err := s.countForEntity(ctx, tenantID, userID, t.Code, "lead", opts, scope)
 			if err != nil {
 				return nil, err
 			}
@@ -85,8 +92,8 @@ func (s *Service) Count(ctx context.Context, tenantID, userID uuid.UUID, code, e
 		return nil, err
 	}
 	opts := s.segmentOpts(ctx, tenantID)
-	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
-	n, err := s.countForEntity(ctx, tenantID, userID, code, entity, opts, viewAll)
+	scope := s.dataScope(ctx, tenantID, userID)
+	n, err := s.countForEntity(ctx, tenantID, userID, code, entity, opts, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -105,16 +112,16 @@ func (s *Service) LeadSegmentOpts(ctx context.Context, tenantID uuid.UUID) crm.S
 	return s.segmentOpts(ctx, tenantID)
 }
 
-func (s *Service) countForEntity(ctx context.Context, tenantID, userID uuid.UUID, code, entity string, opts crm.SegmentApplyOpts, viewAll bool) (int64, error) {
+func (s *Service) countForEntity(ctx context.Context, tenantID, userID uuid.UUID, code, entity string, opts crm.SegmentApplyOpts, scope datascope.ScopeParams) (int64, error) {
 	switch entity {
 	case "", "lead", "leads":
 		_, n, err := s.leads.List(ctx, tenantID, repository.LeadListFilter{
-			Page: 1, PageSize: 1, Segment: code, SegmentOpts: opts, ViewAll: viewAll, UserID: userID,
+			Page: 1, PageSize: 1, Segment: code, SegmentOpts: opts, Scope: scope,
 		})
 		return n, err
 	case "account", "accounts":
 		_, n, err := s.accounts.List(ctx, tenantID, repository.AccountListFilter{
-			Page: 1, PageSize: 1, Segment: code, SegmentOpts: opts, ViewAll: viewAll, UserID: userID,
+			Page: 1, PageSize: 1, Segment: code, SegmentOpts: opts, Scope: scope,
 		})
 		return n, err
 	default:

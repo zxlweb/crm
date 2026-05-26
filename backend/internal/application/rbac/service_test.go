@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/domain"
 	"crm-backend/internal/repository"
 
@@ -18,6 +19,21 @@ type mockRBACRepo struct {
 
 func (m *mockRBACRepo) ListPermissions(ctx context.Context) ([]domain.Permission, error) {
 	return m.perms, nil
+}
+
+func (m *mockRBACRepo) ListTenantMembers(ctx context.Context, tenantID uuid.UUID) ([]repository.TenantMemberRow, error) {
+	uid := uuid.MustParse("11111111-1111-4111-8111-111111111101")
+	rid := uuid.New()
+	return []repository.TenantMemberRow{
+		{
+			UserID: uid, Email: "a@example.com", Name: "Alice", CreatedAt: time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC),
+			RoleID: &rid, RoleName: "Admin", IsSystem: true,
+		},
+	}, nil
+}
+
+func (m *mockRBACRepo) UserBelongsToTenant(ctx context.Context, tenantID, userID uuid.UUID) (bool, error) {
+	return true, nil
 }
 
 func (m *mockRBACRepo) ListRoles(ctx context.Context, tenantID uuid.UUID) ([]repository.RoleWithPermissions, error) {
@@ -47,6 +63,10 @@ func (m *mockRBACRepo) SetRolePermissions(ctx context.Context, roleID uuid.UUID,
 }
 
 func (m *mockRBACRepo) ListUserRoles(ctx context.Context, tenantID, userID uuid.UUID) ([]domain.Role, error) {
+	return nil, nil
+}
+
+func (m *mockRBACRepo) ListUserRoleNames(ctx context.Context, tenantID, userID uuid.UUID) ([]string, error) {
 	return nil, nil
 }
 
@@ -81,11 +101,20 @@ func TestService_ListPermissionDictionary(t *testing.T) {
 			{Resource: "leads", Action: "create"},
 		},
 	}
-	svc := NewService(repo, nil, nil)
+	svc := NewService(repo, nil, nil, appscope.Provider{})
 
 	groups, err := svc.ListPermissionDictionary(context.Background())
 	if err != nil || len(groups) != 1 || len(groups[0].Actions) != 2 {
 		t.Fatalf("groups: %+v err=%v", groups, err)
+	}
+}
+
+func TestService_ListMembers(t *testing.T) {
+	svc := NewService(&mockRBACRepo{}, nil, nil, appscope.Provider{})
+	uid := uuid.MustParse("11111111-1111-4111-8111-111111111101")
+	members, err := svc.ListMembers(context.Background(), uuid.New(), uid)
+	if err != nil || len(members) != 1 || members[0].Email != "a@example.com" || len(members[0].Roles) != 1 {
+		t.Fatalf("members: %+v err=%v", members, err)
 	}
 }
 
@@ -101,7 +130,7 @@ func TestService_ListRoles(t *testing.T) {
 			UserCount:     1,
 		}},
 	}
-	svc := NewService(repo, nil, nil)
+	svc := NewService(repo, nil, nil, appscope.Provider{})
 
 	roles, err := svc.ListRoles(context.Background(), tid)
 	if err != nil || len(roles) != 1 || roles[0].Name != "Admin" {

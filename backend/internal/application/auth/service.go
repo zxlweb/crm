@@ -58,6 +58,7 @@ type LoginResult struct {
 	CurrentTenant *TenantDTO  `json:"current_tenant,omitempty"`
 	Roles         []RoleDTO   `json:"roles,omitempty"`
 	CurrentRole   *RoleDTO    `json:"current_role,omitempty"`
+	Department    string      `json:"department,omitempty"`
 }
 
 type ServiceDeps struct {
@@ -317,6 +318,11 @@ func (s *Service) issueTokensForTenant(ctx context.Context, user *domain.User, t
 					break
 				}
 			}
+		}
+	}
+	if tenantID != nil {
+		if dept, err := s.users.UserDepartment(ctx, *tenantID, user.ID); err == nil && dept != "" {
+			result.Department = dept
 		}
 	}
 	return result, nil

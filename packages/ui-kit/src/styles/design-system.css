@@ -337,11 +337,24 @@
   --tw-ring-color: color-mix(in srgb, var(--ds-brand) 35%, transparent) !important;
 }
 
+/* 原生 checkbox/radio：V1/V2 均使用品牌色（勿用 text-ds-brand，无效） */
+[data-theme='v1'] input[type='checkbox'],
+[data-theme='v1'] input[type='radio'],
 [data-theme='v2'] input[type='checkbox'],
-[data-theme='v2'] input[type='radio'] {
+[data-theme='v2'] input[type='radio'],
+input.ds-checkbox,
+input.ds-radio {
   border-color: var(--ds-border);
   background-color: var(--ds-bg-input);
   accent-color: var(--ds-brand);
+  color-scheme: light;
+}
+
+[data-theme='v2'] input[type='checkbox'],
+[data-theme='v2'] input[type='radio'],
+[data-theme='v2'] input.ds-checkbox,
+[data-theme='v2'] input.ds-radio {
+  color-scheme: dark;
 }
 
 .ds-btn-primary {

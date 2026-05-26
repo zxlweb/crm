@@ -51,6 +51,13 @@ Windows（终端找不到 `go` 时）：
 curl http://localhost:8080/health
 ```
 
+### 小西科技集团 · 老板演示数据
+
+执行 `make migrate-up` 后可用 **小西科技集团** 租户演示（见 [docs/demo/xiaoxi-boss-demo.md](../docs/demo/xiaoxi-boss-demo.md)）：
+
+- 登录：`ceo@xiaoxi.com` / `password123`
+- 租户：小西科技集团（`xiaoxi`）
+
 ### 5. 运行测试
 
 ```bash

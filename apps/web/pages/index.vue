@@ -57,10 +57,7 @@ const isPreviewMode = computed(
 
 const showZoneE = computed(() => true)
 const showTeamHeatmap = computed(() => isPreviewMode.value || permission.can('rbac', 'view'))
-const showTeamRanking = computed(() => {
-  const scope = snapshot.value?.dataScope
-  return scope === 'department' || scope === 'all' || permission.can('rbac', 'manage')
-})
+const showTeamRanking = computed(() => snapshot.value?.canViewTeamRanking === true)
 const zoneEDefaultOpen = computed(
   () => isPreviewMode.value || permission.can('rbac', 'view'),
 )
@@ -75,6 +72,10 @@ const greeting = computed(() => {
 const headline = computed(() => {
   const name = auth.user.value?.name?.trim() || auth.user.value?.email?.split('@')[0] || ''
   const workspace = tenant.currentTenant.value?.name
+  const department = tenant.currentDepartment.value?.trim()
+  if (name && workspace && department) {
+    return t('dashboardHeadlineNamedDept', { name, workspace, department })
+  }
   if (name && workspace) {
     return t('dashboardHeadlineNamed', { name, workspace })
   }

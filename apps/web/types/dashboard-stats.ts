@@ -28,6 +28,7 @@ export type DashboardSummaryPriority = {
 
 export type DashboardSummary = {
   data_scope: DashboardDataScope
+  can_view_team_ranking?: boolean
   kpis: DashboardSummaryKpis
   kpi_trends: DashboardKpiTrends & { deals_weekly_new?: number }
   sparklines: {
@@ -54,12 +55,14 @@ export type DashboardQuota = {
 }
 
 export type DashboardTeamRankingItem = {
-  user_id: string
+  user_id?: string
+  department?: string
   name: string
   value: number
   rank: number
 }
 
 export type DashboardTeamRanking = {
+  group_by: 'user' | 'department'
   items: DashboardTeamRankingItem[]
 }

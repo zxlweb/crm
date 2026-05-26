@@ -129,10 +129,10 @@
         <header class="flex items-start justify-between gap-3 px-4 pb-2 pt-4 sm:px-5">
           <div class="min-w-0">
             <h3 class="text-sm font-semibold text-ds-fg-heading">
-              {{ $t('dashboardTeamRankingTitle') }}
+              {{ rankingTitle }}
             </h3>
             <p class="mt-0.5 text-xs text-ds-fg-muted">
-              {{ $t('dashboardTeamRankingHint') }}
+              {{ rankingHint }}
             </p>
           </div>
           <span
@@ -215,6 +215,22 @@ const funnelItems = computed<ChartFunnelItem[]>(() => {
     value: s.count,
   }))
 })
+
+const rankingByDepartment = computed(
+  () => ranking.value?.group_by === 'department',
+)
+
+const rankingTitle = computed(() =>
+  rankingByDepartment.value
+    ? t('dashboardTeamRankingDeptTitle')
+    : t('dashboardTeamRankingTitle'),
+)
+
+const rankingHint = computed(() =>
+  rankingByDepartment.value
+    ? t('dashboardTeamRankingDeptHint')
+    : t('dashboardTeamRankingHint'),
+)
 
 const rankingBars = computed<ChartBarItem[]>(() => {
   void locale.value

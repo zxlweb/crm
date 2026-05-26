@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/domain"
 	"crm-backend/internal/pkg/crm"
 	"crm-backend/internal/pkg/datascope"
@@ -25,10 +26,15 @@ type Service struct {
 	repo     repository.ContactRepository
 	accounts repository.AccountRepository
 	enforcer *casbin.Enforcer
+	scope    appscope.Provider
 }
 
-func NewService(repo repository.ContactRepository, accounts repository.AccountRepository, enforcer *casbin.Enforcer) *Service {
-	return &Service{repo: repo, accounts: accounts, enforcer: enforcer}
+func NewService(repo repository.ContactRepository, accounts repository.AccountRepository, enforcer *casbin.Enforcer, scope appscope.Provider) *Service {
+	return &Service{repo: repo, accounts: accounts, enforcer: enforcer, scope: scope}
+}
+
+func (s *Service) dataScope(ctx context.Context, tenantID, userID uuid.UUID) datascope.ScopeParams {
+	return s.scope.Params(ctx, tenantID, userID)
 }
 
 type ContactDTO struct {
@@ -94,7 +100,7 @@ type UpdateInput struct {
 }
 
 func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQuery) (*ListResult, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	page := q.Page
 	if page < 1 {
 		page = 1
@@ -111,8 +117,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 		RelationshipHealth: q.RelationshipHealth,
 		AccountID:          q.AccountID,
 		OwnerID:            q.OwnerID,
-		ViewAll:            viewAll,
-		UserID:             userID,
+		Scope:              scope,
 	})
 	if err != nil {
 		return nil, err
@@ -125,8 +130,8 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 }
 
 func (s *Service) ListByAccount(ctx context.Context, tenantID, userID, accountID uuid.UUID, q ListQuery) (*ListResult, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	if _, err := s.accounts.GetByID(ctx, tenantID, accountID, viewAll, userID); err != nil {
+	scope := s.dataScope(ctx, tenantID, userID)
+	if _, err := s.accounts.GetByID(ctx, tenantID, accountID, scope); err != nil {
 		return nil, err
 	}
 	q.AccountID = &accountID
@@ -134,7 +139,7 @@ func (s *Service) ListByAccount(ctx context.Context, tenantID, userID, accountID
 }
 
 func (s *Service) Get(ctx context.Context, tenantID, userID, id uuid.UUID) (*ContactDTO, error) {
-	c, err := s.repo.GetByID(ctx, tenantID, id, s.viewAll(ctx, userID.String(), tenantID.String()), userID)
+	c, err := s.repo.GetByID(ctx, tenantID, id, s.dataScope(ctx, tenantID, userID))
 	if err != nil {
 		return nil, err
 	}
@@ -153,9 +158,9 @@ func (s *Service) Create(ctx context.Context, tenantID, userID uuid.UUID, in Cre
 	if !crm.ValidLifecycleStage(stage) {
 		return nil, ErrInvalidLifecycle
 	}
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	if in.AccountID != nil {
-		if _, err := s.accounts.GetByID(ctx, tenantID, *in.AccountID, viewAll, userID); err != nil {
+		if _, err := s.accounts.GetByID(ctx, tenantID, *in.AccountID, scope); err != nil {
 			return nil, err
 		}
 	}
@@ -191,15 +196,15 @@ func (s *Service) Create(ctx context.Context, tenantID, userID uuid.UUID, in Cre
 }
 
 func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in UpdateInput, full bool) (*ContactDTO, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	c, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID)
+	scope := s.dataScope(ctx, tenantID, userID)
+	c, err := s.repo.GetByID(ctx, tenantID, id, scope)
 	if err != nil {
 		return nil, err
 	}
 
 	if in.AccountIDSet {
 		if in.AccountID != nil {
-			if _, err := s.accounts.GetByID(ctx, tenantID, *in.AccountID, viewAll, userID); err != nil {
+			if _, err := s.accounts.GetByID(ctx, tenantID, *in.AccountID, scope); err != nil {
 				return nil, err
 			}
 			c.AccountID = in.AccountID
@@ -252,15 +257,11 @@ func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in
 }
 
 func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) error {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	if _, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID); err != nil {
+	scope := s.dataScope(ctx, tenantID, userID)
+	if _, err := s.repo.GetByID(ctx, tenantID, id, scope); err != nil {
 		return err
 	}
 	return s.repo.SoftDelete(ctx, tenantID, id)
-}
-
-func (s *Service) viewAll(ctx context.Context, userID, tenantID string) bool {
-	return datascope.CanViewAllTenantData(ctx, s.enforcer, userID, tenantID)
 }
 
 func hasIdentity(first, last, email string) bool {

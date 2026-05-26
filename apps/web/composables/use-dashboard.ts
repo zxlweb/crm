@@ -248,6 +248,7 @@ export function useDashboard() {
       kpiTrends: summary.kpi_trends,
       sparklines: summary.sparklines,
       dataScope: summary.data_scope,
+      canViewTeamRanking: summary.can_view_team_ranking ?? summary.data_scope !== 'self',
       summaryFromApi: !fromMock,
     }
   }

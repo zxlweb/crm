@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/application/deal"
 	"crm-backend/internal/application/insights"
 	"crm-backend/internal/domain"
@@ -34,6 +35,7 @@ type Service struct {
 	tenants    repository.TenantRepository
 	deals      *deal.Service
 	enforcer   *casbin.Enforcer
+	scope      appscope.Provider
 }
 
 func NewService(
@@ -43,8 +45,13 @@ func NewService(
 	tenants repository.TenantRepository,
 	enforcer *casbin.Enforcer,
 	deals *deal.Service,
+	scope appscope.Provider,
 ) *Service {
-	return &Service{repo: repo, accounts: accounts, activities: activities, tenants: tenants, enforcer: enforcer, deals: deals}
+	return &Service{repo: repo, accounts: accounts, activities: activities, tenants: tenants, enforcer: enforcer, deals: deals, scope: scope}
+}
+
+func (s *Service) dataScope(ctx context.Context, tenantID, userID uuid.UUID) datascope.ScopeParams {
+	return s.scope.Params(ctx, tenantID, userID)
 }
 
 type LeadDTO struct {
@@ -132,7 +139,7 @@ type ConvertResult struct {
 }
 
 func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQuery) (*ListResult, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
+	scope := s.dataScope(ctx, tenantID, userID)
 	page := q.Page
 	if page < 1 {
 		page = 1
@@ -155,8 +162,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 		Segment:            q.Segment,
 		SegmentOpts:        s.segmentOpts(ctx, tenantID),
 		OwnerID:            q.OwnerID,
-		ViewAll:            viewAll,
-		UserID:             userID,
+		Scope:              scope,
 	})
 	if err != nil {
 		return nil, err
@@ -169,7 +175,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 }
 
 func (s *Service) Get(ctx context.Context, tenantID, userID, id uuid.UUID) (*LeadDTO, error) {
-	l, err := s.repo.GetByID(ctx, tenantID, id, s.viewAll(ctx, userID.String(), tenantID.String()), userID)
+	l, err := s.repo.GetByID(ctx, tenantID, id, s.dataScope(ctx, tenantID, userID))
 	if err != nil {
 		return nil, err
 	}
@@ -233,8 +239,8 @@ func (s *Service) Create(ctx context.Context, tenantID, userID uuid.UUID, in Cre
 }
 
 func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in UpdateInput, full bool) (*LeadDTO, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	l, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID)
+	scope := s.dataScope(ctx, tenantID, userID)
+	l, err := s.repo.GetByID(ctx, tenantID, id, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -327,8 +333,8 @@ func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in
 }
 
 func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) error {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	if _, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID); err != nil {
+	scope := s.dataScope(ctx, tenantID, userID)
+	if _, err := s.repo.GetByID(ctx, tenantID, id, scope); err != nil {
 		return err
 	}
 	return s.repo.SoftDelete(ctx, tenantID, id)
@@ -336,8 +342,8 @@ func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) er
 
 // Convert marks a qualified lead as converted and links an account (existing or newly created).
 func (s *Service) Convert(ctx context.Context, tenantID, userID, id uuid.UUID, in ConvertInput) (*ConvertResult, error) {
-	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
-	l, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID)
+	scope := s.dataScope(ctx, tenantID, userID)
+	l, err := s.repo.GetByID(ctx, tenantID, id, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +360,7 @@ func (s *Service) Convert(ctx context.Context, tenantID, userID, id uuid.UUID, i
 		if s.accounts == nil {
 			return nil, errors.New("accounts repository not configured")
 		}
-		acc, err := s.accounts.GetByID(ctx, tenantID, *in.AccountID, true, userID)
+		acc, err := s.accounts.GetByID(ctx, tenantID, *in.AccountID, scope)
 		if err != nil {
 			if errors.Is(err, repository.ErrAccountNotFound) {
 				return nil, ErrConvertMissingAccount
@@ -428,10 +434,6 @@ func applyStatusChange(l *domain.Lead, to string) error {
 	return nil
 }
 
-func (s *Service) viewAll(ctx context.Context, userID, tenantID string) bool {
-	return datascope.CanViewAllTenantData(ctx, s.enforcer, userID, tenantID)
-}
-
 func validateLeadSegment(code string) error {
 	if code == "" {
 		return nil
@@ -462,8 +464,7 @@ func (s *Service) segmentOpts(ctx context.Context, tenantID uuid.UUID) crm.Segme
 }
 
 func (s *Service) EvaluateInsights(ctx context.Context, tenantID, userID, leadID uuid.UUID) (*insights.EvaluateResponse, error) {
-	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
-	lead, err := s.repo.GetByID(ctx, tenantID, leadID, viewAll, userID)
+	lead, err := s.repo.GetByID(ctx, tenantID, leadID, s.dataScope(ctx, tenantID, userID))
 	if err != nil {
 		return nil, err
 	}

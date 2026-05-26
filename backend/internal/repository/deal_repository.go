@@ -30,15 +30,13 @@ type DealListFilter struct {
 	ExpectedCloseTo    *time.Time
 	MinAmount          *float64
 	MaxAmount          *float64
-	ViewAll            bool
-	UserID             uuid.UUID
+	Scope              datascope.ScopeParams
 }
 
 type DealPipelineFilter struct {
 	OwnerID   *uuid.UUID
 	AccountID *uuid.UUID
-	ViewAll   bool
-	UserID    uuid.UUID
+	Scope     datascope.ScopeParams
 	PerStage  int
 }
 
@@ -51,17 +49,18 @@ type DealPipelineSummary struct {
 
 type DealRepository interface {
 	List(ctx context.Context, tenantID uuid.UUID, f DealListFilter) ([]domain.Deal, int64, error)
-	GetByID(ctx context.Context, tenantID, id uuid.UUID, viewAll bool, userID uuid.UUID) (*domain.Deal, error)
+	GetByID(ctx context.Context, tenantID, id uuid.UUID, scope datascope.ScopeParams) (*domain.Deal, error)
 	Create(ctx context.Context, d *domain.Deal) error
 	Update(ctx context.Context, d *domain.Deal) error
 	SoftDelete(ctx context.Context, tenantID, id uuid.UUID) error
 	Pipeline(ctx context.Context, tenantID uuid.UUID, f DealPipelineFilter) (map[string][]domain.Deal, DealPipelineSummary, error)
-	CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error)
+	CountScoped(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) (int64, error)
 	StatsByStage(ctx context.Context, tenantID uuid.UUID, f DealStatsFilter, metric string) ([]DealStageStat, int64, error)
 	StatsWinRate(ctx context.Context, tenantID uuid.UUID, f DealStatsFilter, granularity string) ([]DealWinRatePoint, error)
-	DailyCreatedCounts(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID, days int) ([]int64, error)
-	CountByStage(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) ([]LabelCount, error)
-	TeamRanking(ctx context.Context, tenantID uuid.UUID, metric string, limit int) ([]DealOwnerMetric, error)
+	DailyCreatedCounts(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams, days int) ([]int64, error)
+	CountByStage(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) ([]LabelCount, error)
+	TeamRanking(ctx context.Context, tenantID uuid.UUID, metric string, limit int, scope datascope.ScopeParams) ([]DealOwnerMetric, error)
+	TeamRankingByDepartment(ctx context.Context, tenantID uuid.UUID, metric string, limit int) ([]DealDepartmentMetric, error)
 }
 
 type GormDealRepository struct {
@@ -76,9 +75,11 @@ func (r *GormDealRepository) base(ctx context.Context, tenantID uuid.UUID) *gorm
 	return persistence.DBFromContext(r.db, ctx).Model(&domain.Deal{}).Where("tenant_id = ?", tenantID)
 }
 
-func (r *GormDealRepository) scoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) *gorm.DB {
-	q := r.base(ctx, tenantID)
-	return datascope.OwnerScope(q, userID, viewAll)
+func (r *GormDealRepository) scoped(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) *gorm.DB {
+	if scope.TenantID == uuid.Nil {
+		scope.TenantID = tenantID
+	}
+	return datascope.ApplyOwnerScope(r.base(ctx, tenantID), scope)
 }
 
 func (r *GormDealRepository) applyListFilters(q *gorm.DB, f DealListFilter) *gorm.DB {
@@ -117,7 +118,7 @@ func (r *GormDealRepository) applyListFilters(q *gorm.DB, f DealListFilter) *gor
 }
 
 func (r *GormDealRepository) List(ctx context.Context, tenantID uuid.UUID, f DealListFilter) ([]domain.Deal, int64, error) {
-	q := r.scoped(ctx, tenantID, f.ViewAll, f.UserID)
+	q := r.scoped(ctx, tenantID, f.Scope)
 	q = r.applyListFilters(q, f)
 
 	var total int64
@@ -143,8 +144,8 @@ func (r *GormDealRepository) List(ctx context.Context, tenantID uuid.UUID, f Dea
 	return items, total, err
 }
 
-func (r *GormDealRepository) GetByID(ctx context.Context, tenantID, id uuid.UUID, viewAll bool, userID uuid.UUID) (*domain.Deal, error) {
-	q := r.scoped(ctx, tenantID, viewAll, userID).Where("id = ?", id)
+func (r *GormDealRepository) GetByID(ctx context.Context, tenantID, id uuid.UUID, scope datascope.ScopeParams) (*domain.Deal, error) {
+	q := r.scoped(ctx, tenantID, scope).Where("id = ?", id)
 	var d domain.Deal
 	err := q.First(&d).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -201,7 +202,7 @@ func (r *GormDealRepository) Pipeline(ctx context.Context, tenantID uuid.UUID, f
 		perStage = 20
 	}
 
-	q := r.scoped(ctx, tenantID, f.ViewAll, f.UserID)
+	q := r.scoped(ctx, tenantID, f.Scope)
 	if f.OwnerID != nil {
 		q = q.Where("owner_id = ?", *f.OwnerID)
 	}

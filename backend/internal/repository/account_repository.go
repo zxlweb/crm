@@ -8,6 +8,7 @@ import (
 	"crm-backend/internal/domain"
 	"crm-backend/internal/infrastructure/persistence"
 	"crm-backend/internal/pkg/crm"
+	"crm-backend/internal/pkg/datascope"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -24,19 +25,18 @@ type AccountListFilter struct {
 	Segment            string
 	SegmentOpts        crm.SegmentApplyOpts
 	OwnerID            *uuid.UUID
-	ViewAll            bool
-	UserID             uuid.UUID
+	Scope              datascope.ScopeParams
 }
 
 type AccountRepository interface {
 	List(ctx context.Context, tenantID uuid.UUID, f AccountListFilter) ([]domain.Account, int64, error)
-	GetByID(ctx context.Context, tenantID, id uuid.UUID, viewAll bool, userID uuid.UUID) (*domain.Account, error)
+	GetByID(ctx context.Context, tenantID, id uuid.UUID, scope datascope.ScopeParams) (*domain.Account, error)
 	Create(ctx context.Context, a *domain.Account) error
 	Update(ctx context.Context, a *domain.Account) error
 	UpdateEngagementFromActivity(ctx context.Context, tenantID, id, updatedBy uuid.UUID, last *time.Time, score int16) error
 	SoftDelete(ctx context.Context, tenantID, id uuid.UUID) error
-	CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error)
-	CountLowEngagement(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error)
+	CountScoped(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) (int64, error)
+	CountLowEngagement(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) (int64, error)
 }
 
 type GormAccountRepository struct {
@@ -60,10 +60,7 @@ func (r *GormAccountRepository) base(ctx context.Context, tenantID uuid.UUID) *g
 }
 
 func (r *GormAccountRepository) List(ctx context.Context, tenantID uuid.UUID, f AccountListFilter) ([]domain.Account, int64, error) {
-	q := r.base(ctx, tenantID)
-	if !f.ViewAll {
-		q = q.Where("(owner_id = ? OR owner_id IS NULL)", f.UserID)
-	}
+	q := datascope.ApplyOwnerScope(r.base(ctx, tenantID), f.Scope)
 	if f.Search != "" {
 		like := "%" + f.Search + "%"
 		q = q.Where("name ILIKE ?", like)
@@ -106,11 +103,8 @@ func (r *GormAccountRepository) List(ctx context.Context, tenantID uuid.UUID, f 
 	return items, total, err
 }
 
-func (r *GormAccountRepository) GetByID(ctx context.Context, tenantID, id uuid.UUID, viewAll bool, userID uuid.UUID) (*domain.Account, error) {
-	q := r.base(ctx, tenantID).Where("id = ?", id)
-	if !viewAll {
-		q = q.Where("(owner_id = ? OR owner_id IS NULL)", userID)
-	}
+func (r *GormAccountRepository) GetByID(ctx context.Context, tenantID, id uuid.UUID, scope datascope.ScopeParams) (*domain.Account, error) {
+	q := datascope.ApplyOwnerScope(r.base(ctx, tenantID).Where("id = ?", id), scope)
 	var a domain.Account
 	err := q.First(&a).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -6,16 +6,16 @@ import (
 	"time"
 
 	"crm-backend/internal/pkg/crm"
+	"crm-backend/internal/pkg/datascope"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type DealStatsFilter struct {
-	From    *time.Time
-	To      *time.Time
-	ViewAll bool
-	UserID  uuid.UUID
+	From  *time.Time
+	To    *time.Time
+	Scope datascope.ScopeParams
 }
 
 type DealStageStat struct {
@@ -36,8 +36,13 @@ type DealOwnerMetric struct {
 	Value   float64
 }
 
+type DealDepartmentMetric struct {
+	Department string
+	Value      float64
+}
+
 func (r *GormDealRepository) scopedStats(ctx context.Context, tenantID uuid.UUID, f DealStatsFilter) *gorm.DB {
-	q := r.scoped(ctx, tenantID, f.ViewAll, f.UserID)
+	q := r.scoped(ctx, tenantID, f.Scope)
 	if f.From != nil {
 		q = q.Where("created_at >= ?", *f.From)
 	}
@@ -47,9 +52,9 @@ func (r *GormDealRepository) scopedStats(ctx context.Context, tenantID uuid.UUID
 	return q
 }
 
-func (r *GormDealRepository) CountScoped(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) (int64, error) {
+func (r *GormDealRepository) CountScoped(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) (int64, error) {
 	var n int64
-	err := r.scoped(ctx, tenantID, viewAll, userID).Count(&n).Error
+	err := r.scoped(ctx, tenantID, scope).Count(&n).Error
 	return n, err
 }
 
@@ -131,7 +136,6 @@ func (r *GormDealRepository) StatsWinRate(ctx context.Context, tenantID uuid.UUI
 		}
 		out = append(out, DealWinRatePoint{Period: period, Won: a.won, Lost: a.lost, Rate: rate})
 	}
-	// stable order by period string
 	for i := 0; i < len(out); i++ {
 		for j := i + 1; j < len(out); j++ {
 			if out[j].Period < out[i].Period {
@@ -142,7 +146,7 @@ func (r *GormDealRepository) StatsWinRate(ctx context.Context, tenantID uuid.UUI
 	return out, nil
 }
 
-func (r *GormDealRepository) DailyCreatedCounts(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID, days int) ([]int64, error) {
+func (r *GormDealRepository) DailyCreatedCounts(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams, days int) ([]int64, error) {
 	if days < 1 {
 		days = 7
 	}
@@ -153,7 +157,7 @@ func (r *GormDealRepository) DailyCreatedCounts(ctx context.Context, tenantID uu
 		Count int64
 	}
 	var rows []row
-	err := r.scoped(ctx, tenantID, viewAll, userID).
+	err := r.scoped(ctx, tenantID, scope).
 		Where("created_at >= ?", start).
 		Select("date_trunc('day', created_at) AS day, COUNT(*) AS count").
 		Group("day").
@@ -173,8 +177,8 @@ func (r *GormDealRepository) DailyCreatedCounts(ctx context.Context, tenantID uu
 	return out, nil
 }
 
-func (r *GormDealRepository) CountByStage(ctx context.Context, tenantID uuid.UUID, viewAll bool, userID uuid.UUID) ([]LabelCount, error) {
-	f := DealStatsFilter{ViewAll: viewAll, UserID: userID}
+func (r *GormDealRepository) CountByStage(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) ([]LabelCount, error) {
+	f := DealStatsFilter{Scope: scope}
 	rows, _, err := r.StatsByStage(ctx, tenantID, f, "count")
 	if err != nil {
 		return nil, err
@@ -186,19 +190,23 @@ func (r *GormDealRepository) CountByStage(ctx context.Context, tenantID uuid.UUI
 	return out, nil
 }
 
-func (r *GormDealRepository) TeamRanking(ctx context.Context, tenantID uuid.UUID, metric string, limit int) ([]DealOwnerMetric, error) {
+func (r *GormDealRepository) wonDealsQuery(ctx context.Context, tenantID uuid.UUID, scope datascope.ScopeParams) *gorm.DB {
+	now := time.Now().UTC()
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	q := r.base(ctx, tenantID).
+		Where("stage = ? AND closed_at >= ?", crm.DealStageWon, monthStart).
+		Where("owner_id IS NOT NULL")
+	return datascope.ApplyOwnerScope(q, scope)
+}
+
+func (r *GormDealRepository) TeamRanking(ctx context.Context, tenantID uuid.UUID, metric string, limit int, scope datascope.ScopeParams) ([]DealOwnerMetric, error) {
 	if limit < 1 {
 		limit = 10
 	}
-	now := time.Now().UTC()
-	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
-
 	var rows []DealOwnerMetric
 	switch metric {
 	case "win_count":
-		err := r.base(ctx, tenantID).
-			Where("stage = ? AND closed_at >= ?", crm.DealStageWon, monthStart).
-			Where("owner_id IS NOT NULL").
+		err := r.wonDealsQuery(ctx, tenantID, scope).
 			Select("owner_id, COUNT(*)::float8 AS value").
 			Group("owner_id").
 			Order("value DESC").
@@ -206,23 +214,50 @@ func (r *GormDealRepository) TeamRanking(ctx context.Context, tenantID uuid.UUID
 			Scan(&rows).Error
 		return rows, err
 	case "avg_engagement":
-		err := r.base(ctx, tenantID).
-			Where("owner_id IS NOT NULL").
+		err := datascope.ApplyOwnerScope(
+			r.base(ctx, tenantID).Where("owner_id IS NOT NULL"),
+			scope,
+		).
 			Select("owner_id, COALESCE(AVG(engagement_score), 0) AS value").
 			Group("owner_id").
 			Order("value DESC").
 			Limit(limit).
 			Scan(&rows).Error
 		return rows, err
-	default: // won_amount
-		err := r.base(ctx, tenantID).
-			Where("stage = ? AND closed_at >= ?", crm.DealStageWon, monthStart).
-			Where("owner_id IS NOT NULL").
+	default:
+		err := r.wonDealsQuery(ctx, tenantID, scope).
 			Select("owner_id, COALESCE(SUM(amount), 0) AS value").
 			Group("owner_id").
 			Order("value DESC").
 			Limit(limit).
 			Scan(&rows).Error
+		return rows, err
+	}
+}
+
+func (r *GormDealRepository) TeamRankingByDepartment(ctx context.Context, tenantID uuid.UUID, metric string, limit int) ([]DealDepartmentMetric, error) {
+	if limit < 1 {
+		limit = 10
+	}
+	now := time.Now().UTC()
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	var rows []DealDepartmentMetric
+	q := r.db.WithContext(ctx).
+		Table("deals d").
+		Joins("INNER JOIN user_tenants ut ON ut.user_id = d.owner_id AND ut.tenant_id = d.tenant_id").
+		Where("d.tenant_id = ? AND d.deleted_at IS NULL", tenantID).
+		Where("d.stage = ? AND d.closed_at >= ?", crm.DealStageWon, monthStart).
+		Where("ut.department IS NOT NULL AND ut.department <> ''")
+
+	switch metric {
+	case "win_count":
+		err := q.Select("ut.department AS department, COUNT(*)::float8 AS value").
+			Group("ut.department").Order("value DESC").Limit(limit).Scan(&rows).Error
+		return rows, err
+	default:
+		err := q.Select("ut.department AS department, COALESCE(SUM(d.amount), 0) AS value").
+			Group("ut.department").Order("value DESC").Limit(limit).Scan(&rows).Error
 		return rows, err
 	}
 }

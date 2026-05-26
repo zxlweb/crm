@@ -26,6 +26,8 @@ export type LoginResponse = {
   current_tenant?: AuthTenant
   roles?: AuthRole[]
   current_role?: AuthRole
+  /** 当前租户下的事业部/部门（user_tenants.department） */
+  department?: string
 }
 
 const AUTH_COOKIE_OPTS = {

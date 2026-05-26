@@ -23,8 +23,9 @@ type User struct {
 func (User) TableName() string { return "users" }
 
 type UserTenant struct {
-	UserID   uuid.UUID `gorm:"type:uuid;primaryKey"`
-	TenantID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	UserID     uuid.UUID `gorm:"type:uuid;primaryKey"`
+	TenantID   uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Department string    `gorm:"size:100"`
 }
 
 func (UserTenant) TableName() string { return "user_tenants" }

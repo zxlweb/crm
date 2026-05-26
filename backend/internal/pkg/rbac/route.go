@@ -28,6 +28,18 @@ func RouteToPermission(method, path string) (resource, action string) {
 		return "dashboard", "view"
 	}
 
+	// RBAC admin (roles, members, user role assignment)
+	if parts[0] == "rbac" {
+		action = methodToAction[method]
+		if action == "create" || action == "update" {
+			action = "manage"
+		}
+		if action == "" {
+			action = "view"
+		}
+		return "rbac", action
+	}
+
 	// Deals pipeline / stage / stats (phase-3-deals-dashboard-api.md)
 	if len(parts) >= 2 && parts[0] == "deals" {
 		if parts[1] == "pipeline" {

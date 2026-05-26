@@ -14,8 +14,8 @@
       aria-hidden="true"
     />
 
-    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-      <div class="min-w-0 flex-1">
+    <div class="relative">
+      <div class="min-w-0">
         <div
           class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ds-fg-brand"
         >
@@ -93,50 +93,10 @@
         <p class="mt-3 max-w-xl text-sm text-ds-fg-muted">
           {{ subtitleText }}
         </p>
-      </div>
-
-      <div class="flex shrink-0 flex-wrap items-center gap-2 lg:flex-col lg:items-end">
-        <NuxtLink
-          v-if="canCreateLead && !readOnly"
-          to="/leads?create=1"
-          class="ds-dash-hero__cta group relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-2xl px-5 py-3 text-sm font-semibold text-ds-on-brand shadow-ds-brand transition-[transform,box-shadow] duration-200 hover:shadow-ds-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-brand focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
-          :style="{ background: 'var(--ds-brand-gradient)' }"
-          data-testid="dashboard-hero-create-lead"
-        >
-          <span
-            class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-[transform,opacity] duration-500 group-hover:translate-x-full group-hover:opacity-100"
-            aria-hidden="true"
-          />
-          <UIcon name="i-heroicons-plus" class="h-4 w-4" aria-hidden="true" />
-          <span>{{ $t('leadsCreate') }}</span>
-        </NuxtLink>
-        <NuxtLink
-          v-else-if="canCreateAccount && !readOnly"
-          to="/accounts?create=1"
-          class="ds-dash-hero__cta group relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-2xl px-5 py-3 text-sm font-semibold text-ds-on-brand shadow-ds-brand transition-[transform,box-shadow] duration-200 hover:shadow-ds-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-brand focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
-          :style="{ background: 'var(--ds-brand-gradient)' }"
-          data-testid="dashboard-hero-create-account"
-        >
-          <span
-            class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-[transform,opacity] duration-500 group-hover:translate-x-full group-hover:opacity-100"
-            aria-hidden="true"
-          />
-          <UIcon name="i-heroicons-plus" class="h-4 w-4" aria-hidden="true" />
-          <span>{{ $t('accountsCreate') }}</span>
-        </NuxtLink>
-
-        <NuxtLink
-          to="/deals"
-          class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-ds-border bg-ds-bg-elevated px-3 py-2 text-xs font-medium text-ds-fg-muted transition-colors duration-200 hover:border-ds-brand-muted hover:bg-ds-bg-muted hover:text-ds-fg"
-        >
-          <UIcon name="i-heroicons-presentation-chart-line" class="h-3.5 w-3.5" aria-hidden="true" />
-          {{ $t('dashboardHeroViewDeals') }}
-        </NuxtLink>
-
-        <div class="hidden items-center gap-2 text-xs text-ds-fg-muted lg:flex">
+        <p class="mt-2 text-xs text-ds-fg-subtle">
           <span>{{ $t('dashboardHeroLastSync') }}</span>
-          <span class="font-medium tabular-nums text-ds-fg">{{ lastSyncLabel }}</span>
-        </div>
+          <span class="ml-1 font-medium tabular-nums text-ds-fg-muted">{{ lastSyncLabel }}</span>
+        </p>
       </div>
     </div>
   </header>
@@ -151,16 +111,10 @@ const props = withDefaults(
     greeting: string
     headline: string
     weeklyFollowUpNote?: string
-    canCreateLead?: boolean
-    canCreateAccount?: boolean
-    readOnly?: boolean
     isPreviewMode?: boolean
   }>(),
   {
     weeklyFollowUpNote: '',
-    canCreateLead: false,
-    canCreateAccount: false,
-    readOnly: false,
     isPreviewMode: false,
   },
 )

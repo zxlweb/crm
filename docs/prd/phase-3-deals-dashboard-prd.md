@@ -1,9 +1,9 @@
 # Phase 3 PRD：商机 Pipeline 与成交仪表盘
 
 **产品名称**：EnterpriseFlow CRM  
-**版本**：Phase 3 v0.1  
-**日期**：2026-05-25  
-**状态**：待评审（Architect 3.0 / Implementation 开工前必读）  
+**版本**：Phase 3 v0.2  
+**日期**：2026-05-26  
+**状态**：已交付（含部门数据范围 v0.2 增补）  
 **MVP 总览**：[00-crm-overview.md](./00-crm-overview.md)  
 **前置依赖**：Phase 0 架构、Phase 1 认证/RBAC、Phase 2 客户/线索/Activity/洞察主链（可有条件关闭）  
 **关联任务**：[00-mvp-task-breakdown.md](../tasks/00-mvp-task-breakdown.md) § Phase 3  
@@ -61,12 +61,12 @@ B2B 销售在 Phase 2 已能管理线索与客户关系，但缺少：
 
 ## 2. 用户角色 (Persona) 与场景
 
-| 角色 | Phase 3 核心场景 | 诉求 |
-|------|------------------|------|
-| **Sales** | 每日看 Pipeline、推进阶段、录入金额 | 我的商机在哪一列、本月离配额还差多少 |
-| **Sales Manager** | 晨会看团队 Pipeline 与排行 | 谁卡在某个阶段、团队赢单率趋势 |
-| **Tenant Admin** | 配置默认 Pipeline 阶段名（i18n） | 不改代码即可改显示文案 |
-| **Viewer** | 只读 Pipeline 与 Dashboard | 无创建/阶段变更 |
+| 角色 | Phase 3 核心场景 | 诉求 | 数据范围（`data_scope`） |
+|------|------------------|------|-------------------------|
+| **Sales** | 每日看 Pipeline、推进阶段、录入金额 | 我的商机在哪一列、本月离配额还差多少 | `self`：仅 `owner_id = 本人` |
+| **Sales Manager** | 晨会看 **本部门** Pipeline 与 **部门内成员** 排行 | 谁卡在某个阶段、本团队赢单率 | `department`：同 `user_tenants.department` 成员负责的数据 |
+| **Tenant Admin** | 看全集团 Pipeline、**按部门** 业绩排行 | 各事业群贡献、全租户配额 | `all`：全租户；排行 **按部门汇总** |
+| **Viewer** | 只读 Pipeline 与 Dashboard | 无创建/阶段变更 | 同 Sales（`self`）或按角色 seed |
 
 ### 2.1 场景故事
 
@@ -76,8 +76,14 @@ B2B 销售在 Phase 2 已能管理线索与客户关系，但缺少：
 **场景 B — Pipeline 推进**  
 销售打开 `/deals` 看板 → 将「北辰物流」从「方案报价」拖到「商务谈判」→ 系统写 `deal.stage_change` 审计 → 看板与漏斗图同步更新。
 
-**场景 C — 经理晨会**  
-经理打开 `/` Dashboard → 切换「团队视图」（`leads:view_all` 或等价数据范围）→ 看到团队 Pipeline 总额、阶段金额柱图、成员业绩排行、配额 Gauge。
+**场景 C — 租户管理员晨会（全集团）**  
+潘总（租户管理员）打开 `/` Dashboard → `data_scope=all` → 看到全租户 KPI、Pipeline 漏斗、配额 Gauge、**部门业绩排行**（灵狐数据、神龙云计算等各事业群本月赢单金额）。
+
+**场景 D — 销售经理晨会（本部门）**  
+李婷（灵狐数据 · 销售经理）登录 → `data_scope=department` → 线索/客户/商机/仪表盘 KPI **仅本部门**；团队排行为 **本部门成员**（非全集团）；不可见莫邪互娱等其它部门数据。
+
+**场景 E — 销售代表**  
+王磊（销售代表）登录 → `data_scope=self` → 仅本人 Pipeline；**不展示**团队排行区块（API 403 或 FE 按 scope 隐藏）。
 
 ---
 
@@ -93,7 +99,7 @@ B2B 销售在 Phase 2 已能管理线索与客户关系，但缺少：
 | 3.2–3.3 | §4.3 | 阶段金额、赢单率统计 |
 | 3.4–3.6 | §4.4–4.5 | Dashboard summary + 全图嵌入 |
 | 3.5 | §4.4.3 | 配额 API + Gauge |
-| 3.7 | §4.4.4 | 经理业绩排行 |
+| 3.7 | §4.4.4、§5.3.1 | 团队/部门业绩排行 + 部门数据范围 |
 | 3.E2E | §8 | E2E 冒烟路径 |
 
 ### 4.1 商机 (Deals) — 数据模型
@@ -140,7 +146,7 @@ B2B 销售在 Phase 2 已能管理线索与客户关系，但缺少：
 |----|------|------|-----|
 | PL-01 | 销售 | 在 `/deals` 按阶段分列查看看板 | 每列展示该阶段商机卡片（标题、金额、owner、预计关单） |
 | PL-02 | 销售 | 拖拽或菜单变更阶段 | `PUT /api/deals/:id/stage`；乐观 UI 可失败回滚 |
-| PL-03 | 经理 | 查看团队 Pipeline | `data_scope` 为 `department` 或 `all` 时生效 |
+| PL-03 | 经理/管理员 | 查看团队 Pipeline | `department`：本部门各阶段商机；`all`：全租户 |
 | PL-04 | 系统 | 看板顶部展示 Pipeline 漏斗 | `GET /api/deals/pipeline` → `ChartFunnel` |
 
 **UI 要求**（FE）：
@@ -162,7 +168,7 @@ B2B 销售在 Phase 2 已能管理线索与客户关系，但缺少：
 |----|------|------|-----|
 | DS-01 | 销售 | 看各阶段 **金额合计** 柱图 | `ChartBar` 接 `GET /api/deals/stats/by-stage` |
 | DS-02 | 经理 | 看 **赢单率** 趋势 | `ChartLine` 接 `GET /api/deals/stats/win-rate`；按周/月 |
-| DS-03 | 系统 | 统计 API 遵守数据范围 | 与列表相同 ABAC；集成测覆盖 tenant + scope |
+| DS-03 | 系统 | 统计 API 遵守数据范围 | 与列表相同 `ScopeParams`（`self` / `department` / `all`）；集成测覆盖 tenant + scope |
 
 **赢单率定义（MVP）**：
 
@@ -193,7 +199,7 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 | 赢单率趋势 | `ChartLine` | `GET /api/deals/stats/win-rate` |
 | Pipeline 漏斗 | `ChartFunnel` | `GET /api/dashboard/funnel` |
 | 配额完成 | `ChartGauge` | `GET /api/dashboard/quota` |
-| 经理排行 | `ChartBar` | `GET /api/dashboard/team-ranking` |
+| 团队/部门排行 | `ChartBar` | `GET /api/dashboard/team-ranking`（见 §4.4.4） |
 | 阶段金额 | `ChartBar` | `GET /api/deals/stats/by-stage`（Deals 页） |
 
 #### 4.4.3 配额（Quota）
@@ -201,21 +207,58 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 | ID | 作为 | 我要 | AC |
 |----|------|------|-----|
 | QT-01 | 销售 | 看本周期配额完成 % | Gauge 0–100%；超额可 >100 显示 |
-| QT-02 | 经理 | 看团队汇总配额 | `view_all` 时聚合下属 |
+| QT-02 | 经理/管理员 | 看团队汇总配额 | `department` 聚合本部门；`all` 聚合全租户 |
 
 - 粒度：用户或租户（`tenants.config.sales_quota` JSONB）  
 - `target_amount` / `won_amount_mtd` / `completion_rate` 见 phase-3-deals-dashboard-api §4.4
 
-#### 4.4.4 经理视图 vs 个人视图
+#### 4.4.4 数据范围与团队排行（Accepted v0.2）
 
-| 条件 | 视图差异 |
-|------|----------|
-| 默认销售 | `data_scope=self`：summary / funnel / quota 仅本人 `owner_id` |
-| `department` | 本部门用户汇总 |
-| `all`（经理） | 全租户汇总 + **team-ranking** 展示 |
-| Viewer | 只读；无新建 Deal 入口 |
+**解析规则**（BE `datascope.Resolver`，FE 读 `summary.data_scope`）：
 
-**注意**：Deals 与 Leads **共用数据范围策略**（ABAC 同一套 `view_own|department|all`），避免经理看 Leads 全量却看 Deals 仅本人。
+| 条件 | 如何判定 | CRM 列表/统计（Leads、Accounts、Contacts、Deals、Dashboard summary/funnel/quota） |
+|------|----------|-------------------------------------------------------------------------------------|
+| `all` | 用户具备 `rbac:manage`（租户管理员） | 全租户 `owner_id` |
+| `department` | 角色名为 **销售经理** / `Sales Manager`，且 `user_tenants.department` 非空 | 仅 `owner_id` 属于 **同部门** 的成员（含 `owner_id IS NULL` 的未分配记录，与 MVP 一致） |
+| `self` | 其它角色（销售代表、只读等） | 仅 `owner_id = 当前用户` |
+
+部门归属存 **`user_tenants.department`**（一级部门名称，可与钉钉通讯录对齐）；**设置 → 成员** 展示部门列（Phase 4 交付，见 [phase-4-system-settings-close-prd.md](./phase-4-system-settings-close-prd.md) §3.6）。
+
+**`GET /api/dashboard/team-ranking`**
+
+| `data_scope` | 谁可见排行 | `group_by` | 展示语义 |
+|--------------|------------|------------|----------|
+| `self` | 否（403 或 FE 隐藏 `dashboard-team-ranking`） | — | — |
+| `department` | 销售经理 | `user` | 本部门 **成员** 本月赢单金额 Top N |
+| `all` | 租户管理员 | `department` | 全集团 **各部门** 本月赢单金额 Top N |
+
+响应示例字段：
+
+```json
+{
+  "group_by": "department",
+  "items": [
+    { "department": "灵狐数据", "name": "灵狐数据", "value": 1200000, "rank": 1 }
+  ]
+}
+```
+
+```json
+{
+  "group_by": "user",
+  "items": [
+    { "user_id": "…", "name": "李婷", "value": 800000, "rank": 1 }
+  ]
+}
+```
+
+| 其它 | 要求 |
+|------|------|
+| Viewer | 只读；无新建 Deal 入口；`self` 时无排行 |
+| FE 标题 | `group_by=department` →「部门业绩排行」；`user` →「团队业绩排行（本部门）」 |
+| 一致性 | Deals / Leads / Accounts / Contacts / Activity 触达统计 **共用** 同一 `ScopeParams`，禁止经理 Leads 全量、Deals 仅本人 |
+
+**演示**：小西科技集团租户见 [xiaoxi-boss-demo.md](../demo/xiaoxi-boss-demo.md)（`ceo@xiaoxi.com` vs `linghu@xiaoxi.com`）。
 
 #### 4.4.5 Zone E 生产化策略
 
@@ -264,13 +307,28 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 
 ### 5.3 数据范围（ABAC）
 
-| 策略 | 适用 |
-|------|------|
-| `self` | 默认销售：仅 `owner_id = current_user` |
-| `department` | 同部门 owner |
-| `all` | 租户内全部（经理） |
+| 策略 | 适用 | 判定方式（MVP） |
+|------|------|-----------------|
+| `self` | 销售代表、只读等 | 默认 |
+| `department` | 销售经理 | 角色名 + `user_tenants.department` |
+| `all` | 租户管理员 | `rbac:manage` |
 
-**集成测试必须覆盖**：租户 A 用户不可见租户 B 的 Deal；`self` scope 不可见他人 Pipeline。
+### 5.3.1 部门模型（MVP）
+
+| 项 | 说明 |
+|----|------|
+| 存储 | `user_tenants.department`（`VARCHAR`，可空） |
+| 与业务标签 | 线索/商机上的 `tags`（事业群标签）**独立**；数据范围按 **负责人所属部门**，不按 tag 过滤 |
+| 组织树 | **无** 多级部门表；一级部门字符串即可支撑 MVP |
+| 后续 | Phase 5+ 可对接钉钉部门 API 同步；RBAC UI 配置 `data_scope`（Phase 4 RB-08 Should） |
+
+**集成测试必须覆盖**：
+
+- 租户 A 用户不可见租户 B 的 Deal  
+- `self` 不可见他人 Pipeline  
+- 销售经理 A 部门不可见 B 部门 `owner_id` 的 Deal  
+- 租户管理员 `team-ranking` 为 `group_by=department`；销售经理为 `group_by=user` 且仅本部门成员  
+- `self` 调用 `team-ranking` → 403
 
 ### 5.4 审计
 
@@ -311,8 +369,9 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 1. 登录 → 新建商机 → 看板可见 → 变更阶段 → 漏斗更新  
 2. 线索 convert + `create_deal` → Deal 详情有 `lead_id`  
 3. Dashboard summary 一次加载（替代多列表聚合）→ KPI 下钻  
-4. 经理账号：team-ranking 可见；销售账号：不可见他人 Deal  
-5. 配额 Gauge 与本月 won 金额一致（seed 数据下）
+4. **租户管理员**：`team-ranking` 可见且 `group_by=department`；**销售经理**（同部门）：`group_by=user` 且仅本部门成员；**销售代表**：无排行、不可见他人 Deal  
+5. 配额 Gauge 与本月 won 金额一致（seed 数据下）；经理配额为本部门汇总、管理员为全租户  
+6. （小西演示）`ceo@xiaoxi.com` vs `linghu@xiaoxi.com` vs `moye@xiaoxi.com` 数据范围对比
 
 ### 8.2 图表 Done（与 task-breakdown 一致）
 
@@ -331,7 +390,8 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 | **Must** | `GET /api/dashboard/summary` + KPI Sparkline |
 | **Must** | Dashboard 至少 4 类图接 API（Sparkline/Line/Funnel/Gauge/Bar 取 4+） |
 | **Must** | 多租户 + RBAC + 数据范围集成测 |
-| **Should** | convert 时 `create_deal`；配额 API；经理 team-ranking |
+| **Must** | 部门数据范围（`self` / `department` / `all`）+ team-ranking（`user` / `department` 分组） |
+| **Should** | convert 时 `create_deal`；配额 API |
 | **Should** | 关系降温名单（规则版）；Zone E 热力规则化 |
 | **Could** | 看板移动端优化；独立 `/today` |
 | **Won't** | 多币种、自定义 Pipeline 阶段（Phase 4）、真 ML 赢单预测、审批流 |
@@ -391,3 +451,4 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 | 日期 | 说明 |
 |------|------|
 | 2026-05-25 | PM v0.1 初稿：Deals Pipeline、Dashboard 生产化、MoSCoW；对齐 phase-3-deals-dashboard-api v1.0 Accepted |
+| 2026-05-26 | PM v0.2：部门数据范围（租户管理员 `all` + 部门排行；销售经理 `department` + 成员排行）；`user_tenants.department`；对齐实现与 xiaoxi 演示 |

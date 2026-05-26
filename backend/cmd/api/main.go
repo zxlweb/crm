@@ -16,7 +16,9 @@ import (
 	rbacapp "crm-backend/internal/application/rbac"
 	settingsapp "crm-backend/internal/application/settings"
 	"crm-backend/internal/application/superadmin"
+	"crm-backend/internal/application/appscope"
 	"crm-backend/internal/config"
+	"crm-backend/internal/pkg/datascope"
 	"crm-backend/internal/infrastructure/persistence"
 	httphandler "crm-backend/internal/interfaces/http"
 	"crm-backend/internal/interfaces/middleware"
@@ -39,6 +41,11 @@ func main() {
 
 	rbacRepo := repository.NewRBACRepository(db)
 
+	scopeProv := appscope.Provider{
+		Resolver: &datascope.Resolver{Enforcer: enforcer, Roles: rbacRepo, Users: userRepo},
+		Enforcer: enforcer,
+	}
+
 	authSvc := auth.NewService(
 		userRepo,
 		cfg.JWTSecret,
@@ -51,11 +58,11 @@ func main() {
 	tenantInsightsRepo := repository.NewTenantInsightsRepository(db)
 	superAdminSvc := superadmin.NewService(tenantRepo, tenantInsightsRepo)
 	superAdminHTTP := httphandler.NewSuperAdminHandlers(superAdminSvc, auditRec)
-	rbacSvc := rbacapp.NewService(rbacRepo, db, enforcer)
+	rbacSvc := rbacapp.NewService(rbacRepo, db, enforcer, scopeProv)
 	rbacHTTP := httphandler.NewRBACHandlers(rbacSvc, auditRec)
 
 	accountRepo := repository.NewAccountRepository(db)
-	accountSvc := account.NewService(accountRepo, tenantRepo, enforcer)
+	accountSvc := account.NewService(accountRepo, tenantRepo, enforcer, scopeProv)
 	leadRepo := repository.NewLeadRepository(db)
 	activityRepo := repository.NewActivityRepository(db)
 	emotionSvc := emotion.NewService(activityRepo)
@@ -63,24 +70,24 @@ func main() {
 	accountHTTP := httphandler.NewAccountHandlers(accountSvc, auditRec, emotionSvc)
 
 	contactRepo := repository.NewContactRepository(db)
-	contactSvc := contactapp.NewService(contactRepo, accountRepo, enforcer)
+	contactSvc := contactapp.NewService(contactRepo, accountRepo, enforcer, scopeProv)
 	contactHTTP := httphandler.NewContactHandlers(contactSvc, auditRec, emotionSvc)
 
 	dealRepo := repository.NewDealRepository(db)
-	dealSvc := dealapp.NewService(dealRepo, accountRepo, enforcer)
+	dealSvc := dealapp.NewService(dealRepo, accountRepo, enforcer, scopeProv)
 	dealHTTP := httphandler.NewDealHandlers(dealSvc, auditRec)
 
-	dashboardSvc := dashapp.NewService(leadRepo, accountRepo, dealRepo, activityRepo, tenantRepo, userRepo, enforcer)
+	dashboardSvc := dashapp.NewService(leadRepo, accountRepo, dealRepo, activityRepo, tenantRepo, userRepo, enforcer, scopeProv)
 	dashboardHTTP := httphandler.NewDashboardHandlers(dashboardSvc, enforcer)
 
-	leadSvc := leadapp.NewService(leadRepo, accountRepo, activityRepo, tenantRepo, enforcer, dealSvc)
+	leadSvc := leadapp.NewService(leadRepo, accountRepo, activityRepo, tenantRepo, enforcer, dealSvc, scopeProv)
 	leadHTTP := httphandler.NewLeadHandlers(leadSvc, auditRec, emotionSvc)
 
-	activitySvc := actapp.NewService(activityRepo, leadRepo, accountRepo, contactRepo, tenantRepo, enforcer)
+	activitySvc := actapp.NewService(activityRepo, leadRepo, accountRepo, contactRepo, tenantRepo, enforcer, scopeProv)
 	activityHTTP := httphandler.NewActivityHandlers(activitySvc, auditRec)
 
 	segmentRepo := repository.NewSegmentRepository(db)
-	segmentSvc := segmentapp.NewService(segmentRepo, leadRepo, accountRepo, tenantRepo, enforcer)
+	segmentSvc := segmentapp.NewService(segmentRepo, leadRepo, accountRepo, tenantRepo, enforcer, scopeProv)
 	segmentHTTP := httphandler.NewSegmentHandlers(segmentSvc)
 
 	settingsRepo := repository.NewSettingsRepository(db)
@@ -149,12 +156,14 @@ func main() {
 		protected.GET("/rbac/permission-items", rbacHTTP.ListPermissionItems)
 		protected.GET("/rbac/my-permissions", rbacHTTP.MyPermissions)
 		protected.GET("/rbac/my-roles", rbacHTTP.MyRoles)
+		protected.GET("/rbac/members", rbacHTTP.ListMembers)
 		protected.GET("/rbac/roles", rbacHTTP.ListRoles)
 		protected.POST("/rbac/roles", rbacHTTP.CreateRole)
 		protected.PUT("/rbac/roles/:id", rbacHTTP.UpdateRole)
 		protected.POST("/rbac/roles/:id/permissions", rbacHTTP.AssignRolePermissions)
 		protected.GET("/rbac/users/:id/roles", rbacHTTP.ListUserRoles)
 		protected.POST("/rbac/users/:id/roles", rbacHTTP.AssignUserRoles)
+		protected.PUT("/rbac/members/:id/roles", rbacHTTP.AssignMemberRoles)
 		protected.POST("/rbac/check", rbacHTTP.Check)
 
 		protected.GET("/accounts", accountHTTP.List)
