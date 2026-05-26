@@ -9,6 +9,7 @@ import {
   buildPriorityFromLead,
   mergePriorities,
 } from '~/utils/dashboard-priority'
+import { buildEngagementSparkline } from '~/utils/dashboard-sparkline'
 
 function averageEngagement(items: Array<{ engagement_score: number }>): number {
   if (items.length === 0) return 0
@@ -25,11 +26,6 @@ function countRecentTouch(
     if (!row.last_activity_at) return false
     return new Date(row.last_activity_at).getTime() >= cutoff
   }).length
-}
-
-function buildSparklineFromScore(score: number): number[] {
-  const v = Math.min(100, Math.max(0, score))
-  return [Math.max(0, v - 24), Math.max(0, v - 16), Math.max(0, v - 7), v]
 }
 
 function mapSummaryPriority(p: DashboardSummaryPriority): PriorityActionItem {
@@ -54,7 +50,7 @@ function mapSummaryPriority(p: DashboardSummaryPriority): PriorityActionItem {
     isPreview: p.is_preview,
     score: p.score,
     engagementScore: p.engagement_score,
-    sparkline: buildSparklineFromScore(p.engagement_score),
+    sparkline: buildEngagementSparkline(p.engagement_score),
     daysSinceActivity: null,
   }
 }

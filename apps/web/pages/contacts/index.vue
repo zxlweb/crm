@@ -1,77 +1,131 @@
 <template>
   <PermissionGuard resource="contacts" action="view">
-    <div class="space-y-4" data-testid="contacts-page">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p class="max-w-2xl text-sm text-ds-fg-muted">{{ $t('contactsPageDescApi') }}</p>
-        <UiButton
+    <div class="contacts-page relative space-y-5" data-testid="contacts-page">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-64 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          class="absolute -left-12 top-0 h-52 w-52 rounded-full blur-3xl opacity-60"
+          :style="{ background: 'var(--ds-blur-brand)' }"
+        />
+        <div
+          class="absolute right-0 top-4 h-40 w-40 rounded-full blur-3xl opacity-50"
+          :style="{ background: 'var(--ds-blur-accent)' }"
+        />
+      </div>
+
+      <header
+        class="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+      >
+        <div class="min-w-0">
+          <p class="max-w-2xl text-sm text-ds-fg-muted">
+            {{ $t('contactsPageDescApi') }}
+          </p>
+        </div>
+        <button
           v-if="canCreate"
-          variant="secondary"
-          size="sm"
-          class="shrink-0"
-          icon="i-heroicons-plus-20-solid"
+          type="button"
+          class="group relative inline-flex shrink-0 cursor-pointer items-center gap-1.5 overflow-hidden rounded-xl px-4 py-2 text-sm font-semibold text-ds-on-brand shadow-ds-brand transition-[transform,box-shadow] duration-200 hover:shadow-ds-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-brand focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg disabled:cursor-not-allowed disabled:opacity-60"
+          :style="{ background: 'var(--ds-brand-gradient)' }"
           data-testid="contact-create-btn"
-          :loading="saving"
+          :disabled="saving"
           @click="openCreate"
         >
-          {{ $t('contactsCreate') }}
-        </UiButton>
-      </div>
-
-      <UAlert v-if="loadError" color="red" variant="soft" :title="loadError" class="mb-2" />
-
-      <div v-if="pending" class="flex justify-center py-24">
-        <UIcon name="i-heroicons-arrow-path" class="h-8 w-8 animate-spin text-primary" />
-      </div>
-
-      <ContactsListTable
-        v-else
-        :items="items"
-        :can-edit="canUpdate"
-        :account-names="accountNames"
-        @edit="openEdit"
-      >
-        <template #toolbar>
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <UiInput
-              v-model="search"
-              search
-              type="search"
-              class="flex-1"
-              :placeholder="$t('contactsSearchPlaceholder')"
-              @keyup.enter="onSearch"
-            />
-            <UiSelect
-              v-model="lifecycleFilter"
-              class="sm:w-48"
-              :items="lifecycleSelectItems"
-              :placeholder="$t('accountsFilterAllLifecycle')"
-            />
-            <UiSelect
-              v-model="healthFilter"
-              class="sm:w-48"
-              :items="healthSelectItems"
-              :placeholder="$t('accountsFilterAllHealth')"
-            />
-            <UiSelect
-              v-model="accountFilter"
-              class="sm:w-52"
-              :items="accountSelectItems"
-              :placeholder="$t('contactsFilterAllAccounts')"
-            />
-          </div>
-        </template>
-        <template v-if="pagination && pagination.total > 0" #footer>
-          <UiTablePagination
-            :page="page"
-            :page-size="pagination.page_size"
-            :total="pagination.total"
-            :range-text="tableRangeLabel"
-            :prev-label="$t('paginationPrev')"
-            :next-label="$t('paginationNext')"
-            @update:page="onPageChange"
+          <span
+            class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-[transform,opacity] duration-500 group-hover:translate-x-full group-hover:opacity-100"
+            aria-hidden="true"
           />
-        </template>
-      </ContactsListTable>
+          <UIcon name="i-heroicons-plus-20-solid" class="h-4 w-4" aria-hidden="true" />
+          <span>{{ $t('contactsCreate') }}</span>
+        </button>
+      </header>
+
+      <CrmEntityListHero
+        v-if="!pending"
+        :items="items"
+        :total="pagination?.total ?? items.length"
+        i18n-prefix="contactsHero"
+        at-risk-href="/contacts?health=low"
+        test-id="contacts-list-hero"
+      />
+
+      <UAlert v-if="loadError" color="red" variant="soft" :title="loadError" />
+
+      <Transition
+        mode="out-in"
+        enter-active-class="transition-opacity duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div key="list">
+          <div v-if="pending" class="flex justify-center py-24">
+            <UIcon name="i-heroicons-arrow-path" class="h-8 w-8 animate-spin text-primary" />
+          </div>
+          <ContactsListTable
+            v-else
+            :items="items"
+            :can-edit="canUpdate"
+            :account-names="accountNames"
+            @edit="openEdit"
+          >
+            <template #toolbar>
+              <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                <UiInput
+                  v-model="search"
+                  search
+                  type="search"
+                  class="w-full min-w-[12rem] sm:w-56 lg:w-64"
+                  :placeholder="$t('contactsSearchPlaceholder')"
+                  @keyup.enter="onSearch"
+                />
+                <UiSelect
+                  v-model="lifecycleFilter"
+                  class="w-full sm:w-36"
+                  :items="lifecycleSelectItems"
+                  :placeholder="$t('accountsFilterAllLifecycle')"
+                />
+                <UiSelect
+                  v-model="healthFilter"
+                  class="w-full sm:w-36"
+                  :items="healthSelectItems"
+                  :placeholder="$t('accountsFilterAllHealth')"
+                />
+                <UiSelect
+                  v-model="accountFilter"
+                  class="w-full sm:w-40"
+                  :items="accountSelectItems"
+                  :placeholder="$t('contactsFilterAllAccounts')"
+                />
+                <button
+                  v-if="hasActiveFilter"
+                  type="button"
+                  class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border border-ds-border-muted bg-ds-bg-elevated px-2.5 py-1.5 text-xs font-medium text-ds-fg-muted transition-colors duration-200 hover:border-ds-brand-muted hover:text-ds-fg-brand"
+                  data-testid="contacts-filter-reset"
+                  @click="resetFilters"
+                >
+                  <UIcon name="i-heroicons-x-mark" class="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{{ $t('leadsFilterReset') }}</span>
+                </button>
+              </div>
+            </template>
+            <template v-if="pagination && pagination.total > 0" #footer>
+              <UiTablePagination
+                :page="page"
+                :page-size="pagination.page_size"
+                :total="pagination.total"
+                :range-text="tableRangeLabel"
+                :prev-label="$t('paginationPrev')"
+                :next-label="$t('paginationNext')"
+                @update:page="onPageChange"
+              />
+            </template>
+          </ContactsListTable>
+        </div>
+      </Transition>
 
       <UiModal v-model:open="formOpen" :title="formTitle">
         <form class="space-y-4" data-testid="contact-form" @submit.prevent="submitForm">
@@ -123,6 +177,7 @@ import type { Contact, LifecycleStage, RelationshipHealth } from '~/types/contac
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const route = useRoute()
+const router = useRouter()
 const { t } = useI18n()
 const permission = usePermission()
 const tenant = useTenant()
@@ -137,12 +192,13 @@ const LIST_PAGE_SIZE = 10
 const page = ref(1)
 const items = ref<Contact[]>([])
 const pagination = ref<{ page: number; page_size: number; total: number } | null>(null)
-const pending = ref(false)
+const pending = ref(true)
 const loadError = ref('')
 const search = ref('')
 const lifecycleFilter = ref('')
 const healthFilter = ref('')
 const accountFilter = ref('')
+const filtersReady = ref(false)
 const saving = ref(false)
 const formOpen = ref(false)
 const editingId = ref<string | null>(null)
@@ -185,6 +241,14 @@ const accountFormItems = computed(() => [
   { label: t('contactsNoAccount'), value: '' },
   ...accountOptions.value.map((a) => ({ label: a.name, value: a.id })),
 ])
+
+const hasActiveFilter = computed(
+  () =>
+    Boolean(lifecycleFilter.value) ||
+    Boolean(healthFilter.value) ||
+    Boolean(accountFilter.value) ||
+    Boolean(search.value),
+)
 
 const tableRangeLabel = computed(() => {
   if (!pagination.value?.total) return ''
@@ -302,12 +366,52 @@ function onSearch() {
   reload()
 }
 
+function resetFilters() {
+  search.value = ''
+  lifecycleFilter.value = ''
+  healthFilter.value = ''
+  accountFilter.value = ''
+  page.value = 1
+  syncAccountQuery('')
+  reload()
+}
+
 function onPageChange(next: number) {
   page.value = next
   reload()
 }
 
-watch([lifecycleFilter, healthFilter, accountFilter], () => {
+function syncAccountQuery(id: string) {
+  const current = typeof route.query.account_id === 'string' ? route.query.account_id : ''
+  if (id === current) return
+  const query = { ...route.query }
+  if (id) query.account_id = id
+  else delete query.account_id
+  router.replace({ query })
+}
+
+function applyRouteQuery() {
+  const health = route.query.health
+  if (typeof health === 'string' && healthOptions.includes(health as RelationshipHealth)) {
+    healthFilter.value = health
+  }
+  if (route.query.account_id) {
+    accountFilter.value = String(route.query.account_id)
+  }
+  if (route.query.create === '1' && canCreate.value) {
+    openCreate()
+  }
+}
+
+watch([lifecycleFilter, healthFilter], () => {
+  if (!filtersReady.value) return
+  page.value = 1
+  reload()
+})
+
+watch(accountFilter, (id) => {
+  if (!filtersReady.value) return
+  syncAccountQuery(id)
   page.value = 1
   reload()
 })
@@ -336,12 +440,8 @@ async function ensureTenantContext() {
 onMounted(async () => {
   await ensureTenantContext()
   await loadAccountOptions()
-  if (route.query.create === '1' && canCreate.value) {
-    openCreate()
-  }
-  if (route.query.account_id) {
-    accountFilter.value = String(route.query.account_id)
-  }
+  applyRouteQuery()
+  filtersReady.value = true
   await reload()
 })
 </script>

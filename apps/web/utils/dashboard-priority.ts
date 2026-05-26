@@ -2,16 +2,12 @@ import { DEMO_LEAD_ID } from '~/fixtures/leads.mock'
 import type { Account } from '~/types/account'
 import type { Lead, RelationshipHealth } from '~/types/lead'
 import type { PriorityActionItem, PriorityHealthLabel } from '~/types/dashboard'
+import { buildEngagementSparkline } from '~/utils/dashboard-sparkline'
 
 function daysSince(iso: string | null): number | null {
   if (!iso) return null
   const diff = Date.now() - new Date(iso).getTime()
   return Math.max(0, Math.floor(diff / 86400000))
-}
-
-function buildSparkline(score: number): number[] {
-  const v = Math.min(100, Math.max(0, score))
-  return [Math.max(0, v - 24), Math.max(0, v - 16), Math.max(0, v - 7), v]
 }
 
 function healthLabelFrom(
@@ -170,7 +166,7 @@ export function buildPriorityFromLead(
     isPreview: lead.id === DEMO_LEAD_ID,
     score,
     engagementScore: lead.engagement_score,
-    sparkline: buildSparkline(lead.engagement_score),
+    sparkline: buildEngagementSparkline(lead.engagement_score),
     contactName: pickContactName(lead.tags),
     daysSinceActivity: inactive,
   }
@@ -227,7 +223,7 @@ export function buildPriorityFromAccount(
     healthLabel: healthLabelFrom(account.relationship_health, urgency),
     score,
     engagementScore: account.engagement_score,
-    sparkline: buildSparkline(account.engagement_score),
+    sparkline: buildEngagementSparkline(account.engagement_score),
     contactName: pickContactName(account.tags),
     daysSinceActivity: inactive,
   }

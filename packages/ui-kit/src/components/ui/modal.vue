@@ -1,15 +1,16 @@
 <template>
   <UModal v-model="open">
-    <div class="ds-modal flex flex-col">
+    <div class="ds-modal flex flex-col overflow-hidden rounded-2xl">
+      <span
+        v-if="title || $slots.title || !hideClose"
+        class="pointer-events-none block h-0.5 w-full shrink-0"
+        :style="{ background: 'var(--ds-brand-gradient)' }"
+        aria-hidden="true"
+      />
       <header
         v-if="title || $slots.title || !hideClose"
-        class="ds-modal__header relative flex items-start justify-between gap-3 border-b border-ds-border-muted px-5 py-4 sm:px-6"
+        class="ds-modal__header flex items-start justify-between gap-3 border-b border-ds-border-muted px-5 py-4 sm:px-6"
       >
-        <span
-          class="pointer-events-none absolute inset-x-0 top-0 h-0.5 opacity-80"
-          :style="{ background: 'var(--ds-brand-gradient)' }"
-          aria-hidden="true"
-        />
         <div class="min-w-0 flex-1">
           <slot name="title">
             <h2 v-if="title" class="text-base font-semibold tracking-tight text-ds-fg-heading">

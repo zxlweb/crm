@@ -16,11 +16,11 @@
         v-for="kpi in kpis"
         :key="kpi.key"
         :to="kpi.href"
-        class="group relative block min-w-0 cursor-pointer rounded-ds-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand"
+        class="group relative block min-w-0 cursor-pointer overflow-hidden rounded-ds-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand"
       >
         <CardMetric
           class="h-full transition-[box-shadow,border-color,background-color] duration-200 group-hover:border-ds-brand-muted/50 group-hover:bg-ds-bg-muted/30 group-hover:shadow-ds-md"
-          :class="variant === 'hero' ? 'p-4 sm:p-5' : 'pr-7'"
+          :class="variant === 'hero' ? '' : 'pr-7'"
           density="compact"
           :icon-tone="kpi.iconTone"
           :label="kpi.label"
@@ -32,19 +32,20 @@
           <template #icon>
             <component :is="kpi.icon" class="h-5 w-5" aria-hidden="true" />
           </template>
+          <template v-if="kpi.sparkline?.length" #footer-trailing>
+            <ChartSparkline
+              :values="kpi.sparkline"
+              :tone="kpi.sparklineTone ?? 'auto'"
+              :width="variant === 'hero' ? 52 : 44"
+              :height="24"
+              class="shrink-0 opacity-90"
+            />
+          </template>
         </CardMetric>
-        <ChartSparkline
-          v-if="kpi.sparkline?.length"
-          :values="kpi.sparkline"
-          :tone="kpi.sparklineTone ?? 'auto'"
-          :width="variant === 'hero' ? 72 : 56"
-          :height="28"
-          class="pointer-events-none absolute bottom-3 right-3 opacity-90"
-        />
         <UIcon
           v-if="variant !== 'hero'"
           name="i-heroicons-chevron-right-20-solid"
-          class="pointer-events-none absolute right-3 top-4 h-4 w-4 shrink-0 text-ds-fg-subtle opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+          class="pointer-events-none absolute right-3 top-4 z-[1] h-4 w-4 shrink-0 text-ds-fg-subtle opacity-0 transition-opacity duration-200 group-hover:opacity-100"
           aria-hidden="true"
         />
       </NuxtLink>

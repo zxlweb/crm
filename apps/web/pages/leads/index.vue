@@ -19,13 +19,7 @@
         class="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
       >
         <div class="min-w-0">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-ds-fg-brand">
-            {{ $t('leadsHeroEyebrow') }}
-          </p>
-          <h1 class="mt-1 text-2xl font-bold tracking-tight text-ds-fg-heading sm:text-[1.75rem]">
-            {{ $t('leadsTitle') }}
-          </h1>
-          <p class="mt-1 max-w-2xl text-sm text-ds-fg-muted">
+          <p class="max-w-2xl text-sm text-ds-fg-muted">
             {{ $t('leadsPageDescApi') }}
           </p>
         </div>
@@ -146,50 +140,44 @@
               @transfer="openTransfer"
             >
               <template #toolbar>
-                <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
-                  <div class="relative flex-1">
-                    <UiInput
-                      v-model="search"
-                      search
-                      type="search"
-                      class="w-full"
-                      :placeholder="$t('leadsSearchPlaceholder')"
-                      @keyup.enter="onSearch"
-                    />
-                  </div>
-                  <div
-                    class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 lg:shrink-0"
+                <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                  <UiInput
+                    v-model="search"
+                    search
+                    type="search"
+                    class="w-full min-w-[12rem] sm:w-56 lg:w-64"
+                    :placeholder="$t('leadsSearchPlaceholder')"
+                    @keyup.enter="onSearch"
+                  />
+                  <UiSelect
+                    v-model="segmentFilter"
+                    class="w-full sm:w-40"
+                    :items="segmentSelectItems"
+                    :placeholder="$t('segmentAll')"
+                    data-testid="segment-select"
+                  />
+                  <UiSelect
+                    v-model="statusFilter"
+                    class="w-full sm:w-36"
+                    :items="statusSelectItems"
+                    :placeholder="$t('leadsFilterAllStatus')"
+                  />
+                  <UiSelect
+                    v-model="healthFilter"
+                    class="w-full sm:w-36"
+                    :items="healthSelectItems"
+                    :placeholder="$t('accountsFilterAllHealth')"
+                  />
+                  <button
+                    v-if="hasActiveFilter"
+                    type="button"
+                    class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border border-ds-border-muted bg-ds-bg-elevated px-2.5 py-1.5 text-xs font-medium text-ds-fg-muted transition-colors duration-200 hover:border-ds-brand-muted hover:text-ds-fg-brand"
+                    data-testid="leads-filter-reset"
+                    @click="resetFilters"
                   >
-                    <UiSelect
-                      v-model="segmentFilter"
-                      class="sm:w-48"
-                      :items="segmentSelectItems"
-                      :placeholder="$t('segmentAll')"
-                      data-testid="segment-select"
-                    />
-                    <UiSelect
-                      v-model="statusFilter"
-                      class="sm:w-40"
-                      :items="statusSelectItems"
-                      :placeholder="$t('leadsFilterAllStatus')"
-                    />
-                    <UiSelect
-                      v-model="healthFilter"
-                      class="sm:w-40"
-                      :items="healthSelectItems"
-                      :placeholder="$t('accountsFilterAllHealth')"
-                    />
-                    <button
-                      v-if="hasActiveFilter"
-                      type="button"
-                      class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border border-ds-border-muted bg-ds-bg-elevated px-2.5 py-1.5 text-xs font-medium text-ds-fg-muted transition-colors duration-200 hover:border-ds-brand-muted hover:text-ds-fg-brand"
-                      data-testid="leads-filter-reset"
-                      @click="resetFilters"
-                    >
-                      <UIcon name="i-heroicons-x-mark" class="h-3.5 w-3.5" aria-hidden="true" />
-                      <span>{{ $t('leadsFilterReset') }}</span>
-                    </button>
-                  </div>
+                    <UIcon name="i-heroicons-x-mark" class="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>{{ $t('leadsFilterReset') }}</span>
+                  </button>
                 </div>
               </template>
               <template v-if="pagination && pagination.total > 0" #footer>

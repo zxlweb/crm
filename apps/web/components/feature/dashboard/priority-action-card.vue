@@ -56,7 +56,17 @@
     </div>
 
     <div class="hidden shrink-0 items-center gap-2 sm:flex">
-      <DashboardSparkline :values="item.sparkline" class="opacity-80" />
+      <div
+        class="flex h-6 w-14 items-center justify-center overflow-hidden rounded-md bg-ds-bg-muted/40"
+        aria-hidden="true"
+      >
+        <DashboardSparkline
+          :values="item.sparkline"
+          :tone="item.healthLabel"
+          :width="52"
+          :height="22"
+        />
+      </div>
       <span class="min-w-[1.75rem] text-right text-sm font-bold tabular-nums" :class="scoreTextClass">
         {{ item.engagementScore }}
       </span>

@@ -32,24 +32,31 @@
     </div>
 
     <div
-      v-if="compareLabel || trend != null"
+      v-if="compareLabel || trend != null || $slots['footer-trailing']"
       class="ds-card-metric__footer"
     >
       <span
         v-if="compareLabel"
-        class="ds-card-metric__compare min-w-0 leading-tight text-ds-fg-muted"
+        class="ds-card-metric__compare min-w-0 flex-1 leading-tight text-ds-fg-muted"
         :class="footerCompareClass"
       >
         {{ compareLabel }}
       </span>
-      <span
-        v-if="trend != null"
-        class="ds-card-metric__trend shrink-0"
-        :class="[trendClass, density === 'compact' ? 'ds-card-metric__trend--compact' : '']"
+      <div
+        v-if="$slots['footer-trailing'] || trend != null"
+        class="ds-card-metric__footer-trailing ml-auto flex shrink-0 items-center gap-1.5"
       >
-        {{ trendDisplay }}
-        <span v-if="trendArrow" class="ml-0.5" aria-hidden="true">{{ trendArrow }}</span>
-      </span>
+        <slot name="footer-trailing" />
+        <span
+          v-if="trend != null"
+          class="ds-card-metric__trend max-w-[9rem] truncate"
+          :class="[trendClass, density === 'compact' ? 'ds-card-metric__trend--compact' : '']"
+          :title="trendDisplay"
+        >
+          {{ trendDisplay }}
+          <span v-if="trendArrow" class="ml-0.5" aria-hidden="true">{{ trendArrow }}</span>
+        </span>
+      </div>
     </div>
   </article>
 </template>
