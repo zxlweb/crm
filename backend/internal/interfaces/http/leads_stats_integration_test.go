@@ -186,7 +186,7 @@ func setupLeadsRouterWithEnforcer(t *testing.T, enforcer *casbin.Enforcer, userI
 	emotionSvc := emotionapp.NewService(activityRepo)
 	leadHTTP := httphandler.NewLeadHandlers(leadSvc, audit.NewRecorder(&memAuditRepo{}), emotionSvc)
 	secret := "leads-test-custom"
-	token, _, err := jwtutil.GenerateAccess(secret, userID, "u@test.com", false, &tenantID, time.Hour)
+	token, _, err := jwtutil.GenerateAccess(secret, userID, "u@test.com", false, &tenantID, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}

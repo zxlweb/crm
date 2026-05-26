@@ -1,32 +1,42 @@
 <template>
   <div class="dashboard-page relative" data-testid="dashboard-page">
     <div
-      class="pointer-events-none absolute inset-x-0 top-0 h-64 overflow-hidden"
+      class="pointer-events-none absolute inset-x-0 top-0 h-72 overflow-hidden"
       aria-hidden="true"
     >
       <div
-        class="absolute -left-16 top-0 h-48 w-48 rounded-full blur-3xl opacity-70"
+        class="absolute -left-16 top-0 h-60 w-60 rounded-full blur-3xl opacity-70"
         :style="{ background: 'var(--ds-blur-brand)' }"
       />
       <div
-        class="absolute right-0 top-6 h-40 w-40 rounded-full blur-3xl opacity-60"
+        class="absolute right-0 top-6 h-44 w-44 rounded-full blur-3xl opacity-60"
         :style="{ background: 'var(--ds-blur-accent)' }"
       />
     </div>
 
     <div class="relative mx-auto max-w-[1400px] space-y-6">
-      <!-- Row 1 · KPI 全宽 -->
-      <section data-testid="dashboard-zone-metrics" aria-labelledby="dashboard-metrics-heading">
-        <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-xs font-medium text-ds-fg-muted">{{ greeting }}</p>
-            <h1 id="dashboard-metrics-heading" class="mt-0.5 text-xl font-bold tracking-tight text-ds-fg-heading sm:text-2xl">
-              {{ headline }}
-            </h1>
-          </div>
-          <p v-if="weeklyFollowUpNote" class="text-xs text-ds-fg-subtle">{{ weeklyFollowUpNote }}</p>
-        </div>
+      <!-- Hero Command Bar -->
+      <DashboardHeroCommand
+        :snapshot="snapshot"
+        :greeting="greeting"
+        :headline="headline"
+        :weekly-follow-up-note="weeklyFollowUpNote"
+        :can-create-lead="canCreateLead"
+        :can-create-account="canCreateAccount"
+        :read-only="readOnly"
+        :is-preview-mode="isPreviewMode"
+      />
 
+      <!-- Focus Stream — "right now, look at these" -->
+      <DashboardFocusStream
+        :priorities="snapshot.priorities"
+        :insights="insightItems"
+        :insight-detail-href="insightDetailHref"
+      />
+
+      <!-- KPI Row · at-a-glance numbers -->
+      <section data-testid="dashboard-zone-metrics" aria-labelledby="dashboard-metrics-heading">
+        <h2 id="dashboard-metrics-heading" class="sr-only">{{ headline }}</h2>
         <DashboardKpiRow
           variant="hero"
           :leads-total="snapshot.leadsTotal"
@@ -40,12 +50,13 @@
         />
       </section>
 
-      <!-- Row 1.5 · 成交分析图表 -->
+      <!-- Analytics — trends/charts -->
       <DashboardAnalyticsPanel :show-team-ranking="showTeamRanking" data-testid="dashboard-zone-analytics" />
 
-      <!-- Row 2 · 今日优先 + 今日日程 -->
+      <!-- Priority + Calendar — today's lists -->
       <div
-        class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_min(340px,100%)] xl:items-stretch"
+        id="dashboard-priority-section"
+        class="grid scroll-mt-24 gap-4 xl:grid-cols-[minmax(0,1fr)_min(340px,100%)] xl:items-start"
         data-testid="dashboard-zone-priority-calendar"
       >
         <DashboardPrioritySection
@@ -65,20 +76,11 @@
         />
       </div>
 
-      <!-- Zone C + D · 管道 + 洞察 -->
-      <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_min(360px,100%)] xl:items-start">
-        <DashboardPipelineTabs
-          :leads="snapshot.pipelineLeads"
-          :accounts="snapshot.pipelineAccounts"
-        />
-
-        <aside class="xl:sticky xl:top-6">
-          <DashboardInsightCompact
-            :items="insightItems"
-            :detail-href="insightDetailHref"
-          />
-        </aside>
-      </div>
+      <!-- Pipeline activity — recent updates to leads & accounts -->
+      <DashboardPipelineTabs
+        :leads="snapshot.pipelineLeads"
+        :accounts="snapshot.pipelineAccounts"
+      />
 
       <!-- Zone E · Preview 展望 -->
       <section v-if="showZoneE" data-testid="dashboard-zone-e">

@@ -1,51 +1,130 @@
 <template>
   <PermissionGuard resource="deals" action="view">
     <div class="deals-page relative" data-testid="deals-page">
+      <!-- Ambient brand glow -->
       <div
-        class="pointer-events-none absolute inset-x-0 top-0 h-56 overflow-hidden"
+        class="pointer-events-none absolute inset-x-0 top-0 h-72 overflow-hidden"
         aria-hidden="true"
       >
         <div
-          class="absolute -left-12 top-0 h-44 w-44 rounded-full blur-3xl opacity-60"
+          class="absolute -left-16 top-0 h-60 w-60 rounded-full blur-3xl opacity-70"
           :style="{ background: 'var(--ds-blur-brand)' }"
         />
         <div
-          class="absolute right-0 top-4 h-36 w-36 rounded-full blur-3xl opacity-50"
+          class="absolute right-0 top-8 h-44 w-44 rounded-full blur-3xl opacity-60"
           :style="{ background: 'var(--ds-blur-accent)' }"
         />
       </div>
 
       <div class="relative mx-auto max-w-[1400px] space-y-6">
-        <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div class="min-w-0">
-            <p class="text-xs font-medium uppercase tracking-wide text-ds-fg-brand">
-              {{ $t('dealsPageLabel') }}
-            </p>
-            <h1 class="mt-0.5 text-xl font-bold tracking-tight text-ds-fg-heading sm:text-2xl">
-              {{ $t('dealsPageTitle') }}
-            </h1>
-            <p class="mt-1.5 max-w-2xl text-sm text-ds-fg-muted">
-              {{ isPreviewMode ? $t('dealsPageDescMock') : $t('dealsPageDesc') }}
-            </p>
+        <!-- HERO COMMAND BAR -->
+        <header
+          class="ds-deals-hero relative overflow-hidden rounded-3xl border border-ds-border bg-ds-bg-elevated/85 px-5 py-5 shadow-ds-md backdrop-blur-md sm:px-7 sm:py-7"
+          data-testid="deals-hero"
+        >
+          <div
+            class="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full opacity-30 blur-3xl"
+            :style="{ background: 'var(--ds-brand-gradient)' }"
+            aria-hidden="true"
+          />
+          <div
+            class="pointer-events-none absolute -bottom-16 left-1/3 h-40 w-40 rounded-full opacity-20 blur-3xl"
+            :style="{ background: 'var(--ds-blur-brand)' }"
+            aria-hidden="true"
+          />
+
+          <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ds-fg-brand">
+                <span class="relative flex h-2 w-2" aria-hidden="true">
+                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-ds-brand opacity-50" />
+                  <span class="relative inline-flex h-2 w-2 rounded-full bg-ds-brand" />
+                </span>
+                <span>{{ $t('dealsPageLabel') }}</span>
+                <span aria-hidden="true" class="text-ds-fg-subtle">·</span>
+                <span class="text-ds-fg-muted">{{ isPreviewMode ? $t('dealsHeroDemoBadge') : $t('dealsHeroLiveBadge') }}</span>
+              </div>
+              <h1 class="mt-1.5 text-2xl font-bold tracking-tight text-ds-fg-heading sm:text-3xl">
+                {{ $t('dealsPageTitle') }}
+              </h1>
+
+              <!-- Headline pipeline value -->
+              <div class="mt-4 flex flex-wrap items-end gap-x-4 gap-y-2">
+                <div>
+                  <p class="text-[11px] font-medium uppercase tracking-wider text-ds-fg-muted">
+                    {{ $t('dealsHeroTotalLabel') }}
+                  </p>
+                  <p class="mt-0.5 text-3xl font-extrabold tabular-nums tracking-tight text-ds-fg-heading sm:text-4xl">
+                    <span class="bg-clip-text" :style="brandGradientText">{{ heroPipelineValue }}</span>
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-full border border-ds-info/25 bg-ds-info-subtle px-2.5 py-1 text-xs font-medium text-ds-info"
+                  >
+                    <UIcon name="i-heroicons-briefcase" class="h-3.5 w-3.5" aria-hidden="true" />
+                    {{ $t('dealsHeroOpenDeals', { n: openDealsCount }) }}
+                  </span>
+                  <span
+                    v-if="closingThisWeekCount > 0"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-ds-warning/25 bg-ds-warning-subtle px-2.5 py-1 text-xs font-medium text-ds-warning"
+                  >
+                    <UIcon name="i-heroicons-bell-alert" class="h-3.5 w-3.5" aria-hidden="true" />
+                    {{ $t('dealsHeroClosingWeek', { n: closingThisWeekCount }) }}
+                  </span>
+                  <span
+                    v-if="overdueCount > 0"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-ds-danger/25 bg-ds-danger-subtle px-2.5 py-1 text-xs font-medium text-ds-danger"
+                  >
+                    <UIcon name="i-heroicons-exclamation-triangle" class="h-3.5 w-3.5" aria-hidden="true" />
+                    {{ $t('dealsHeroOverdue', { n: overdueCount }) }}
+                  </span>
+                  <span
+                    v-if="wonThisMonthCount > 0"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-ds-success/25 bg-ds-success-subtle px-2.5 py-1 text-xs font-medium text-ds-success"
+                  >
+                    <UIcon name="i-heroicons-trophy" class="h-3.5 w-3.5" aria-hidden="true" />
+                    {{ $t('dealsHeroWonMonth', { n: wonThisMonthCount }) }}
+                  </span>
+                </div>
+              </div>
+
+              <p class="mt-3 max-w-xl text-sm text-ds-fg-muted">
+                {{ isPreviewMode ? $t('dealsPageDescMock') : $t('dealsPageDesc') }}
+              </p>
+            </div>
+
+            <div class="flex shrink-0 flex-wrap items-center gap-2 lg:flex-col lg:items-end">
+              <button
+                v-if="canCreate"
+                type="button"
+                class="ds-deals-hero__cta group relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-2xl px-5 py-3 text-sm font-semibold text-ds-on-brand shadow-ds-brand transition-[transform,box-shadow] duration-200 hover:shadow-ds-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-brand focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg disabled:cursor-not-allowed disabled:opacity-60"
+                :style="{ background: 'var(--ds-brand-gradient)' }"
+                data-testid="deal-create-btn"
+                :disabled="creating"
+                @click="createOpen = true"
+              >
+                <span
+                  class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-[transform,opacity] duration-500 group-hover:translate-x-full group-hover:opacity-100"
+                  aria-hidden="true"
+                />
+                <UIcon name="i-heroicons-plus" class="h-4 w-4" aria-hidden="true" />
+                <span>{{ $t('dealsCreate') }}</span>
+              </button>
+              <div class="hidden items-center gap-2 text-xs text-ds-fg-muted lg:flex">
+                <kbd class="rounded border border-ds-border bg-ds-bg-muted px-1.5 py-0.5 font-mono text-[10px] text-ds-fg-muted">N</kbd>
+                <span>{{ $t('dealsHeroShortcut') }}</span>
+              </div>
+            </div>
           </div>
-          <UiButton
-            v-if="canCreate"
-            variant="secondary"
-            size="sm"
-            class="shrink-0"
-            icon="i-heroicons-plus-20-solid"
-            data-testid="deal-create-btn"
-            :loading="creating"
-            @click="createOpen = true"
-          >
-            {{ $t('dealsCreate') }}
-          </UiButton>
         </header>
 
         <DealsPipelineSkeleton v-if="pending && !pipeline" />
 
         <template v-else-if="pipeline">
           <DealsKpiRow :summary="pipeline.summary" :stages="pipeline.stages" />
+
+          <DealsFocusStream :stages="pipeline.stages" />
 
           <UiTabs v-model="activeTab" :items="mainTabs" class="max-w-xs" data-testid="deals-main-tabs" />
 
@@ -116,6 +195,7 @@ const router = useRouter()
 const { t } = useI18n()
 const permission = usePermission()
 const dealsApi = useDeals()
+const { formatDealAmount } = useDealLabels()
 
 const activeTab = ref('pipeline')
 const pipeline = ref<DealPipelineData | null>(null)
@@ -134,13 +214,67 @@ const createForm = reactive({
 })
 
 const mainTabs = computed(() => [
-  { id: 'pipeline', label: t('dealsTabPipeline') },
-  { id: 'reports', label: t('dealsTabReports') },
+  { id: 'pipeline', label: t('dealsTabPipeline'), icon: 'i-heroicons-rectangle-stack' },
+  { id: 'reports', label: t('dealsTabReports'), icon: 'i-heroicons-chart-bar' },
 ])
 
 const canCreate = computed(() => permission.can('deals', 'create'))
 const canUpdate = computed(() => permission.can('deals', 'update'))
 const isPreviewMode = computed(() => dealsApi.useMock.value)
+
+const brandGradientText = {
+  backgroundImage: 'var(--ds-brand-gradient)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+  color: 'transparent',
+}
+
+const heroPipelineValue = computed(() => {
+  const summary = pipeline.value?.summary
+  if (!summary) return formatDealAmount(0)
+  return formatDealAmount(summary.open_amount)
+})
+
+const openDealsCount = computed(() => pipeline.value?.summary.open_count ?? 0)
+const wonThisMonthCount = computed(() => pipeline.value?.summary.won_count_mtd ?? 0)
+
+function startOfDay(d: Date): number {
+  const x = new Date(d)
+  x.setHours(0, 0, 0, 0)
+  return x.getTime()
+}
+
+const closingThisWeekCount = computed(() => {
+  if (!pipeline.value) return 0
+  const today = startOfDay(new Date())
+  let n = 0
+  for (const col of pipeline.value.stages) {
+    if (col.stage === 'won' || col.stage === 'lost') continue
+    for (const item of col.items) {
+      if (!item.expected_close_date) continue
+      const close = startOfDay(new Date(`${item.expected_close_date}T00:00:00`))
+      const days = Math.round((close - today) / 86_400_000)
+      if (days >= 0 && days <= 7) n++
+    }
+  }
+  return n
+})
+
+const overdueCount = computed(() => {
+  if (!pipeline.value) return 0
+  const today = startOfDay(new Date())
+  let n = 0
+  for (const col of pipeline.value.stages) {
+    if (col.stage === 'won' || col.stage === 'lost') continue
+    for (const item of col.items) {
+      if (!item.expected_close_date) continue
+      const close = startOfDay(new Date(`${item.expected_close_date}T00:00:00`))
+      if (close < today) n++
+    }
+  }
+  return n
+})
 
 async function loadPipeline() {
   pending.value = true
@@ -212,9 +346,30 @@ watch(activeTab, (tab) => {
   router.replace({ query })
 })
 
+function onKeydown(e: KeyboardEvent) {
+  const target = e.target as HTMLElement | null
+  if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return
+  if (target?.isContentEditable) return
+  if ((e.key === 'n' || e.key === 'N') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    if (canCreate.value && !createOpen.value) {
+      e.preventDefault()
+      createOpen.value = true
+    }
+  }
+}
+
 onMounted(async () => {
   applyRouteQuery()
   tabReady.value = true
+  if (typeof globalThis.window !== 'undefined') {
+    globalThis.window.addEventListener('keydown', onKeydown)
+  }
   await loadPipeline()
+})
+
+onUnmounted(() => {
+  if (typeof globalThis.window !== 'undefined') {
+    globalThis.window.removeEventListener('keydown', onKeydown)
+  }
 })
 </script>

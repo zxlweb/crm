@@ -53,9 +53,26 @@ func (h *RBACHandlers) MyPermissions(c *gin.Context) {
 		response.Success(c, data)
 		return
 	}
-	data, err := h.svc.MyPermissions(c.Request.Context(), tenantID, userID)
+	data, err := h.svc.MyPermissions(c.Request.Context(), tenantID, userID, activeRoleIDFromGin(c))
 	if err != nil {
+		if errors.Is(err, rbacapp.ErrRoleForbidden) {
+			response.Forbidden(c, "当前活跃角色无效")
+			return
+		}
 		response.InternalError(c, "读取权限失败")
+		return
+	}
+	response.Success(c, data)
+}
+
+func (h *RBACHandlers) MyRoles(c *gin.Context) {
+	tenantID, userID, ok := rbacContext(c)
+	if !ok {
+		return
+	}
+	data, err := h.svc.ListUserRoles(c.Request.Context(), tenantID, userID)
+	if err != nil {
+		response.InternalError(c, "获取角色列表失败")
 		return
 	}
 	response.Success(c, data)
@@ -238,6 +255,7 @@ func (h *RBACHandlers) Check(c *gin.Context) {
 		tenantID,
 		userID.String(),
 		c.GetBool("is_super_admin"),
+		c.GetString("active_role_id"),
 		req.Resource,
 		req.Action,
 	)
@@ -246,6 +264,18 @@ func (h *RBACHandlers) Check(c *gin.Context) {
 		return
 	}
 	response.Success(c, rbacapp.CheckResult{Allowed: allowed})
+}
+
+func activeRoleIDFromGin(c *gin.Context) *uuid.UUID {
+	s := c.GetString("active_role_id")
+	if s == "" {
+		return nil
+	}
+	id, err := uuid.Parse(s)
+	if err != nil {
+		return nil
+	}
+	return &id
 }
 
 func rbacContext(c *gin.Context) (uuid.UUID, uuid.UUID, bool) {

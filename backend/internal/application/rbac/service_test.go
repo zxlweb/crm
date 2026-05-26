@@ -58,6 +58,14 @@ func (m *mockRBACRepo) ListUserPermissions(ctx context.Context, tenantID, userID
 	return m.perms, nil
 }
 
+func (m *mockRBACRepo) ListRolePermissions(ctx context.Context, roleID uuid.UUID) ([]domain.Permission, error) {
+	return m.perms, nil
+}
+
+func (m *mockRBACRepo) UserHasRole(ctx context.Context, tenantID, userID, roleID uuid.UUID) (bool, error) {
+	return true, nil
+}
+
 func (m *mockRBACRepo) PermissionsExist(ctx context.Context, ids []uuid.UUID) (bool, error) {
 	return true, nil
 }

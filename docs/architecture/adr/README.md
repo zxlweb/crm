@@ -39,6 +39,7 @@ docs/architecture/adr/
 | [0002](./0002-casbin-rbac.md) | Casbin RBAC + resource:action | Accepted | 2026-05-21 |
 | [0003](./0003-goose-migrations.md) | Goose 作为数据库迁移工具 | Accepted | 2026-05-21 |
 | [0004](./0004-rule-insights-and-ai-preview.md) | Phase 2 规则洞察与 AI Preview 分离 | Accepted | 2026-05-22 |
+| [0005](./0005-phase4-settings-custom-fields-and-tenant-insights.md) | Phase 4 Settings、自定义字段与租户健康度统一架构 | Accepted | 2026-05-26 |
 
 ## 何时写 ADR
 

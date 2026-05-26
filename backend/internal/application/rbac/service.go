@@ -6,6 +6,8 @@ import (
 
 	"crm-backend/internal/domain"
 	"crm-backend/internal/infrastructure/persistence"
+	"crm-backend/internal/pkg/activerole"
+	"crm-backend/internal/pkg/rbacutil"
 	"crm-backend/internal/repository"
 
 	"github.com/casbin/casbin/v2"
@@ -17,6 +19,7 @@ var (
 	ErrRoleNotFound       = errors.New("role not found")
 	ErrInvalidPermissions = errors.New("invalid permission ids")
 	ErrInvalidRoles       = errors.New("invalid role ids")
+	ErrRoleForbidden      = errors.New("role forbidden")
 )
 
 type PermissionGroup struct {
@@ -81,8 +84,21 @@ func (s *Service) ListPermissionItems(ctx context.Context) ([]PermissionItemDTO,
 	return items, nil
 }
 
-func (s *Service) MyPermissions(ctx context.Context, tenantID, userID uuid.UUID) ([]PermissionGroup, error) {
-	rows, err := s.repo.ListUserPermissions(ctx, tenantID, userID)
+func (s *Service) MyPermissions(ctx context.Context, tenantID, userID uuid.UUID, activeRoleID *uuid.UUID) ([]PermissionGroup, error) {
+	var rows []domain.Permission
+	var err error
+	if activeRoleID != nil {
+		ok, err := s.repo.UserHasRole(ctx, tenantID, userID, *activeRoleID)
+		if err != nil {
+			return nil, err
+		}
+		if !ok {
+			return nil, ErrRoleForbidden
+		}
+		rows, err = s.repo.ListRolePermissions(ctx, *activeRoleID)
+	} else {
+		rows, err = s.repo.ListUserPermissions(ctx, tenantID, userID)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -190,11 +206,14 @@ func (s *Service) SetUserRoles(ctx context.Context, tenantID, userID uuid.UUID, 
 	return s.ListUserRoles(ctx, tenantID, userID)
 }
 
-func (s *Service) Check(ctx context.Context, tenantID uuid.UUID, userID string, isSuperAdmin bool, resource, action string) (bool, error) {
+func (s *Service) Check(ctx context.Context, tenantID uuid.UUID, userID string, isSuperAdmin bool, activeRoleID, resource, action string) (bool, error) {
 	if isSuperAdmin {
 		return true, nil
 	}
-	return s.enforcer.Enforce(userID, tenantID.String(), resource, action)
+	if activeRoleID != "" {
+		ctx = activerole.WithID(ctx, activeRoleID)
+	}
+	return rbacutil.Enforce(ctx, s.enforcer, userID, tenantID.String(), resource, action)
 }
 
 func groupPermissions(rows []domain.Permission) []PermissionGroup {

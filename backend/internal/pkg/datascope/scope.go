@@ -1,17 +1,18 @@
 package datascope
 
 import (
+	"context"
+
+	"crm-backend/internal/pkg/rbacutil"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // CanViewAllTenantData managers / tenant admins see all records in tenant.
-func CanViewAllTenantData(enforcer *casbin.Enforcer, userID, tenantID string) bool {
-	if enforcer == nil {
-		return false
-	}
-	ok, err := enforcer.Enforce(userID, tenantID, "rbac", "manage")
+func CanViewAllTenantData(ctx context.Context, enforcer *casbin.Enforcer, userID, tenantID string) bool {
+	ok, err := rbacutil.Enforce(ctx, enforcer, userID, tenantID, "rbac", "manage")
 	return err == nil && ok
 }
 
@@ -24,21 +25,21 @@ func OwnerScope(db *gorm.DB, userID uuid.UUID, viewAll bool) *gorm.DB {
 }
 
 // ResolveDataScope maps Casbin policies to API data_scope (Phase 3).
-func ResolveDataScope(enforcer *casbin.Enforcer, userID, tenantID string) string {
-	if CanViewAllTenantData(enforcer, userID, tenantID) {
+func ResolveDataScope(ctx context.Context, enforcer *casbin.Enforcer, userID, tenantID string) string {
+	if CanViewAllTenantData(ctx, enforcer, userID, tenantID) {
 		return "all"
 	}
 	return "self"
 }
 
 // CanViewTeamData reports manager-style scope for team-ranking (department stub = all).
-func CanViewTeamData(enforcer *casbin.Enforcer, userID, tenantID string) bool {
-	scope := ResolveDataScope(enforcer, userID, tenantID)
+func CanViewTeamData(ctx context.Context, enforcer *casbin.Enforcer, userID, tenantID string) bool {
+	scope := ResolveDataScope(ctx, enforcer, userID, tenantID)
 	return scope == "all" || scope == "department"
 }
 
 // CanAccessDashboard reports dashboard:view or module view for summary.
-func CanAccessDashboard(enforcer *casbin.Enforcer, userID, tenantID string) bool {
+func CanAccessDashboard(ctx context.Context, enforcer *casbin.Enforcer, userID, tenantID string) bool {
 	if enforcer == nil {
 		return false
 	}
@@ -47,7 +48,7 @@ func CanAccessDashboard(enforcer *casbin.Enforcer, userID, tenantID string) bool
 		{"leads", "view"},
 		{"deals", "view"},
 	} {
-		ok, err := enforcer.Enforce(userID, tenantID, pair[0], pair[1])
+		ok, err := rbacutil.Enforce(ctx, enforcer, userID, tenantID, pair[0], pair[1])
 		if err == nil && ok {
 			return true
 		}

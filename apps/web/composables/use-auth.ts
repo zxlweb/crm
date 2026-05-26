@@ -11,6 +11,12 @@ export type AuthTenant = {
   domain: string
 }
 
+export type AuthRole = {
+  id: string
+  name: string
+  description: string
+}
+
 export type LoginResponse = {
   access_token: string
   refresh_token: string
@@ -18,6 +24,8 @@ export type LoginResponse = {
   user: AuthUser
   tenants: AuthTenant[]
   current_tenant?: AuthTenant
+  roles?: AuthRole[]
+  current_role?: AuthRole
 }
 
 const AUTH_COOKIE_OPTS = {

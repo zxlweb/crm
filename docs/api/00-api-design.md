@@ -206,6 +206,19 @@
 
 ---
 
+### Settings + Close（系统设置与收尾，Phase 4）
+
+**详约**：[phase-4-system-settings-api.md](./phase-4-system-settings-api.md)（v1.0 Accepted）
+
+| 模块 | 代表路径 |
+|------|----------|
+| Tenant Settings | `GET/PATCH /api/settings/tenant`、`GET /api/settings/features` |
+| Custom Fields | `GET/POST/PATCH/DELETE /api/settings/custom-fields*` |
+| Audit Stats | `GET /api/audit/stats/by-action`、`/trend`、`/top-actors`、`GET /api/audit/export` |
+| Super Admin Insights | `GET /api/super-admin/stats/tenant-health`、`/plan-distribution`、`/top-tenants` |
+
+---
+
 ## 设计原则
 
 - 业务接口由中间件注入租户，**前端不传 `tenant_id`  body 字段**

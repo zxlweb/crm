@@ -60,6 +60,7 @@ export default defineNuxtConfig({
     { path: '~/components/feature/contacts', prefix: 'Contacts', pathPrefix: false },
     { path: '~/components/feature/deals', prefix: 'Deals', pathPrefix: false },
     { path: '~/components/feature/dashboard', prefix: 'Dashboard', pathPrefix: false },
+    { path: '~/components/feature/settings', pathPrefix: false },
     { path: '~/components/feature/ai', prefix: 'Ai', pathPrefix: false },
     { path: '~/components/feature/design', pathPrefix: false },
   ],
@@ -87,6 +88,10 @@ export default defineNuxtConfig({
       useDealsMock: process.env.NUXT_PUBLIC_USE_DEALS_MOCK === 'true',
       /** 仅显式 true 时用 mock；默认走真实 /api/dashboard/* */
       useDashboardMock: process.env.NUXT_PUBLIC_USE_DASHBOARD_MOCK === 'true',
+      /** Phase 4：settings / audit / custom-fields；默认真实 API */
+      useSettingsMock: process.env.NUXT_PUBLIC_USE_SETTINGS_MOCK === 'true',
+      /** Phase 4：super-admin 健康度/套餐/TOP；默认真实 API */
+      useAdminInsightsMock: process.env.NUXT_PUBLIC_USE_ADMIN_INSIGHTS_MOCK === 'true',
     },
   },
 })

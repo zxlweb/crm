@@ -39,7 +39,7 @@ func setupActivitiesHTTPEnv(t *testing.T) (*leadsHTTPEnv, string) {
 	leadHTTP := httphandler.NewLeadHandlers(leadSvc, auditRec, emotionSvc)
 	actHTTP := httphandler.NewActivityHandlers(actSvc, auditRec)
 	secret := "activities-test-secret"
-	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, time.Hour)
+	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -412,7 +412,7 @@ func TestActivitiesHTTP_RequiresViewPermission(t *testing.T) {
 	actSvc := actapp.NewService(activityRepo, leadRepo, accountRepo, contactRepo, nil, enforcer)
 	actHTTP := httphandler.NewActivityHandlers(actSvc, audit.NewRecorder(&memAuditRepo{}))
 	secret := "act-no-view"
-	token, _, _ := jwtutil.GenerateAccess(secret, userA, "u@test.com", false, &tenantA, time.Hour)
+	token, _, _ := jwtutil.GenerateAccess(secret, userA, "u@test.com", false, &tenantA, nil, time.Hour)
 	r := gin.New()
 	api := r.Group("/api")
 	api.Use(middleware.AuthMiddleware(secret))

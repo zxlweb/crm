@@ -9,6 +9,7 @@ export { default as ChartHeatmap } from './components/ui/chart/chart-heatmap.vue
 export { default as ChartFunnel } from './components/ui/chart/chart-funnel.vue'
 export { default as ChartSparkline } from './components/ui/chart/chart-sparkline.vue'
 export { default as ChartGauge } from './components/ui/chart/chart-gauge.vue'
+export { default as ChartRadar } from './components/ui/chart/chart-radar.vue'
 export { default as UiThemeToggle } from './components/ui/theme-toggle.vue'
 export { default as CardMetric } from './components/ui/card/card-metric.vue'
 export { default as CardShell } from './components/ui/card/card-shell.vue'

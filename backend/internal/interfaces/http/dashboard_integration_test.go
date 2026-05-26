@@ -103,7 +103,7 @@ func setupDashboardHTTPEnv(t *testing.T, manager bool) *dashboardHTTPEnv {
 	dealHTTP := httphandler.NewDealHandlers(dealSvc, audit.NewRecorder(&memAuditRepo{}))
 
 	secret := "dashboard-test-secret"
-	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, time.Hour)
+	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}

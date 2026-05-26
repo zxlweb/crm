@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	"crm-backend/internal/application/audit"
 	"crm-backend/internal/application/superadmin"
@@ -80,7 +81,7 @@ func (h *SuperAdminHandlers) GetTenant(c *gin.Context) {
 	response.Success(c, tenant)
 }
 
-type patchTenantRequest struct {
+type patchSuperAdminTenantRequest struct {
 	IsActive bool `json:"is_active"`
 }
 
@@ -91,7 +92,7 @@ func (h *SuperAdminHandlers) PatchTenant(c *gin.Context) {
 		return
 	}
 
-	var req patchTenantRequest
+	var req patchSuperAdminTenantRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -108,4 +109,50 @@ func (h *SuperAdminHandlers) PatchTenant(c *gin.Context) {
 	}
 	recordAudit(c, h.audit, id, "tenant.set_active", "tenant", &id, map[string]bool{"is_active": req.IsActive}, nil)
 	response.Success(c, tenant)
+}
+
+func (h *SuperAdminHandlers) TenantHealth(c *gin.Context) {
+	data, err := h.svc.TenantHealth(c.Request.Context())
+	if err != nil {
+		response.InternalError(c, "获取租户健康度失败")
+		return
+	}
+	response.Success(c, data)
+}
+
+func (h *SuperAdminHandlers) PlanDistribution(c *gin.Context) {
+	from, to := parseInsightDateRange(c)
+	data, err := h.svc.PlanDistribution(c.Request.Context(), from, to)
+	if err != nil {
+		response.InternalError(c, "获取套餐分布失败")
+		return
+	}
+	response.Success(c, data)
+}
+
+func (h *SuperAdminHandlers) TopTenants(c *gin.Context) {
+	metric := c.DefaultQuery("metric", "activity")
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	data, err := h.svc.TopTenants(c.Request.Context(), metric, limit)
+	if err != nil {
+		response.InternalError(c, "获取 TOP 租户失败")
+		return
+	}
+	response.Success(c, data)
+}
+
+func parseInsightDateRange(c *gin.Context) (time.Time, time.Time) {
+	to := time.Now().UTC()
+	from := to.AddDate(0, 0, -30)
+	if s := c.Query("from"); s != "" {
+		if t, err := time.Parse("2006-01-02", s); err == nil {
+			from = t
+		}
+	}
+	if s := c.Query("to"); s != "" {
+		if t, err := time.Parse("2006-01-02", s); err == nil {
+			to = t
+		}
+	}
+	return from, to
 }

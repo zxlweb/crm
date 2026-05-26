@@ -398,7 +398,7 @@ func validateUpdate(in UpdateInput) error {
 }
 
 func (s *Service) assertSubjectAccess(ctx context.Context, tenantID, userID uuid.UUID, subjectType string, subjectID uuid.UUID) error {
-	viewAll := datascope.CanViewAllTenantData(s.enforcer, userID.String(), tenantID.String())
+	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
 	switch subjectType {
 	case "lead":
 		_, err := s.leads.GetByID(ctx, tenantID, subjectID, viewAll, userID)
@@ -436,7 +436,7 @@ func (s *Service) refreshSubject(ctx context.Context, tenantID, userID uuid.UUID
 	if score > 100 {
 		score = 100
 	}
-	viewAll := datascope.CanViewAllTenantData(s.enforcer, userID.String(), tenantID.String())
+	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
 	switch subjectType {
 	case "lead":
 		if _, err := s.leads.GetByID(ctx, tenantID, subjectID, viewAll, userID); err != nil {

@@ -1,30 +1,59 @@
 <template>
-  <div data-testid="lead-decision-panel">
+  <div class="space-y-4" data-testid="lead-decision-panel">
     <LeadsLeadDetailMetrics :lead="lead" />
 
-    <CardShell :title="$t('leadsEmotionTrendTitle')" class="mt-4">
-      <template #header-extra>
-        <div class="mt-2 flex justify-end sm:mt-0">
-          <UiTabs
-            v-model="emotionRange"
-            :items="rangeTabItems"
-            class="max-w-[280px]"
-            data-testid="emotion-journey-range"
-          />
-        </div>
-      </template>
-      <CrmEmotionJourneyMap
-        ref="mapRef"
-        subject-type="lead"
-        :subject-id="lead.id"
-        embedded
-        hide-touchpoints
-        :chart-height="280"
-        :range="emotionRange"
-        :refresh-key="journeyRefreshKey"
-        :demo-badge-only-when-preview="demoBadgeOnlyWhenPreview"
+    <section
+      class="ds-lead-emotion relative overflow-hidden rounded-2xl border border-ds-border-muted bg-ds-bg-elevated shadow-ds-sm"
+    >
+      <span
+        class="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-ds-info opacity-80"
+        aria-hidden="true"
       />
-    </CardShell>
+      <span
+        class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-15 blur-3xl"
+        :style="{ background: 'var(--ds-blur-brand)' }"
+        aria-hidden="true"
+      />
+      <header
+        class="relative flex flex-col gap-3 border-b border-ds-border-muted px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+      >
+        <div class="flex min-w-0 items-start gap-2.5">
+          <span
+            class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-ds-info-subtle text-ds-info ring-1 ring-inset ring-ds-info/20"
+            aria-hidden="true"
+          >
+            <UIcon name="i-heroicons-heart" class="h-3.5 w-3.5" />
+          </span>
+          <div class="min-w-0">
+            <h3 class="text-sm font-semibold text-ds-fg-heading">
+              {{ $t('leadsEmotionTrendTitle') }}
+            </h3>
+            <p class="mt-0.5 text-xs text-ds-fg-muted">
+              {{ $t('leadsEmotionTrendHint') }}
+            </p>
+          </div>
+        </div>
+        <UiTabs
+          v-model="emotionRange"
+          :items="rangeTabItems"
+          class="max-w-[280px] shrink-0"
+          data-testid="emotion-journey-range"
+        />
+      </header>
+      <div class="relative p-3 sm:p-4">
+        <CrmEmotionJourneyMap
+          ref="mapRef"
+          subject-type="lead"
+          :subject-id="lead.id"
+          embedded
+          hide-touchpoints
+          :chart-height="280"
+          :range="emotionRange"
+          :refresh-key="journeyRefreshKey"
+          :demo-badge-only-when-preview="demoBadgeOnlyWhenPreview"
+        />
+      </div>
+    </section>
   </div>
 </template>
 
@@ -56,9 +85,9 @@ watch(
 )
 
 const rangeTabItems = computed(() => [
-  { id: '30d', label: t('leadsEmotionRange30d') },
-  { id: '90d', label: t('leadsEmotionRange90d') },
-  { id: 'all', label: t('leadsEmotionRangeAll') },
+  { id: '30d', label: t('leadsEmotionRange30d'), icon: 'i-heroicons-calendar-days' },
+  { id: '90d', label: t('leadsEmotionRange90d'), icon: 'i-heroicons-calendar' },
+  { id: 'all', label: t('leadsEmotionRangeAll'), icon: 'i-heroicons-clock' },
 ])
 
 async function reloadEmotionJourney() {

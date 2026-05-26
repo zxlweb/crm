@@ -1,86 +1,158 @@
 <template>
-  <aside class="hidden w-64 shrink-0 flex-col border-r border-ds-border bg-ds-bg-sidebar lg:flex">
-    <div class="flex h-16 items-center gap-2.5 border-b border-ds-border-muted px-6">
-      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-ds-brand shadow-ds-sm">
-        <svg class="h-5 w-5 text-ds-on-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+  <aside
+    class="hidden w-60 shrink-0 flex-col border-r border-ds-border bg-ds-bg-sidebar lg:flex"
+  >
+    <NuxtLink
+      to="/"
+      class="flex h-16 items-center gap-2.5 border-b border-ds-border-muted px-5 transition-colors hover:bg-ds-bg-muted/40"
+    >
+      <div
+        class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-ds-brand to-ds-brand-strong shadow-ds-sm"
+      >
+        <svg
+          class="h-5 w-5 text-ds-on-brand"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       </div>
-      <div>
-        <p class="text-sm font-bold text-ds-fg-heading">CRM</p>
-        <p class="text-[10px] font-medium uppercase tracking-wider text-ds-fg-subtle">{{ $t('crmNavSubtitle') }}</p>
+      <div class="min-w-0">
+        <p class="text-sm font-bold text-ds-fg-heading leading-tight">CRM</p>
+        <p class="truncate text-[10px] font-medium uppercase tracking-wider text-ds-fg-subtle">
+          {{ $t('crmNavSubtitle') }}
+        </p>
       </div>
-    </div>
+    </NuxtLink>
 
-    <nav class="flex flex-1 flex-col p-4">
-      <AppShellContextSwitch class="mb-4" />
-
-      <div class="flex-1 space-y-1">
-        <NuxtLink
-          to="/"
-          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200"
-          :class="isHomeActive ? 'ds-nav-active' : 'text-ds-fg-nav hover:bg-ds-bg-muted hover:text-ds-fg-nav-active'"
+    <nav class="flex flex-1 flex-col p-3" :aria-label="$t('crmBreadcrumb')">
+      <div class="flex-1 space-y-0.5">
+        <p
+          class="px-2 pb-1.5 pt-1 text-[10px] font-medium uppercase tracking-wider text-ds-fg-subtle"
         >
-          <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          {{ $t('crmNavDashboard') }}
+          {{ $t('crmBreadcrumb') }}
+        </p>
+
+        <NuxtLink
+          v-for="item in primaryNav"
+          :key="item.to"
+          :to="item.to"
+          :data-testid="item.testId"
+          class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200"
+          :class="
+            item.active
+              ? 'ds-nav-active'
+              : 'text-ds-fg-nav hover:bg-ds-bg-muted hover:text-ds-fg-nav-active'
+          "
+        >
+          <UIcon :name="item.icon" class="h-5 w-5 shrink-0" aria-hidden="true" />
+          <span class="truncate">{{ item.label }}</span>
         </NuxtLink>
+      </div>
 
-        <NuxtLink
-          to="/leads"
-          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200"
-          :class="isLeadsActive ? 'ds-nav-active' : 'text-ds-fg-nav hover:bg-ds-bg-muted hover:text-ds-fg-nav-active'"
+      <div
+        v-if="auth.isSuperAdmin.value"
+        class="space-y-0.5 border-t border-ds-border-muted pt-3 mt-3"
+      >
+        <p
+          class="px-2 pb-1.5 text-[10px] font-medium uppercase tracking-wider text-ds-fg-subtle"
         >
-          <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          {{ $t('crmNavLeads') }}
-        </NuxtLink>
-
+          {{ $t('userMenuSuperAdmin') }}
+        </p>
         <NuxtLink
-          to="/accounts"
-          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200"
-          :class="isAccountsActive ? 'ds-nav-active' : 'text-ds-fg-nav hover:bg-ds-bg-muted hover:text-ds-fg-nav-active'"
+          to="/admin"
+          class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-ds-fg-nav transition-colors duration-200 hover:bg-ds-bg-muted hover:text-ds-fg-nav-active"
         >
-          <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-          {{ $t('crmNavAccounts') }}
-        </NuxtLink>
-
-        <NuxtLink
-          to="/contacts"
-          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200"
-          :class="isContactsActive ? 'ds-nav-active' : 'text-ds-fg-nav hover:bg-ds-bg-muted hover:text-ds-fg-nav-active'"
-        >
-          <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          {{ $t('crmNavContacts') }}
-        </NuxtLink>
-
-        <NuxtLink
-          to="/deals"
-          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200"
-          :class="isDealsActive ? 'ds-nav-active' : 'text-ds-fg-nav hover:bg-ds-bg-muted hover:text-ds-fg-nav-active'"
-        >
-          <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {{ $t('crmNavDeals') }}
+          <UIcon name="i-heroicons-shield-check-20-solid" class="h-5 w-5 shrink-0" aria-hidden="true" />
+          <span class="truncate">{{ $t('userMenuOpenAdmin') }}</span>
+          <UIcon
+            name="i-heroicons-arrow-up-right-20-solid"
+            class="ml-auto h-3.5 w-3.5 shrink-0 text-ds-fg-subtle opacity-0 transition-opacity group-hover:opacity-100"
+            aria-hidden="true"
+          />
         </NuxtLink>
       </div>
     </nav>
+
+    <div class="border-t border-ds-border-muted px-3 py-2.5">
+      <p
+        class="px-1.5 text-[10px] font-medium uppercase tracking-wider text-ds-fg-subtle leading-none"
+      >
+        {{ $t('crmNavSubtitle') }}
+      </p>
+      <p class="px-1.5 pt-1 text-[10px] text-ds-fg-subtle">v1.0 · Demo</p>
+    </div>
   </aside>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
+const { t } = useI18n()
+const auth = useAuth()
+const permission = usePermission()
 
-const isHomeActive = computed(() => route.path === '/')
-const isLeadsActive = computed(() => route.path.startsWith('/leads'))
-const isAccountsActive = computed(() => route.path.startsWith('/accounts'))
-const isContactsActive = computed(() => route.path.startsWith('/contacts'))
-const isDealsActive = computed(() => route.path.startsWith('/deals'))
+type NavItem = {
+  to: string
+  label: string
+  icon: string
+  active: boolean
+  testId?: string
+}
+
+const primaryNav = computed<NavItem[]>(() => {
+  const items: NavItem[] = [
+    {
+      to: '/',
+      label: t('crmNavDashboard'),
+      icon: 'i-heroicons-home-20-solid',
+      active: route.path === '/',
+    },
+    {
+      to: '/leads',
+      label: t('crmNavLeads'),
+      icon: 'i-heroicons-light-bulb-20-solid',
+      active: route.path.startsWith('/leads'),
+    },
+    {
+      to: '/accounts',
+      label: t('crmNavAccounts'),
+      icon: 'i-heroicons-building-office-2-20-solid',
+      active: route.path.startsWith('/accounts'),
+    },
+    {
+      to: '/contacts',
+      label: t('crmNavContacts'),
+      icon: 'i-heroicons-user-group-20-solid',
+      active: route.path.startsWith('/contacts'),
+    },
+    {
+      to: '/deals',
+      label: t('crmNavDeals'),
+      icon: 'i-heroicons-currency-dollar-20-solid',
+      active: route.path.startsWith('/deals'),
+    },
+  ]
+
+  // 设置入口：仅当用户有任意配置类权限才出现，避免普通销售看到「平台管理」类入口
+  const canViewSettings =
+    permission.can('settings', 'view') ||
+    permission.can('settings', 'update') ||
+    permission.can('rbac', 'view') ||
+    permission.can('rbac', 'manage')
+
+  if (canViewSettings) {
+    items.push({
+      to: '/settings',
+      label: t('crmNavSettings'),
+      icon: 'i-heroicons-cog-6-tooth-20-solid',
+      active: route.path.startsWith('/settings'),
+      testId: 'nav-settings',
+    })
+  }
+
+  return items
+})
 </script>

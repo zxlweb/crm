@@ -82,6 +82,12 @@
         </div>
       </section>
 
+      <!-- Phase 4: Tenant Health Radar -->
+      <TenantHealthRadar />
+
+      <!-- Phase 4: Plan Distribution + Top Tenants -->
+      <TenantInsightsCharts />
+
       <section id="tenants" class="ds-card overflow-hidden rounded-2xl shadow-sm">
         <div class="flex flex-col gap-4 border-b border-ds-border-muted p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>

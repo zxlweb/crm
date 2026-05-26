@@ -127,8 +127,8 @@ type TodoDTO struct {
 }
 
 func (s *Service) Summary(ctx context.Context, tenantID, userID uuid.UUID, preview bool) (*SummaryDTO, error) {
-	viewAll := s.viewAll(userID, tenantID)
-	scope := datascope.ResolveDataScope(s.enforcer, userID.String(), tenantID.String())
+	viewAll := s.viewAll(ctx, userID, tenantID)
+	scope := datascope.ResolveDataScope(ctx, s.enforcer, userID.String(), tenantID.String())
 	opts := s.segmentOpts(ctx, tenantID)
 
 	leadsTotal, _ := s.leads.CountScoped(ctx, tenantID, viewAll, userID)
@@ -191,7 +191,7 @@ func (s *Service) Summary(ctx context.Context, tenantID, userID uuid.UUID, previ
 }
 
 func (s *Service) Funnel(ctx context.Context, tenantID, userID uuid.UUID, scope string) (*FunnelDTO, error) {
-	viewAll := s.viewAll(userID, tenantID)
+	viewAll := s.viewAll(ctx, userID, tenantID)
 	if scope == "leads" {
 		rows, err := s.leads.StatsFunnel(ctx, tenantID, repository.LeadStatsFilter{ViewAll: viewAll, UserID: userID})
 		if err != nil {
@@ -215,7 +215,7 @@ func (s *Service) Funnel(ctx context.Context, tenantID, userID uuid.UUID, scope 
 }
 
 func (s *Service) Quota(ctx context.Context, tenantID, userID uuid.UUID) (*QuotaDTO, error) {
-	viewAll := s.viewAll(userID, tenantID)
+	viewAll := s.viewAll(ctx, userID, tenantID)
 	target := 0.0
 	period := time.Now().UTC().Format("2006-01")
 	if s.tenants != nil {
@@ -244,7 +244,7 @@ func (s *Service) Quota(ctx context.Context, tenantID, userID uuid.UUID) (*Quota
 }
 
 func (s *Service) TeamRanking(ctx context.Context, tenantID, userID uuid.UUID, metric string, limit int) (*TeamRankingDTO, error) {
-	if !datascope.CanViewTeamData(s.enforcer, userID.String(), tenantID.String()) {
+	if !datascope.CanViewTeamData(ctx, s.enforcer, userID.String(), tenantID.String()) {
 		return nil, ErrTeamRankingDenied
 	}
 	if metric == "" {
@@ -301,16 +301,16 @@ func (s *Service) buildPriorities(ctx context.Context, tenantID, userID uuid.UUI
 	for _, row := range rows {
 		l := row.lead
 		reasons := []string{}
-		suggestion := "今日跟进确认进展"
+		suggestion := "????????"
 		if crm.DaysSince(l.LastActivityAt) > daysSilent {
-			reasons = append(reasons, fmt.Sprintf("%d 天未跟进", daysSilent))
-			suggestion = "今日电话确认方案"
+			reasons = append(reasons, fmt.Sprintf("%d ????", daysSilent))
+			suggestion = "????????"
 		}
 		if crm.RelationshipHealthFromScore(l.EngagementScore) == "low" {
-			reasons = append(reasons, "健康度偏低")
+			reasons = append(reasons, "?????")
 		}
 		if len(reasons) == 0 {
-			reasons = append(reasons, "需关注")
+			reasons = append(reasons, "???")
 		}
 		out = append(out, PriorityDTO{
 			EntityType: "lead", EntityID: l.ID, Title: l.Title,
@@ -321,8 +321,8 @@ func (s *Service) buildPriorities(ctx context.Context, tenantID, userID uuid.UUI
 	return out
 }
 
-func (s *Service) viewAll(userID, tenantID uuid.UUID) bool {
-	return datascope.CanViewAllTenantData(s.enforcer, userID.String(), tenantID.String())
+func (s *Service) viewAll(ctx context.Context, userID, tenantID uuid.UUID) bool {
+	return datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
 }
 
 func (s *Service) segmentOpts(ctx context.Context, tenantID uuid.UUID) crm.SegmentApplyOpts {

@@ -524,7 +524,7 @@ func setupLeadsHTTPEnv(t *testing.T) *leadsHTTPEnv {
 	leadHTTP := httphandler.NewLeadHandlers(leadSvc, auditRec, emotionSvc)
 
 	secret := "leads-test-secret"
-	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, time.Hour)
+	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -42,7 +42,7 @@ func (s *Service) statsFilter(ctx context.Context, tenantID, userID uuid.UUID, q
 	return repository.DealStatsFilter{
 		From:    q.From,
 		To:      q.To,
-		ViewAll: s.viewAll(userID.String(), tenantID.String()),
+		ViewAll: s.viewAll(ctx, userID.String(), tenantID.String()),
 		UserID:  userID,
 	}
 }

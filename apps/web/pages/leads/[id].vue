@@ -8,66 +8,122 @@
 
     <p v-else-if="!lead" class="text-sm text-ds-fg-muted">{{ $t('leadsNotFound') }}</p>
 
-    <div v-else class="flex flex-col gap-4 xl:flex-row" data-testid="lead-detail-page">
-      <div class="min-w-0 flex-1 space-y-3">
-        <LeadsLeadDetailHeader
-          :lead="lead"
-          :owner-profile="ownerProfile"
-          :can-update="canUpdate"
-          :show-preview="isPreviewMode"
-          :status-saving="statusSaving"
-          :convert-saving="convertSaving"
-          @edit="openEdit"
-          @convert="openConvert"
-          @status-change="onStatusChange"
+    <div
+      v-else
+      class="lead-detail-page relative"
+      data-testid="lead-detail-page"
+    >
+      <!-- Ambient backdrop glow -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-72 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          class="absolute -left-16 top-0 h-60 w-60 rounded-full blur-3xl opacity-70"
+          :style="{ background: 'var(--ds-blur-brand)' }"
         />
-
-
-
-        <LeadsLeadDecisionPanel
-          ref="decisionPanelRef"
-          :lead="lead"
-          :emotion-refresh-key="emotionRefreshKey"
-          :demo-badge-only-when-preview="true"
+        <div
+          class="absolute right-0 top-8 h-44 w-44 rounded-full blur-3xl opacity-60"
+          :style="{ background: 'var(--ds-blur-accent)' }"
         />
+      </div>
 
-        <CardShell :title="$t('leadsTabTimeline')" :subtitle="$t('leadsSectionTimelineHint')" class="rounded-2xl">
-          <template v-if="canCreateActivity" #header-extra>
-            <div class="mt-3 flex justify-end">
+      <div class="relative flex flex-col gap-5 xl:flex-row">
+        <div class="min-w-0 flex-1 space-y-5">
+          <!-- 1. Hero command bar -->
+          <LeadsLeadHeroCommand
+            :lead="lead"
+            :owner-profile="ownerProfile"
+            :can-update="canUpdate"
+            :show-preview="isPreviewMode"
+            :status-saving="statusSaving"
+            :convert-saving="convertSaving"
+            @edit="openEdit"
+            @convert="openConvert"
+            @status-change="onStatusChange"
+          />
+
+          <!-- 2. Pulse bar (composite health score) -->
+          <LeadsLeadPulseBar :lead="lead" />
+
+          <!-- 3. Focus signals (what to act on) -->
+          <LeadsLeadFocusSignals
+            :lead="lead"
+            :churn-score="aiPreview.churnRiskScore"
+          />
+
+          <!-- 4. KPI metrics + emotion trend -->
+          <LeadsLeadDecisionPanel
+            ref="decisionPanelRef"
+            :lead="lead"
+            :emotion-refresh-key="emotionRefreshKey"
+            :demo-badge-only-when-preview="true"
+          />
+
+          <!-- 5. Activity story (timeline) -->
+          <section
+            class="ds-lead-timeline relative overflow-hidden rounded-2xl border border-ds-border-muted bg-ds-bg-elevated shadow-ds-sm"
+          >
+            <span
+              class="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-ds-brand opacity-70"
+              aria-hidden="true"
+            />
+            <header
+              class="flex flex-col gap-3 border-b border-ds-border-muted px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            >
+              <div class="flex min-w-0 items-start gap-2.5">
+                <span
+                  class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-ds-brand-subtle text-ds-fg-brand ring-1 ring-inset ring-ds-brand/20"
+                  aria-hidden="true"
+                >
+                  <UIcon name="i-heroicons-bolt" class="h-3.5 w-3.5" />
+                </span>
+                <div class="min-w-0">
+                  <h3 class="text-sm font-semibold text-ds-fg-heading">{{ $t('leadsTabTimeline') }}</h3>
+                  <p class="mt-0.5 text-xs text-ds-fg-muted">{{ $t('leadsSectionTimelineHint') }}</p>
+                </div>
+              </div>
               <UiButton
+                v-if="canCreateActivity"
                 size="sm"
-                variant="secondary"
+                variant="primary"
                 icon="i-heroicons-plus-20-solid"
                 data-testid="activity-create-btn"
                 @click="activityOpen = true"
               >
                 {{ $t('activityCreateBtn') }}
               </UiButton>
-            </div>
-          </template>
-          <div id="timeline" class="space-y-6" data-testid="lead-activity-timeline-section">
-            <div>
-              <h3 class="mb-2 text-sm font-semibold text-ds-fg-heading">{{ $t('activitySummaryTitle') }}</h3>
-              <p class="mb-3 text-xs text-ds-fg-muted">{{ $t('activitySummaryHint') }}</p>
-              <CrmActivitySummaryChart ref="summaryRef" subject-type="lead" :subject-id="lead.id" />
-            </div>
-            <div>
-              <h3 class="mb-3 text-sm font-semibold text-ds-fg-heading">{{ $t('activityTimelineTitle') }}</h3>
-              <CrmActivityTimeline ref="timelineRef" subject-type="lead" :subject-id="lead.id" />
-            </div>
-          </div>
-        </CardShell>
-      </div>
+            </header>
 
-      <AiRelationPanel
-        class="xl:sticky xl:top-4 xl:self-start"
-        :show-preview="isPreviewMode"
-        :insights="panelInsights"
-        :engagement-score="panelEngagementScore"
-        :churn-score="aiPreview.churnRiskScore"
-        :disclaimer="aiPreview.disclaimer"
-        :generate-copilot="aiPreview.generateCopilot"
-      />
+            <div id="timeline" class="space-y-5 p-4 sm:p-5" data-testid="lead-activity-timeline-section">
+              <div>
+                <h4 class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-ds-fg-muted">
+                  {{ $t('activitySummaryTitle') }}
+                </h4>
+                <p class="mb-2.5 text-xs text-ds-fg-subtle">{{ $t('activitySummaryHint') }}</p>
+                <CrmActivitySummaryChart ref="summaryRef" subject-type="lead" :subject-id="lead.id" />
+              </div>
+              <div>
+                <h4 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-ds-fg-muted">
+                  {{ $t('activityTimelineTitle') }}
+                </h4>
+                <CrmActivityTimeline ref="timelineRef" subject-type="lead" :subject-id="lead.id" />
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- AI Copilot rail -->
+        <AiRelationPanel
+          class="xl:sticky xl:top-4 xl:self-start"
+          :show-preview="isPreviewMode"
+          :insights="panelInsights"
+          :engagement-score="panelEngagementScore"
+          :churn-score="aiPreview.churnRiskScore"
+          :disclaimer="aiPreview.disclaimer"
+          :generate-copilot="aiPreview.generateCopilot"
+        />
+      </div>
     </div>
 
     <UiModal v-model:open="editOpen" :title="$t('leadsEditTitle')">

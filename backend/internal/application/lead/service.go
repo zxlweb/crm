@@ -132,7 +132,7 @@ type ConvertResult struct {
 }
 
 func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQuery) (*ListResult, error) {
-	viewAll := s.viewAll(userID.String(), tenantID.String())
+	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
 	page := q.Page
 	if page < 1 {
 		page = 1
@@ -169,7 +169,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, q ListQu
 }
 
 func (s *Service) Get(ctx context.Context, tenantID, userID, id uuid.UUID) (*LeadDTO, error) {
-	l, err := s.repo.GetByID(ctx, tenantID, id, s.viewAll(userID.String(), tenantID.String()), userID)
+	l, err := s.repo.GetByID(ctx, tenantID, id, s.viewAll(ctx, userID.String(), tenantID.String()), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func (s *Service) Create(ctx context.Context, tenantID, userID uuid.UUID, in Cre
 }
 
 func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in UpdateInput, full bool) (*LeadDTO, error) {
-	viewAll := s.viewAll(userID.String(), tenantID.String())
+	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
 	l, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID)
 	if err != nil {
 		return nil, err
@@ -327,7 +327,7 @@ func (s *Service) Update(ctx context.Context, tenantID, userID, id uuid.UUID, in
 }
 
 func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) error {
-	viewAll := s.viewAll(userID.String(), tenantID.String())
+	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
 	if _, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID); err != nil {
 		return err
 	}
@@ -336,7 +336,7 @@ func (s *Service) Delete(ctx context.Context, tenantID, userID, id uuid.UUID) er
 
 // Convert marks a qualified lead as converted and links an account (existing or newly created).
 func (s *Service) Convert(ctx context.Context, tenantID, userID, id uuid.UUID, in ConvertInput) (*ConvertResult, error) {
-	viewAll := s.viewAll(userID.String(), tenantID.String())
+	viewAll := s.viewAll(ctx, userID.String(), tenantID.String())
 	l, err := s.repo.GetByID(ctx, tenantID, id, viewAll, userID)
 	if err != nil {
 		return nil, err
@@ -428,8 +428,8 @@ func applyStatusChange(l *domain.Lead, to string) error {
 	return nil
 }
 
-func (s *Service) viewAll(userID, tenantID string) bool {
-	return datascope.CanViewAllTenantData(s.enforcer, userID, tenantID)
+func (s *Service) viewAll(ctx context.Context, userID, tenantID string) bool {
+	return datascope.CanViewAllTenantData(ctx, s.enforcer, userID, tenantID)
 }
 
 func validateLeadSegment(code string) error {
@@ -462,7 +462,7 @@ func (s *Service) segmentOpts(ctx context.Context, tenantID uuid.UUID) crm.Segme
 }
 
 func (s *Service) EvaluateInsights(ctx context.Context, tenantID, userID, leadID uuid.UUID) (*insights.EvaluateResponse, error) {
-	viewAll := datascope.CanViewAllTenantData(s.enforcer, userID.String(), tenantID.String())
+	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
 	lead, err := s.repo.GetByID(ctx, tenantID, leadID, viewAll, userID)
 	if err != nil {
 		return nil, err

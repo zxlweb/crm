@@ -24,6 +24,10 @@ type switchTenantRequest struct {
 	TenantID string `json:"tenant_id" binding:"required,uuid"`
 }
 
+type switchRoleRequest struct {
+	RoleID string `json:"role_id" binding:"required,uuid"`
+}
+
 type registerRequest struct {
 	Email       string `json:"email" binding:"required,email"`
 	Password    string `json:"password" binding:"required,min=6"`
@@ -176,13 +180,62 @@ func (h *AuthHandlers) SwitchTenant(c *gin.Context) {
 	response.Success(c, result)
 }
 
+func (h *AuthHandlers) SwitchRole(c *gin.Context) {
+	var req switchRoleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	roleID, err := uuid.Parse(req.RoleID)
+	if err != nil {
+		response.BadRequest(c, "role_id 格式无效")
+		return
+	}
+
+	tenantID, err := uuid.Parse(c.GetString("tenant_id"))
+	if err != nil {
+		response.BadRequest(c, "缺少租户上下文")
+		return
+	}
+
+	userID, err := uuid.Parse(c.GetString("user_id"))
+	if err != nil {
+		response.Unauthorized(c, "无效用户")
+		return
+	}
+
+	result, err := h.svc.SwitchRole(
+		c.Request.Context(),
+		userID,
+		c.GetString("email"),
+		c.GetBool("is_super_admin"),
+		tenantID,
+		roleID,
+		httputil.ClientIP(c),
+	)
+	if err != nil {
+		if errors.Is(err, auth.ErrRoleForbidden) {
+			response.Forbidden(c, "无权使用该角色")
+			return
+		}
+		response.InternalError(c, "切换角色失败")
+		return
+	}
+	response.Success(c, result)
+}
+
 func CurrentUserHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		response.Success(c, gin.H{
+		payload := gin.H{
 			"user_id":        c.GetString("user_id"),
 			"email":          c.GetString("email"),
 			"is_super_admin": c.GetBool("is_super_admin"),
 			"tenant_id":      c.GetString("tenant_id"),
-		})
+		}
+		if rid := c.GetString("active_role_id"); rid != "" {
+			payload["active_role_id"] = rid
+		}
+		response.Success(c, payload)
 	}
 }

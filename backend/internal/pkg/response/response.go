@@ -67,6 +67,14 @@ func NotFound(c *gin.Context, message string) {
 	Error(c, http.StatusNotFound, 404, message)
 }
 
+func Conflict(c *gin.Context, message string) {
+	Error(c, http.StatusConflict, 409, message)
+}
+
+func TooManyRequests(c *gin.Context, message string) {
+	Error(c, http.StatusTooManyRequests, 429, message)
+}
+
 func InternalError(c *gin.Context, message string) {
 	Error(c, http.StatusInternalServerError, 500, message)
 }

@@ -1,16 +1,26 @@
 import {
+  mockClaimLead,
   mockConvertLead,
   mockCreateLead,
   mockDeleteLead,
   mockGetLead,
+  mockGetPoolSettings,
   mockListLeads,
+  mockPoolStats,
+  mockRecycleStaleLeads,
+  mockReleaseLead,
+  mockTransferLead,
   mockUpdateLead,
+  mockUpdatePoolSettings,
 } from '~/utils/leads-mock-store'
 import type {
   Lead,
   LeadConvertInput,
   LeadCreateInput,
   LeadListQuery,
+  LeadPoolSettings,
+  LeadPoolStats,
+  LeadRecycleSummary,
   LeadUpdateInput,
   LeadsListData,
   Pagination,
@@ -35,6 +45,7 @@ function buildQueryString(query: LeadListQuery): string {
   if (query.relationship_health) params.set('relationship_health', query.relationship_health)
   if (query.segment) params.set('segment', query.segment)
   if (query.search) params.set('search', query.search)
+  if (query.pool) params.set('pool', query.pool)
   const qs = params.toString()
   return qs ? `?${qs}` : ''
 }
@@ -53,7 +64,7 @@ export function useLeads() {
     query: LeadListQuery = {},
   ): Promise<{ data: LeadsListData; pagination: Pagination }> {
     if (useMock.value) {
-      return mockListLeads(query)
+      return mockListLeads(query, auth.user.value?.id ?? null)
     }
     const path = `/api/leads${buildQueryString(query)}`
     const res = await api.requestPage<LeadsPagePayload>(path)
@@ -118,6 +129,69 @@ export function useLeads() {
     })
   }
 
+  // ===== 客户池（公海/私海）操作 =====
+
+  async function claim(id: string): Promise<Lead> {
+    if (useMock.value) {
+      const row = mockClaimLead(id, auth.user.value?.id ?? null)
+      if (!row) throw new Error('lead_not_found')
+      return row
+    }
+    return api.request<Lead>(`/api/leads/${id}/claim`, { method: 'POST' })
+  }
+
+  async function release(id: string): Promise<Lead> {
+    if (useMock.value) {
+      const row = mockReleaseLead(id)
+      if (!row) throw new Error('lead_not_found')
+      return row
+    }
+    return api.request<Lead>(`/api/leads/${id}/release`, { method: 'POST' })
+  }
+
+  async function transfer(id: string, toUserId: string): Promise<Lead> {
+    if (useMock.value) {
+      const row = mockTransferLead(id, toUserId)
+      if (!row) throw new Error('lead_not_found')
+      return row
+    }
+    return api.request<Lead>(`/api/leads/${id}/transfer`, {
+      method: 'POST',
+      body: JSON.stringify({ owner_id: toUserId }),
+    })
+  }
+
+  async function recycleStale(): Promise<LeadRecycleSummary> {
+    if (useMock.value) {
+      return mockRecycleStaleLeads()
+    }
+    return api.request<LeadRecycleSummary>('/api/leads/pool/recycle', { method: 'POST' })
+  }
+
+  async function poolStats(): Promise<LeadPoolStats> {
+    if (useMock.value) {
+      return mockPoolStats(auth.user.value?.id ?? null)
+    }
+    return api.request<LeadPoolStats>('/api/leads/pool/stats')
+  }
+
+  async function getPoolSettings(): Promise<LeadPoolSettings> {
+    if (useMock.value) {
+      return mockGetPoolSettings()
+    }
+    return api.request<LeadPoolSettings>('/api/leads/pool/settings')
+  }
+
+  async function updatePoolSettings(input: Partial<LeadPoolSettings>): Promise<LeadPoolSettings> {
+    if (useMock.value) {
+      return mockUpdatePoolSettings(input)
+    }
+    return api.request<LeadPoolSettings>('/api/leads/pool/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+    })
+  }
+
   return {
     useMock,
     fetchList,
@@ -126,5 +200,12 @@ export function useLeads() {
     update,
     remove,
     convert,
+    claim,
+    release,
+    transfer,
+    recycleStale,
+    poolStats,
+    getPoolSettings,
+    updatePoolSettings,
   }
 }

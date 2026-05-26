@@ -33,7 +33,7 @@ func (h *DashboardHandlers) Summary(c *gin.Context) {
 	preview := c.Query("preview") == "1"
 	data, err := h.svc.Summary(c.Request.Context(), tenantID, userID, preview)
 	if err != nil {
-		response.InternalError(c, "获取仪表盘汇总失败")
+		response.InternalError(c, "?????????")
 		return
 	}
 	response.Success(c, data)
@@ -50,7 +50,7 @@ func (h *DashboardHandlers) Funnel(c *gin.Context) {
 	scope := c.DefaultQuery("scope", "deals")
 	data, err := h.svc.Funnel(c.Request.Context(), tenantID, userID, scope)
 	if err != nil {
-		response.InternalError(c, "获取漏斗数据失败")
+		response.InternalError(c, "????????")
 		return
 	}
 	response.Success(c, data)
@@ -66,7 +66,7 @@ func (h *DashboardHandlers) Quota(c *gin.Context) {
 	}
 	data, err := h.svc.Quota(c.Request.Context(), tenantID, userID)
 	if err != nil {
-		response.InternalError(c, "获取配额数据失败")
+		response.InternalError(c, "????????")
 		return
 	}
 	response.Success(c, data)
@@ -87,7 +87,7 @@ func (h *DashboardHandlers) TeamRanking(c *gin.Context) {
 			response.Forbidden(c, "dashboard_scope_denied")
 			return
 		}
-		response.InternalError(c, "获取经理排行失败")
+		response.InternalError(c, "????????")
 		return
 	}
 	response.Success(c, data)
@@ -104,7 +104,7 @@ func (h *DashboardHandlers) Todo(c *gin.Context) {
 	date := c.DefaultQuery("date", "")
 	data, err := h.svc.Todo(c.Request.Context(), tenantID, userID, date)
 	if err != nil {
-		response.InternalError(c, "获取待办失败")
+		response.InternalError(c, "??????")
 		return
 	}
 	response.Success(c, data)
@@ -116,22 +116,22 @@ func (h *DashboardHandlers) allowDashboard(c *gin.Context) bool {
 	}
 	userID := c.GetString("user_id")
 	tenantID := c.GetString("tenant_id")
-	if datascope.CanAccessDashboard(h.enforcer, userID, tenantID) {
+	if datascope.CanAccessDashboard(c.Request.Context(), h.enforcer, userID, tenantID) {
 		return true
 	}
-	response.Forbidden(c, "无权限访问仪表盘")
+	response.Forbidden(c, "????????")
 	return false
 }
 
 func dashboardContext(c *gin.Context) (tenantID, userID uuid.UUID, ok bool) {
 	tid, okT := tenant.IDFromContext(c.Request.Context())
 	if !okT {
-		response.BadRequest(c, "缺少租户上下文")
+		response.BadRequest(c, "???????")
 		return uuid.Nil, uuid.Nil, false
 	}
 	uid, err := uuid.Parse(c.GetString("user_id"))
 	if err != nil {
-		response.Unauthorized(c, "用户未认证")
+		response.Unauthorized(c, "?????")
 		return uuid.Nil, uuid.Nil, false
 	}
 	return tid, uid, true

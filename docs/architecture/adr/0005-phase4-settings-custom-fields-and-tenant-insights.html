@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ADR-0005: Phase 4 Settings、自定义字段与租户健康度统一架构 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api\phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><a href="../api\phase-4-system-settings-api.html">phase-4-system-settings-api</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="../architecture\05-phase-4-settings-close-architecture.html">05-phase-4-settings-close-architecture</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\0005-phase4-settings-custom-fields-and-tenant-insights.html" style="color:var(--accent);font-weight:600">0005-phase4-settings-custom-fields-and-tenant-insights</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes\phase-3-notes.html">phase-3-notes</a><a href="../meeting-notes\phase-4-notes.html">phase-4-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd\phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><a href="../prd\phase-4-system-settings-close-prd.html">phase-4-system-settings-close-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><a href="../qa\phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa\phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../architecture\adr\0005-phase4-settings-custom-fields-and-tenant-insights.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>ADR-0005: Phase 4 Settings、自定义字段与租户健康度统一架构</h1>
+<p><strong>状态</strong>：Accepted<br><strong>日期</strong>：2026-05-26<br><strong>决策者</strong>：系统架构师</p>
+<h2>背景（Context）</h2>
+<p>Phase 4 目标从“业务功能扩展”转为“平台可运营收尾”。现状问题：</p>
+<ol>
+<li>租户配置分散在 <code>tenants.config</code> 与前端常量，变更链路不可审计；</li>
+<li>自定义字段能力缺失，行业适配只能改代码；</li>
+<li>审计数据可查但难以按管理视角消费；</li>
+<li>Super Admin 缺少跨租户健康度视图，不利于运营决策。</li>
+</ol>
+<p>若继续沿用零散接口，会导致 FE/BE 反复改 schema、RBAC 映射不稳定、QA 用例难固化。</p>
+<h2>决策（Decision）</h2>
+<ol>
+<li><p><strong>Settings 统一入口</strong></p>
+<ul>
+<li>采用 <code>/api/settings/tenant</code> + <code>/api/settings/features</code>，集中管理租户可配置项。</li>
+<li>业务开关与 quota 等低频配置保留 JSONB 扩展能力。</li>
+</ul>
+</li>
+<li><p><strong>自定义字段采用“元数据驱动”</strong></p>
+<ul>
+<li>新增 <code>custom_fields</code> 元数据模型，MVP 支持 <code>text/select/date</code>。</li>
+<li>业务实体值存储沿用现有实体扩展机制（按服务层映射），避免 Phase 4 直接引入复杂 EAV。</li>
+</ul>
+</li>
+<li><p><strong>审计聚合以现有 <code>audit_logs</code> 为单一事实源</strong></p>
+<ul>
+<li>统计 API 不新增冗余明细表。</li>
+<li>导出能力先同步 CSV，后续再演进异步导出。</li>
+</ul>
+</li>
+<li><p><strong>Super Admin 运营统计走独立权限域</strong></p>
+<ul>
+<li>引入 <code>admin_tenant_insights:view</code>，路由集中在 <code>/api/super-admin/stats/*</code>。</li>
+<li>普通租户上下文与跨租户上下文严格隔离。</li>
+</ul>
+</li>
+<li><p><strong>前端保持双包模型</strong></p>
+<ul>
+<li>新增 <code>ChartRadar</code> 于 <code>@crm/ui-kit</code>，业务页面仅消费公开组件。</li>
+<li>业务逻辑留在 composables，页面负责编排。</li>
+</ul>
+</li>
+</ol>
+<h2>备选方案（Options Considered）</h2>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A. 所有配置继续写 <code>tenants.config</code>（无独立接口）</td>
+<td>开发快</td>
+<td>边界不清、审计弱、前端耦合</td>
+</tr>
+<tr>
+<td>B. EAV 通用字段平台一次到位</td>
+<td>扩展最强</td>
+<td>超出 MVP 复杂度，测试成本高</td>
+</tr>
+<tr>
+<td><strong>C. Settings + 元数据字段 + 审计聚合（采纳）</strong></td>
+<td>成本可控、可交付、便于并行三轨</td>
+<td>后续高级字段能力需再扩展</td>
+</tr>
+</tbody></table>
+<h2>后果（Consequences）</h2>
+<h3>正面</h3>
+<ul>
+<li>Phase 4 BE/FE/QA 可按单一契约并行推进；</li>
+<li>配置与字段变更均可审计，满足收尾合规要求；</li>
+<li>Super Admin 获得可解释的健康度与套餐分布视图。</li>
+</ul>
+<h3>负面 / 风险</h3>
+<ul>
+<li><code>custom_fields</code> 仅支持 3 种类型，复杂行业诉求需后置；</li>
+<li>审计实时聚合在高数据量下可能出现查询压力，需监控并评估物化视图。</li>
+</ul>
+<h3>后续行动</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 迁移新增资源动作：<code>settings:*</code>、<code>custom_fields:*</code>、<code>audit:export</code>、<code>admin_tenant_insights:view</code></li>
+<li><input disabled="" type="checkbox"> FE 补 <code>ChartRadar</code> Story 与 VTU</li>
+<li><input disabled="" type="checkbox"> QA 增加“设置变更 -&gt; 审计可见 -&gt; 越权阻断”E2E 主链路</li>
+</ul>
+<h2>关联文档</h2>
+<ul>
+<li>PRD: <a href="../../prd/phase-4-system-settings-close-prd.md">phase-4-system-settings-close-prd.md</a></li>
+<li>API: <a href="../../api/phase-4-system-settings-api.md">phase-4-system-settings-api.md</a></li>
+<li>Architecture: <a href="../05-phase-4-settings-close-architecture.md">05-phase-4-settings-close-architecture.md</a></li>
+<li>Tasks: <a href="../../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> Phase 4</li>
+</ul>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../architecture\adr\0005-phase4-settings-custom-fields-and-tenant-insights.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

@@ -11,7 +11,7 @@ func TestGenerateAndParseAccess(t *testing.T) {
 	secret := "test-secret"
 	uid := uuid.MustParse("11111111-1111-1111-1111-111111111111")
 
-	token, exp, err := GenerateAccess(secret, uid, "a@b.com", true, nil, time.Hour)
+	token, exp, err := GenerateAccess(secret, uid, "a@b.com", true, nil, nil, time.Hour)
 	if err != nil || exp != 3600 {
 		t.Fatalf("generate: err=%v exp=%d", err, exp)
 	}
@@ -30,7 +30,7 @@ func TestAccessTokenWithTenantID(t *testing.T) {
 	uid := uuid.MustParse("11111111-1111-1111-1111-111111111111")
 	tid := uuid.MustParse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
 
-	token, _, err := GenerateAccess(secret, uid, "a@b.com", false, &tid, time.Hour)
+	token, _, err := GenerateAccess(secret, uid, "a@b.com", false, &tid, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +44,7 @@ func TestRefreshRejectedAsAccess(t *testing.T) {
 	secret := "test-secret"
 	uid := uuid.MustParse("11111111-1111-1111-1111-111111111111")
 
-	refresh, _, err := GenerateRefresh(secret, uid, "a@b.com", false, nil, time.Hour)
+	refresh, _, err := GenerateRefresh(secret, uid, "a@b.com", false, nil, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}

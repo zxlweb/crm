@@ -48,6 +48,7 @@ export function useTenant() {
     auth.setSession(data.access_token, data.refresh_token, data.user)
     setTenantList(data.tenants)
     setTenant(tenantId)
+    useActiveRole().applyFromLogin(data)
     if (!auth.isSuperAdmin.value) {
       try {
         await useRbac().loadMyPermissions()

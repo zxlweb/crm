@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 4 架构设计：系统设置与收尾 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api\phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><a href="../api\phase-4-system-settings-api.html">phase-4-system-settings-api</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="../architecture\05-phase-4-settings-close-architecture.html" style="color:var(--accent);font-weight:600">05-phase-4-settings-close-architecture</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\0005-phase4-settings-custom-fields-and-tenant-insights.html">0005-phase4-settings-custom-fields-and-tenant-insights</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes\phase-3-notes.html">phase-3-notes</a><a href="../meeting-notes\phase-4-notes.html">phase-4-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd\phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><a href="../prd\phase-4-system-settings-close-prd.html">phase-4-system-settings-close-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><a href="../qa\phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa\phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../architecture\05-phase-4-settings-close-architecture.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 4 架构设计：系统设置与收尾</h1>
+<p><strong>版本</strong>：v1.0<br><strong>日期</strong>：2026-05-26<br><strong>状态</strong>：Accepted（Architect 2a 基线）<br><strong>输入</strong>：<a href="../prd/phase-4-system-settings-close-prd.md">phase-4-system-settings-close-prd.md</a> · <a href="../api/phase-4-system-settings-api.md">phase-4-system-settings-api.md</a></p>
+<hr>
+<h2>1. 系统上下文图（C4 Level 1）</h2>
+<pre><code class="language-mermaid">flowchart LR
+  Sales[&quot;Sales / Tenant Admin / Manager&quot;]
+  SuperAdmin[&quot;Super Admin&quot;]
+  Browser[&quot;Nuxt3 Web App (apps/web)&quot;]
+  APIGW[&quot;Go API (Gin + Clean Architecture)&quot;]
+  DB[&quot;PostgreSQL (shared DB + tenant_id)&quot;]
+  Cache[&quot;Redis (可选: rate limit / session cache)&quot;]
+  Docs[&quot;Swagger + Docs Site&quot;]
+
+  Sales --&gt; Browser
+  SuperAdmin --&gt; Browser
+  Browser --&gt; APIGW
+  APIGW --&gt; DB
+  APIGW --&gt; Cache
+  APIGW --&gt; Docs
+</code></pre>
+<p>Phase 4 在既有 CRM 链路上新增 Settings 与运营可视化能力，不引入新运行时组件。</p>
+<hr>
+<h2>2. 技术选型与边界</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>选型</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>前端</td>
+<td>Nuxt 3 + TypeScript + Pinia</td>
+<td>已在 Phase 0–3 稳定使用；SSR/CSR 混合、i18n 能力成熟</td>
+</tr>
+<tr>
+<td>后端</td>
+<td>Go + Gin + Clean Architecture</td>
+<td>低延迟、易并发，便于按模块拆分 service/repository</td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>PostgreSQL</td>
+<td>JSONB + 索引能力适合 tenant config/custom fields</td>
+</tr>
+<tr>
+<td>权限</td>
+<td>Casbin (<code>resource:action</code>)</td>
+<td>与既有 RBAC 模型一致，新增资源成本低</td>
+</tr>
+<tr>
+<td>认证</td>
+<td>JWT + Refresh Token</td>
+<td>现有认证体系可复用，多租户上下文清晰</td>
+</tr>
+<tr>
+<td>图表</td>
+<td><code>@crm/ui-kit</code> Chart* + Theme bridge</td>
+<td>保持双包模型与视觉一致性</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 多租户实现方案</h2>
+<h2>3.1 隔离策略</h2>
+<ul>
+<li>继续采用 <strong>共享库 + <code>tenant_id</code></strong>（ADR-0001 已采纳）。</li>
+<li>所有 Phase 4 业务表（<code>tenant_settings</code> / <code>custom_fields</code> / <code>audit_logs</code> 聚合查询）必须带 <code>tenant_id</code> 过滤。</li>
+<li>Super Admin 跨租户统计走独立路由组，不经过租户中间件，但要求 <code>is_super_admin=true</code>。</li>
+</ul>
+<h2>3.2 数据访问约束</h2>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>请求体</td>
+<td>禁止传 <code>tenant_id</code></td>
+</tr>
+<tr>
+<td>Context 来源</td>
+<td>仅从 JWT + <code>X-Tenant-ID</code> 注入</td>
+</tr>
+<tr>
+<td>越权返回</td>
+<td>跨租户资源统一 <code>404</code>（防枚举）</td>
+</tr>
+<tr>
+<td>查询路径</td>
+<td>Repository 层必须接收 <code>tenantID</code> 参数</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. RBAC 权限模型设计</h2>
+<h2>4.1 角色</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>数据范围</th>
+<th>Phase 4 关键能力</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tenant_admin</code></td>
+<td>本租户 all</td>
+<td>settings/custom fields/audit export</td>
+</tr>
+<tr>
+<td><code>manager</code></td>
+<td>本租户（视 data_scope）</td>
+<td>audit view、运营图查看</td>
+</tr>
+<tr>
+<td><code>sales</code></td>
+<td>本租户 self</td>
+<td>仅查看与其权限一致的数据</td>
+</tr>
+<tr>
+<td><code>viewer</code></td>
+<td>本租户只读</td>
+<td>禁止配置变更与导出</td>
+</tr>
+<tr>
+<td><code>super_admin</code></td>
+<td>跨租户</td>
+<td>平台级健康度与套餐分析</td>
+</tr>
+</tbody></table>
+<h2>4.2 资源动作</h2>
+<table>
+<thead>
+<tr>
+<th>resource</th>
+<th>actions</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>settings</code></td>
+<td><code>view</code>, <code>update</code></td>
+</tr>
+<tr>
+<td><code>custom_fields</code></td>
+<td><code>view</code>, <code>update</code></td>
+</tr>
+<tr>
+<td><code>audit</code></td>
+<td><code>view</code>, <code>export</code></td>
+</tr>
+<tr>
+<td><code>admin_tenant_insights</code></td>
+<td><code>view</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. 认证授权方案</h2>
+<ul>
+<li>继续沿用 <code>access_token + refresh_token</code>。</li>
+<li><code>access_token</code> 载荷包含：<code>user_id</code>, <code>tenant_id</code>, <code>role_ids</code>, <code>is_super_admin</code>。</li>
+<li>普通租户接口：<ul>
+<li>必须 <code>Authorization</code> + <code>X-Tenant-ID</code>。</li>
+<li>中间件校验 token 中 <code>tenant_id</code> 与 header 一致。</li>
+</ul>
+</li>
+<li>Super Admin 接口：<ul>
+<li>仅 <code>Authorization</code>，忽略 <code>X-Tenant-ID</code>。</li>
+<li>中间件校验 <code>is_super_admin</code>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>6. 数据库设计原则（PostgreSQL）</h2>
+<h2>6.1 表与字段策略</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>设计原则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>租户配置</td>
+<td>低频写高频读，优先单行配置 + JSONB 扩展</td>
+</tr>
+<tr>
+<td>自定义字段</td>
+<td>元数据与业务值分离，先支持 text/select/date</td>
+</tr>
+<tr>
+<td>审计聚合</td>
+<td>基于 <code>audit_logs</code> 聚合，避免冗余统计表</td>
+</tr>
+<tr>
+<td>健康度</td>
+<td>优先实时聚合；压力升高后再引入物化视图</td>
+</tr>
+</tbody></table>
+<h2>6.2 索引建议</h2>
+<ul>
+<li><code>custom_fields(tenant_id, entity_type, is_active, display_order)</code></li>
+<li><code>audit_logs(tenant_id, action, created_at DESC)</code></li>
+<li><code>audit_logs(tenant_id, actor_id, created_at DESC)</code></li>
+<li><code>tenants(plan, is_active)</code>（super admin 聚合）</li>
+</ul>
+<hr>
+<h2>7. 前端 2b 切面（路由/信息流/组件）</h2>
+<h2>7.1 路由与页面职责</h2>
+<table>
+<thead>
+<tr>
+<th>路由</th>
+<th>角色</th>
+<th>页面职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/settings</code></td>
+<td>tenant_admin</td>
+<td>租户设置 + 自定义字段管理</td>
+</tr>
+<tr>
+<td><code>/settings/audit</code></td>
+<td>tenant_admin / manager</td>
+<td>审计图表与导出</td>
+</tr>
+<tr>
+<td><code>/admin</code></td>
+<td>super_admin</td>
+<td>健康度雷达、套餐分布、租户 TOP</td>
+</tr>
+</tbody></table>
+<h2>7.2 数据流</h2>
+<p><code>API</code> -&gt; <code>composables/use-settings|use-custom-fields|use-audit-stats|use-admin-tenant-insights</code> -&gt; <code>feature/settings|feature/admin</code> -&gt; <code>@crm/ui-kit</code> (<code>ChartRadar</code>, <code>ChartDonut</code>, <code>ChartBar</code>)</p>
+<p>约束：</p>
+<ul>
+<li>业务校验与权限前置在 composable，不堆在页面。</li>
+<li><code>Pinia</code> 仅存跨页共享（如当前租户基础配置快照）。</li>
+<li>web 禁止 deep import ui-kit 内部实现，统一从 <code>@crm/ui-kit</code> 暴露层引用。</li>
+</ul>
+<h2>7.3 组件落点</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>业务组件</td>
+<td><code>apps/web/components/feature/settings/*</code></td>
+</tr>
+<tr>
+<td>composables</td>
+<td><code>apps/web/composables/use-*.ts</code></td>
+</tr>
+<tr>
+<td>图表组件</td>
+<td><code>packages/ui-kit/src/components/ui/chart/*</code></td>
+</tr>
+<tr>
+<td>管理端页面</td>
+<td><code>apps/web/pages/admin.vue</code>（或拆分 <code>admin/*</code>）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. i18n 架构</h2>
+<ul>
+<li>文案 key 分层：<ul>
+<li><code>settings.*</code></li>
+<li><code>audit.*</code></li>
+<li><code>admin.tenantInsights.*</code></li>
+</ul>
+</li>
+<li>自定义字段 <code>field_label</code> 支持 <code>{ &quot;zh-CN&quot;, &quot;en-US&quot; }</code> 双语对象。</li>
+<li>时间/数字格式化按 <code>locale + tenant.timezone</code>。</li>
+<li>CI 增量检查：禁止在 Phase 4 页面硬编码中英文字符串（测试/fixture 除外）。</li>
+</ul>
+<hr>
+<h2>9. 可扩展性与安全</h2>
+<h2>9.1 可扩展性</h2>
+<ul>
+<li><code>custom_fields.field_type</code> 采用枚举 + 验证器映射，后续可扩展到 <code>number</code>, <code>multi_select</code>, <code>lookup</code>。</li>
+<li>健康度维度采用固定枚举 + 权重配置，后续支持租户分层权重模板。</li>
+<li>审计导出先 CSV，后续可追加异步导出（任务队列 + 下载链接）。</li>
+</ul>
+<h2>9.2 安全</h2>
+<ul>
+<li>防 IDOR：所有资源查询必须先过滤 <code>tenant_id</code> 再按 <code>id</code>。</li>
+<li>导出限频：<code>audit/export</code> 按用户 + 租户限流。</li>
+<li>敏感审计脱敏：<code>before/after</code> 仅保留差异摘要，不回传敏感值。</li>
+<li>配置变更必须写审计，记录操作者、来源 IP、UA（按现有审计模型能力）。</li>
+</ul>
+<hr>
+<h2>10. 实施建议与门禁</h2>
+<table>
+<thead>
+<tr>
+<th>门禁</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API 契约</td>
+<td><code>phase-4-system-settings-api.md</code> 评审通过</td>
+</tr>
+<tr>
+<td>FE 切面</td>
+<td>路由/composable/组件落点已冻结</td>
+</tr>
+<tr>
+<td>权限种子</td>
+<td>新资源动作已写迁移</td>
+</tr>
+<tr>
+<td>自动化测试</td>
+<td>BE（租户+RBAC+审计）/FE（composable+组件）/QA（E2E 核心链路）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>11. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-26</td>
+<td>v1.0：Phase 4 架构基线，覆盖多租户/RBAC/i18n/security/前端切面</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../architecture\05-phase-4-settings-close-architecture.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

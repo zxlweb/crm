@@ -4,6 +4,10 @@ import type {
   LeadConvertInput,
   LeadCreateInput,
   LeadListQuery,
+  LeadPool,
+  LeadPoolSettings,
+  LeadPoolStats,
+  LeadRecycleSummary,
   LeadUpdateInput,
   LeadsListData,
   Pagination,
@@ -15,6 +19,31 @@ function cloneSeed(): Lead[] {
 
 let store: Lead[] | null = null
 
+// ---------- 客户池设置（mock：模块级状态） ----------
+const DEFAULT_POOL_SETTINGS: LeadPoolSettings = {
+  enabled: true,
+  inactiveDays: 30,
+  last_recycled_at: null,
+}
+
+let poolSettings: LeadPoolSettings = { ...DEFAULT_POOL_SETTINGS }
+
+export function mockGetPoolSettings(): LeadPoolSettings {
+  return { ...poolSettings }
+}
+
+export function mockUpdatePoolSettings(input: Partial<LeadPoolSettings>): LeadPoolSettings {
+  poolSettings = {
+    ...poolSettings,
+    ...input,
+    inactiveDays:
+      input.inactiveDays != null
+        ? Math.max(1, Math.min(365, Math.trunc(input.inactiveDays)))
+        : poolSettings.inactiveDays,
+  }
+  return { ...poolSettings }
+}
+
 function getStore(): Lead[] {
   if (!store) store = cloneSeed()
   return store
@@ -22,9 +51,29 @@ function getStore(): Lead[] {
 
 export function resetLeadsMockStore(): void {
   store = null
+  poolSettings = { ...DEFAULT_POOL_SETTINGS }
 }
 
-function matchesQuery(lead: Lead, query: LeadListQuery): boolean {
+function poolOf(lead: Lead, currentUserId: string | null | undefined): LeadPool {
+  if (!lead.owner_id) return 'public'
+  if (currentUserId && lead.owner_id === currentUserId) return 'mine'
+  return 'others'
+}
+
+function matchesPool(lead: Lead, pool: LeadPool | undefined, currentUserId: string | null | undefined): boolean {
+  if (!pool || pool === 'all') return true
+  if (pool === 'public') return !lead.owner_id
+  if (pool === 'mine') return Boolean(currentUserId && lead.owner_id === currentUserId)
+  if (pool === 'others') return Boolean(lead.owner_id && lead.owner_id !== currentUserId)
+  return true
+}
+
+function matchesQuery(
+  lead: Lead,
+  query: LeadListQuery,
+  currentUserId: string | null | undefined,
+): boolean {
+  if (!matchesPool(lead, query.pool, currentUserId)) return false
   if (query.status && lead.status !== query.status) return false
   if (query.source && lead.source !== query.source) return false
   if (query.owner_id && lead.owner_id !== query.owner_id) return false
@@ -39,11 +88,14 @@ function matchesQuery(lead: Lead, query: LeadListQuery): boolean {
   return true
 }
 
-export function mockListLeads(query: LeadListQuery = {}): { data: LeadsListData; pagination: Pagination } {
+export function mockListLeads(
+  query: LeadListQuery = {},
+  currentUserId: string | null = null,
+): { data: LeadsListData; pagination: Pagination } {
   const page = query.page ?? 1
   const pageSize = Math.min(query.page_size ?? 20, 100)
   const filtered = getStore()
-    .filter((row) => matchesQuery(row, query))
+    .filter((row) => matchesQuery(row, query, currentUserId))
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 
   const start = (page - 1) * pageSize
@@ -53,6 +105,125 @@ export function mockListLeads(query: LeadListQuery = {}): { data: LeadsListData;
     data: { items },
     pagination: { page, page_size: pageSize, total: filtered.length },
   }
+}
+
+export function mockPoolStats(currentUserId: string | null = null): LeadPoolStats {
+  const all = getStore()
+  let mine = 0
+  let pub = 0
+  let others = 0
+  let recyclableSoon = 0
+  const now = Date.now()
+  const days = poolSettings.inactiveDays
+  for (const lead of all) {
+    const pool = poolOf(lead, currentUserId)
+    if (pool === 'mine') mine += 1
+    else if (pool === 'public') pub += 1
+    else if (pool === 'others') others += 1
+
+    if (pool !== 'public' && poolSettings.enabled) {
+      const baseline = lead.last_activity_at
+        ? new Date(lead.last_activity_at).getTime()
+        : new Date(lead.created_at).getTime()
+      const idleDays = (now - baseline) / 86_400_000
+      const remaining = days - idleDays
+      if (remaining <= 3) recyclableSoon += 1
+    }
+  }
+  return { mine, public: pub, others, all: all.length, recyclableSoon }
+}
+
+export function mockClaimLead(id: string, userId: string | null): Lead | null {
+  const idx = getStore().findIndex((row) => row.id === id)
+  if (idx < 0) return null
+  const current = getStore()[idx]
+  if (current.owner_id) {
+    throw new Error('lead_already_owned')
+  }
+  if (!userId) {
+    throw new Error('claim_requires_login')
+  }
+  const updated: Lead = {
+    ...current,
+    owner_id: userId,
+    last_activity_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+  getStore()[idx] = updated
+  return updated
+}
+
+export function mockReleaseLead(id: string): Lead | null {
+  const idx = getStore().findIndex((row) => row.id === id)
+  if (idx < 0) return null
+  const current = getStore()[idx]
+  if (!current.owner_id) {
+    return current
+  }
+  const updated: Lead = {
+    ...current,
+    owner_id: null,
+    updated_at: new Date().toISOString(),
+  }
+  getStore()[idx] = updated
+  return updated
+}
+
+export function mockTransferLead(id: string, toUserId: string): Lead | null {
+  if (!toUserId) {
+    throw new Error('transfer_requires_target')
+  }
+  const idx = getStore().findIndex((row) => row.id === id)
+  if (idx < 0) return null
+  const current = getStore()[idx]
+  const updated: Lead = {
+    ...current,
+    owner_id: toUserId,
+    updated_at: new Date().toISOString(),
+  }
+  getStore()[idx] = updated
+  return updated
+}
+
+/**
+ * 扫描私海中沉默超过 inactiveDays 的线索并回收至公海。
+ * 已转化（converted）的线索不会被回收，避免误伤客户档案。
+ */
+export function mockRecycleStaleLeads(now: number = Date.now()): LeadRecycleSummary {
+  const summary: LeadRecycleSummary = {
+    recycled: 0,
+    scanned: 0,
+    threshold_days: poolSettings.inactiveDays,
+    recycled_ids: [],
+  }
+  if (!poolSettings.enabled) {
+    poolSettings.last_recycled_at = new Date(now).toISOString()
+    return summary
+  }
+  const limitMs = poolSettings.inactiveDays * 86_400_000
+  const list = getStore()
+  for (let i = 0; i < list.length; i += 1) {
+    const lead = list[i]
+    if (!lead.owner_id) continue
+    if (lead.status === 'converted') continue
+    summary.scanned += 1
+    const baseline = lead.last_activity_at
+      ? new Date(lead.last_activity_at).getTime()
+      : new Date(lead.created_at).getTime()
+    if (now - baseline >= limitMs) {
+      const tags = lead.tags.includes('已回收') ? lead.tags : [...lead.tags, '已回收']
+      list[i] = {
+        ...lead,
+        owner_id: null,
+        tags,
+        updated_at: new Date(now).toISOString(),
+      }
+      summary.recycled += 1
+      summary.recycled_ids.push(lead.id)
+    }
+  }
+  poolSettings.last_recycled_at = new Date(now).toISOString()
+  return summary
 }
 
 export function mockGetLead(id: string): Lead | null {

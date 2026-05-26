@@ -9,6 +9,9 @@
 | [00-api-design.md](./00-api-design.md) | MVP 全量 API 索引 | v0.1 |
 | [phase-2-crm-ai.md](./phase-2-crm-ai.md) | Phase 2 客户关系 + 情绪旅程 + AI Preview | v1.0 Accepted |
 | [phase-3-deals-dashboard-api.md](./phase-3-deals-dashboard-api.md) | Phase 3 商机 + 仪表盘 | v1.0 Accepted |
+| [phase-4-system-settings-api.md](./phase-4-system-settings-api.md) | Phase 4 系统设置 + 收尾运营统计 | v1.0 Accepted |
+
+OpenAPI（Phase 4，供 Swagger / Postman）：[`backend/api/openapi-phase4.yaml`](../../backend/api/openapi-phase4.yaml)
 
 ## 命名规范
 

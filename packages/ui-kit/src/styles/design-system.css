@@ -116,7 +116,7 @@
   --ds-bg: #f8f7fc;
   --ds-bg-elevated: #ffffff;
   --ds-bg-muted: #f5f3ff;
-  --ds-bg-input: #f1f5f9;
+  --ds-bg-input: #ffffff;
   --ds-bg-sidebar: #ffffff;
   --ds-bg-topbar: rgba(255, 255, 255, 0.8);
   --ds-bg-brand-panel: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 50%, #fdf4ff 100%);
@@ -197,7 +197,7 @@
   --ds-bg: #0a0b1e;
   --ds-bg-elevated: #12132b;
   --ds-bg-muted: #0f1028;
-  --ds-bg-input: #161733;
+  --ds-bg-input: #1c1e3d;
   --ds-bg-sidebar: #090a18;
   --ds-bg-topbar: rgba(10, 11, 30, 0.88);
   --ds-bg-brand-panel: linear-gradient(160deg, #0a0b1e 0%, #12103a 48%, #0f0a24 100%);

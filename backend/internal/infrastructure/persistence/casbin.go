@@ -22,7 +22,7 @@ g = _, _, _
 e = some(where (p.eft == allow))
 
 [matchers]
-m = g(r.sub, p.sub, r.dom) && r.dom == p.dom && r.obj == p.obj && r.act == p.act
+m = (g(r.sub, p.sub, r.dom) || r.sub == p.sub) && r.dom == p.dom && r.obj == p.obj && r.act == p.act
 `
 
 // InitCasbin 初始化 RBAC 执行器并从数据库同步策略

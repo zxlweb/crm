@@ -1,0 +1,36 @@
+/** Nuxt UI UModal — 圆角更大、阴影更柔、遮罩更克制 */
+export const crmModalUi = {
+  wrapper: 'relative z-50',
+  inner: 'fixed inset-0 overflow-y-auto',
+  container: 'flex min-h-full items-end sm:items-center justify-center text-center',
+  padding: 'p-4 sm:p-6',
+  margin: 'sm:my-8',
+  base: 'relative text-left rtl:text-right flex flex-col w-full',
+  overlay: {
+    base: 'fixed inset-0 transition-opacity',
+    background: 'bg-ds-bg/70 backdrop-blur-sm',
+    transition: {
+      enter: 'ease-out duration-300',
+      enterFrom: 'opacity-0',
+      enterTo: 'opacity-100',
+      leave: 'ease-in duration-200',
+      leaveFrom: 'opacity-100',
+      leaveTo: 'opacity-0',
+    },
+  },
+  background: 'bg-ds-bg-elevated',
+  ring: 'ring-1 ring-ds-border',
+  rounded: 'rounded-2xl',
+  shadow: 'shadow-ds-xl',
+  width: 'w-full sm:max-w-lg',
+  height: '',
+  fullscreen: 'w-screen h-screen',
+  transition: {
+    enter: 'ease-out duration-300',
+    enterFrom: 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95',
+    enterTo: 'opacity-100 translate-y-0 sm:scale-100',
+    leave: 'ease-in duration-200',
+    leaveFrom: 'opacity-100 translate-y-0 sm:scale-100',
+    leaveTo: 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95',
+  },
+} as const

@@ -232,9 +232,27 @@ Week 2  Mon–Tue  图表嵌入 + 空态/权限
 
 ## Phase 4：系统设置与收尾
 
+**PRD**：[phase-4-system-settings-close-prd.md](../prd/phase-4-system-settings-close-prd.md) · **API**：[phase-4-system-settings-api.md](../api/phase-4-system-settings-api.md) v1.0 Accepted · **架构**：[05-phase-4-settings-close-architecture.md](../architecture/05-phase-4-settings-close-architecture.md) · **ADR**：[0005](../architecture/adr/0005-phase4-settings-custom-fields-and-tenant-insights.md)
+
+### Phase 4 并行任务（Implementation）
+
+> 三轨首条消息声明 `【BE】` / `【FE】` / `【QA】`，细则见 [parallel-implementation.md](./parallel-implementation.md)。  
+> **开工门禁**：`phase-4-system-settings-api.md` + `phase-4-system-settings-close-prd.md` §10（前端切面）评审通过后再领 4.1。  
+> **4.0**：架构师阶段已完成（2a+2b）。
+
+| ID | [BE] | [FE] | [QA] | 依赖 |
+|----|------|------|------|------|
+| 4.0 | **架构师**：Phase 4 API + 架构基线 + ADR-0005 — ✅ | PRD §10 前端切面（路由/composable/组件落点）— ✅ | — | Phase 4 PRD |
+| 4.1 | settings + custom-fields API/迁移 — ✅ | `/settings` + `use-settings` / `use-custom-fields` / **`RolePermissionManager`** — ✅ | 设置链路集成测（租户隔离 + 越权 + **角色权限**）— ⬜ | 4.0 |
+| 4.2 | 审计统计与导出 API — ✅ | `/settings/audit` 图表与筛选 — ✅ | 审计统计/导出测试（权限 + 限频）— ⬜ | 4.1 |
+| 4.3 | `tenant-health` 统计 API — ✅ | Admin `ChartRadar` + 健康度卡片 — ✅ | 健康度口径与权限测试 — ⬜ | 4.2 |
+| 4.4 | `plan-distribution` + `top-tenants` API — ✅ | Admin Donut/Bar 联调 — ✅ | Super Admin 视图 E2E — ⬜ | 4.3 |
+| 4.5 | Swagger 与部署文档补齐 — ✅ | i18n 全量接入（设置/审计/Admin）— ✅ | Phase 4 回归 + 收尾报告 — ⬜ | 4.4 |
+
 **业务**
 
 - [ ] 租户配置管理
+- [ ] **角色与权限**（`/settings?tab=roles`，权限树勾选）
 - [ ] 自定义字段支持
 - [ ] i18n 完整接入（中英）
 - [x] 基础错误处理与统一响应格式
@@ -244,13 +262,13 @@ Week 2  Mon–Tue  图表嵌入 + 空态/权限
 
 **图表**
 
-- [ ] 审计：操作类型 `ChartDonut` / `ChartBar`（设置或审计页）
-- [ ] **`ChartRadar`** 组件（租户健康度）
-- [ ] Admin：`ChartLine` + `ChartDonut`（套餐）+ `ChartRadar` + `ChartBar`（租户 TOP）
+- [x] 审计：操作类型 `ChartDonut` / `ChartBar`（设置或审计页）
+- [x] **`ChartRadar`** 组件（租户健康度）
+- [x] Admin：`ChartLine` + `ChartDonut`（套餐）+ `ChartRadar` + `ChartBar`（租户 TOP）
 
 | 顺序 | 业务 | ui-kit | 嵌入页面 | 指标 |
 |------|------|--------|----------|------|
-| 4.1 | 租户配置、自定义字段 | — | `/settings` | — |
+| 4.1 | 租户配置、自定义字段、**角色权限** | — | `/settings`（含 `tab=roles`） | — |
 | 4.2 | 审计日志 API | `ChartBar` / `ChartDonut` | 设置/审计 | 操作占比 |
 | 4.3 | Admin 租户统计 | **`ChartRadar`**（新增） | `/admin` | 健康度 |
 | 4.4 | Admin 套餐分布 | `ChartDonut` | `/admin` | 套餐占比 |
@@ -293,3 +311,7 @@ Week 2  Mon–Tue  图表嵌入 + 空态/权限
 | 2026-05-24 | Phase 3 Architect 3.0：`phase-3-deals-dashboard-api.md` v1.0、`04-phase-3-deals-dashboard-schema.md` |
 | 2026-05-25 | Phase 3 PM：`phase-3-deals-dashboard-prd.md` v0.1 |
 | 2026-05-25 | Phase 3 BE 冲刺：3.1–3.7 全 API + dashboard/deals 集成测 |
+| 2026-05-26 | Phase 4 Architect 4.0：`phase-4-system-settings-api.md`、`05-phase-4-settings-close-architecture.md`、ADR-0005、PRD §10 前端切面 |
+| 2026-05-26 | Phase 4：补充 PRD 入口（`phase-4-system-settings-close-prd.md`） |
+| 2026-05-26 | Phase 4 PRD v0.2：角色与权限纳入 4.1 验收 |
+| 2026-05-26 | Phase 4 BE：4.1–4.5 API + 迁移 00014–00015 + 集成测；`phase-4-notes` BE 可联调 |

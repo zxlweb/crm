@@ -1,0 +1,100 @@
+openapi: 3.0.3
+info:
+  title: CRM API — Phase 4 Settings
+  version: 1.0.0
+  description: |
+    Phase 4 endpoints (settings, custom fields, audit stats, super-admin insights).
+    Full contract: docs/api/phase-4-system-settings-api.md
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+    tenantHeader: []
+paths:
+  /api/settings/tenant:
+    get:
+      summary: Get tenant settings
+      tags: [Settings]
+      responses:
+        "200":
+          description: OK
+    patch:
+      summary: Patch tenant settings
+      tags: [Settings]
+      responses:
+        "200":
+          description: OK
+  /api/settings/features:
+    get:
+      summary: Feature switch catalog
+      tags: [Settings]
+  /api/settings/custom-fields:
+    get:
+      summary: List custom fields
+      tags: [CustomFields]
+      parameters:
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+            enum: [account, contact, lead, deal]
+    post:
+      summary: Create custom field
+      tags: [CustomFields]
+  /api/settings/custom-fields/{id}:
+    patch:
+      summary: Update custom field
+      tags: [CustomFields]
+    delete:
+      summary: Deactivate custom field
+      tags: [CustomFields]
+  /api/audit/stats/by-action:
+    get:
+      summary: Audit counts by action (Donut)
+      tags: [Audit]
+  /api/audit/stats/trend:
+    get:
+      summary: Audit trend (Bar)
+      tags: [Audit]
+  /api/audit/stats/top-actors:
+    get:
+      summary: Top actors (Bar)
+      tags: [Audit]
+  /api/audit/export:
+    get:
+      summary: Export audit CSV
+      tags: [Audit]
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [csv]
+  /api/super-admin/stats/tenant-health:
+    get:
+      summary: Tenant health radar data
+      tags: [SuperAdmin]
+      security:
+        - bearerAuth: []
+  /api/super-admin/stats/plan-distribution:
+    get:
+      summary: Plan distribution (Donut)
+      tags: [SuperAdmin]
+      security:
+        - bearerAuth: []
+  /api/super-admin/stats/top-tenants:
+    get:
+      summary: Top tenants (Bar)
+      tags: [SuperAdmin]
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    tenantHeader:
+      type: apiKey
+      in: header
+      name: X-Tenant-ID

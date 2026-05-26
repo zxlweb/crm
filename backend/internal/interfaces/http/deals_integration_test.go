@@ -331,7 +331,7 @@ func setupDealsHTTPEnv(t *testing.T) *dealsHTTPEnv {
 	dealHTTP := httphandler.NewDealHandlers(dealSvc, auditRec)
 
 	secret := "deals-test-secret"
-	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, time.Hour)
+	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}

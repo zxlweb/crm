@@ -36,6 +36,21 @@ export type Lead = {
   updated_at: string
 }
 
+/**
+ * 客户池视图：
+ * - `mine`   私海：当前登录用户负责的线索
+ * - `public` 公海：owner_id 为 null，任何销售可领取
+ * - `others` 他人私海：分配给其他销售（仅 admin / 主管视角）
+ * - `all`    全部
+ */
+export type LeadPool = 'mine' | 'public' | 'others' | 'all'
+
+export const LEAD_POOLS: LeadPool[] = ['mine', 'public', 'others', 'all']
+
+export function isLeadPool(value: unknown): value is LeadPool {
+  return typeof value === 'string' && (LEAD_POOLS as string[]).includes(value)
+}
+
 export type LeadListQuery = {
   page?: number
   page_size?: number
@@ -46,6 +61,38 @@ export type LeadListQuery = {
   relationship_health?: RelationshipHealth
   segment?: string
   search?: string
+  pool?: LeadPool
+}
+
+/** 客户池设置（mock：仅存在于前端模块作用域） */
+export type LeadPoolSettings = {
+  /** 自动回收开关 */
+  enabled: boolean
+  /** 私海中无活动达到该天数后回收至公海 */
+  inactiveDays: number
+  /** 上次自动扫描回收时间（ISO） */
+  last_recycled_at: string | null
+}
+
+export type LeadPoolStats = {
+  mine: number
+  public: number
+  others: number
+  all: number
+  /** 距离自动回收 ≤ 3 天的私海线索数 */
+  recyclableSoon: number
+}
+
+export type LeadClaimResult = {
+  lead: Lead
+  recycledCount?: number
+}
+
+export type LeadRecycleSummary = {
+  recycled: number
+  scanned: number
+  threshold_days: number
+  recycled_ids: string[]
 }
 
 export type Pagination = {

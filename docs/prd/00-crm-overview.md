@@ -73,7 +73,9 @@
 
 ### Phase 4 — 系统设置与收尾
 
-- 租户配置、自定义字段、i18n、Swagger、审计报表
+**详细 PRD**：[phase-4-system-settings-close-prd.md](./phase-4-system-settings-close-prd.md)
+
+- 租户配置、自定义字段、**系统设置内角色与权限**、i18n、Swagger、审计报表、部署文档闭环
 
 ### Phase 5+ — **AI 生产能力**
 
@@ -159,6 +161,7 @@
 | **本文件** | MVP 总览、AI 战略、MoSCoW |
 | [phase-2-relationship-crm-prd.md](./phase-2-relationship-crm-prd.md) | Phase 2 全量需求 + AI Preview + 架构师输入清单 |
 | [phase-3-deals-dashboard-prd.md](./phase-3-deals-dashboard-prd.md) | Phase 3 商机 Pipeline + Dashboard 生产化 |
+| [phase-4-system-settings-close-prd.md](./phase-4-system-settings-close-prd.md) | Phase 4 系统设置、角色权限、自定义字段、审计报表、文档收尾 |
 | `docs/tasks/00-mvp-task-breakdown.md` | 任务勾选 |
 | `docs/api/*` | **架构师** API 契约（PM 不写） |
 | `docs/meeting-notes/phase-N-notes.md` | 阶段验收与汇报纪要 |
@@ -172,3 +175,5 @@
 | 2026-05-21 | MVP v0.1 初稿 |
 | 2026-05-22 | v0.2：AI 客户关系战略；废止「MVP 不做 AI」；链 Phase 2 PRD §15 演示预留 |
 | 2026-05-25 | 链 Phase 3 详细 PRD（Deals + Dashboard） |
+| 2026-05-26 | 链 Phase 4 详细 PRD（系统设置与收尾） |
+| 2026-05-26 | Phase 4 PRD v0.2：补充系统设置内角色与权限配置 |

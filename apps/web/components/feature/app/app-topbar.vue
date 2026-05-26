@@ -1,16 +1,21 @@
 <template>
-  <header class="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-ds-border bg-ds-bg-topbar px-6 backdrop-blur-md lg:px-8">
-    <div class="min-w-0">
-      <p class="text-xs font-medium uppercase tracking-wide text-ds-fg-muted">{{ $t('crmBreadcrumb') }}</p>
-      <h1 class="truncate text-lg font-semibold text-ds-fg-heading">{{ pageTitle }}</h1>
+  <header
+    class="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-ds-border bg-ds-bg-topbar px-6 backdrop-blur-md lg:px-8"
+  >
+    <div class="min-w-0 flex-1">
+      <p class="text-[10px] font-medium uppercase tracking-wider text-ds-fg-subtle">
+        {{ $t('crmBreadcrumb') }}
+      </p>
+      <h1 class="truncate text-lg font-semibold text-ds-fg-heading leading-tight">
+        {{ pageTitle }}
+      </h1>
     </div>
-    <div class="flex items-center gap-3">
-      <AppShellThemeSwitch />
-      <AppTenantSwitcher :show-label="false" />
+
+    <div class="flex items-center gap-2 sm:gap-3">
       <UBadge v-if="leads.useMock.value" color="amber" variant="subtle" size="sm">
         {{ $t('crmMockBadge') }}
       </UBadge>
-      <span v-if="auth.user" class="hidden text-sm text-ds-fg-muted sm:inline">{{ auth.user.email }}</span>
+      <AppUserMenu v-if="auth.user" align-right />
     </div>
   </header>
 </template>
@@ -42,6 +47,9 @@ const pageTitle = computed(() => {
   }
   if (route.path.startsWith('/deals')) {
     return t('dealsPageTitle')
+  }
+  if (route.path.startsWith('/settings')) {
+    return t('settingsPageTitle')
   }
   return t('crmBreadcrumb')
 })

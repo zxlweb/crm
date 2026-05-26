@@ -24,18 +24,19 @@ type Claims struct {
 	IsSuperAdmin bool   `json:"is_super_admin"`
 	TokenType    string `json:"token_type"`
 	TenantID     string `json:"tenant_id,omitempty"`
+	ActiveRoleID string `json:"active_role_id,omitempty"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccess(secret string, userID uuid.UUID, email string, isSuperAdmin bool, tenantID *uuid.UUID, ttl time.Duration) (string, int64, error) {
-	return sign(secret, userID, email, isSuperAdmin, tenantID, TokenTypeAccess, ttl)
+func GenerateAccess(secret string, userID uuid.UUID, email string, isSuperAdmin bool, tenantID, activeRoleID *uuid.UUID, ttl time.Duration) (string, int64, error) {
+	return sign(secret, userID, email, isSuperAdmin, tenantID, activeRoleID, TokenTypeAccess, ttl)
 }
 
-func GenerateRefresh(secret string, userID uuid.UUID, email string, isSuperAdmin bool, tenantID *uuid.UUID, ttl time.Duration) (string, int64, error) {
-	return sign(secret, userID, email, isSuperAdmin, tenantID, TokenTypeRefresh, ttl)
+func GenerateRefresh(secret string, userID uuid.UUID, email string, isSuperAdmin bool, tenantID, activeRoleID *uuid.UUID, ttl time.Duration) (string, int64, error) {
+	return sign(secret, userID, email, isSuperAdmin, tenantID, activeRoleID, TokenTypeRefresh, ttl)
 }
 
-func sign(secret string, userID uuid.UUID, email string, isSuperAdmin bool, tenantID *uuid.UUID, tokenType string, ttl time.Duration) (string, int64, error) {
+func sign(secret string, userID uuid.UUID, email string, isSuperAdmin bool, tenantID, activeRoleID *uuid.UUID, tokenType string, ttl time.Duration) (string, int64, error) {
 	now := time.Now()
 	exp := now.Add(ttl)
 	claims := Claims{
@@ -51,6 +52,9 @@ func sign(secret string, userID uuid.UUID, email string, isSuperAdmin bool, tena
 	}
 	if tenantID != nil && *tenantID != uuid.Nil {
 		claims.TenantID = tenantID.String()
+	}
+	if activeRoleID != nil && *activeRoleID != uuid.Nil {
+		claims.ActiveRoleID = activeRoleID.String()
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := token.SignedString([]byte(secret))

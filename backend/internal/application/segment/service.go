@@ -56,7 +56,7 @@ func (s *Service) List(ctx context.Context, tenantID, userID uuid.UUID, withCoun
 		return nil, err
 	}
 	opts := s.segmentOpts(ctx, tenantID)
-	viewAll := datascope.CanViewAllTenantData(s.enforcer, userID.String(), tenantID.String())
+	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
 	out := make([]SegmentDTO, len(templates))
 	for i, t := range templates {
 		dto := SegmentDTO{
@@ -85,7 +85,7 @@ func (s *Service) Count(ctx context.Context, tenantID, userID uuid.UUID, code, e
 		return nil, err
 	}
 	opts := s.segmentOpts(ctx, tenantID)
-	viewAll := datascope.CanViewAllTenantData(s.enforcer, userID.String(), tenantID.String())
+	viewAll := datascope.CanViewAllTenantData(ctx, s.enforcer, userID.String(), tenantID.String())
 	n, err := s.countForEntity(ctx, tenantID, userID, code, entity, opts, viewAll)
 	if err != nil {
 		return nil, err

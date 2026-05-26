@@ -44,11 +44,12 @@ type ListResult struct {
 }
 
 type Service struct {
-	tenants repository.TenantRepository
+	tenants  repository.TenantRepository
+	insights repository.TenantInsightsRepository
 }
 
-func NewService(tenants repository.TenantRepository) *Service {
-	return &Service{tenants: tenants}
+func NewService(tenants repository.TenantRepository, insights repository.TenantInsightsRepository) *Service {
+	return &Service{tenants: tenants, insights: insights}
 }
 
 func (s *Service) TenantActivityTrend(ctx context.Context, days int) (*TenantActivityTrendDTO, error) {

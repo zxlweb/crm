@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="flex h-full min-h-[22rem] flex-col overflow-hidden rounded-2xl border border-ds-border/60 bg-ds-bg-elevated shadow-ds-sm xl:min-h-0"
+    class="flex min-h-[20rem] flex-col overflow-hidden rounded-2xl border border-ds-border/60 bg-ds-bg-elevated shadow-ds-sm xl:min-h-[22rem]"
     data-testid="dashboard-calendar"
   >
     <div class="flex items-center justify-between border-b border-ds-border-muted px-4 py-3 sm:px-5">

@@ -150,6 +150,23 @@
         </div>
       </section>
 
+      <!-- Radar · 租户健康度 -->
+      <section>
+        <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-ds-fg-muted">{{ $t('chartsRadarSectionTitle') }}</h2>
+        <ChartShell
+          :title="$t('chartsRadarTitle')"
+          :subtitle="$t('chartsRadarDesc')"
+          :height="360"
+        >
+          <ChartRadar
+            :indicators="radarIndicators"
+            :series="radarDemoSeries"
+            :height="320"
+            data-testid="charts-demo-radar"
+          />
+        </ChartShell>
+      </section>
+
       <!-- Gauge · 配额完成率 -->
       <section>
         <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-ds-fg-muted">{{ $t('chartsSectionGauge') }}</h2>
@@ -167,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ChartBarItem, ChartDonutItem, ChartFunnelItem, ChartLegendItem, ChartSeries } from '@crm/ui-kit'
+import type { ChartBarItem, ChartDonutItem, ChartFunnelItem, ChartLegendItem, ChartRadarItem, ChartSeries } from '@crm/ui-kit'
 
 definePageMeta({ layout: 'auth' })
 
@@ -251,4 +268,16 @@ const tenantLegend: ChartLegendItem[] = [
 
 const sparklineUp = [12, 14, 13, 16, 18, 17, 22, 24]
 const sparklineMixed = [8, 12, 9, 11, 10, 13, 11, 15]
+
+const radarIndicators = [
+  { name: 'Activity', max: 100 },
+  { name: 'Config', max: 100 },
+  { name: 'Audit Risk', max: 100 },
+  { name: 'Freshness', max: 100 },
+  { name: 'Adoption', max: 100 },
+]
+const radarDemoSeries: ChartRadarItem[] = [
+  { name: 'Acme', values: [78, 85, 42, 80, 66] },
+  { name: 'Beta', values: [92, 70, 25, 95, 88] },
+]
 </script>

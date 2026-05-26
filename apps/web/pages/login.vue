@@ -276,6 +276,7 @@ async function finishSession(data: LoginResponse) {
   tenant.setTenantList(data.tenants)
   if (data.current_tenant) tenant.setTenant(data.current_tenant.id)
   else if (data.tenants.length > 0) tenant.setTenant(data.tenants[0].id)
+  useActiveRole().applyFromLogin(data)
   if (tenant.currentTenantId.value) {
     try {
       await useRbac().loadMyPermissions()

@@ -3,6 +3,7 @@ package middleware
 import (
 	"strings"
 
+	"crm-backend/internal/pkg/activerole"
 	"crm-backend/internal/pkg/jwtutil"
 	"crm-backend/internal/pkg/response"
 
@@ -38,6 +39,12 @@ func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 		if claims.TenantID != "" {
 			c.Set("jwt_tenant_id", claims.TenantID)
 		}
+		if claims.ActiveRoleID != "" {
+			c.Set("active_role_id", claims.ActiveRoleID)
+		}
+
+		ctx := activerole.WithID(c.Request.Context(), claims.ActiveRoleID)
+		c.Request = c.Request.WithContext(ctx)
 
 		c.Next()
 	}

@@ -159,7 +159,7 @@ func setupContactsHTTPEnv(t *testing.T) *contactsHTTPEnv {
 	)
 
 	secret := "contacts-test-secret"
-	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, time.Hour)
+	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}

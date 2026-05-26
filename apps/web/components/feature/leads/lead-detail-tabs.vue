@@ -45,7 +45,7 @@ defineEmits<{
 const { t } = useI18n()
 
 const tabs = computed(() => [
-  { id: 'timeline' as const, label: t('leadsTabTimeline') },
-  { id: 'emotion' as const, label: t('leadsTabEmotion') },
+  { id: 'timeline' as const, label: t('leadsTabTimeline'), icon: 'i-heroicons-bolt' },
+  { id: 'emotion' as const, label: t('leadsTabEmotion'), icon: 'i-heroicons-heart' },
 ])
 </script>

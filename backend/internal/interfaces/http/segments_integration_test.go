@@ -139,7 +139,7 @@ func TestSegmentsHTTP_RequiresSegmentsView(t *testing.T) {
 	segmentHTTP := httphandler.NewSegmentHandlers(segmentSvc)
 
 	secret := "segments-no-view"
-	token, _, _ := jwtutil.GenerateAccess(secret, userA, "u@test.com", false, &tenantA, time.Hour)
+	token, _, _ := jwtutil.GenerateAccess(secret, userA, "u@test.com", false, &tenantA, nil, time.Hour)
 	r := gin.New()
 	api := r.Group("/api")
 	api.Use(middleware.AuthMiddleware(secret))
@@ -196,7 +196,7 @@ func setupSegmentsHTTPEnv(t *testing.T) *segmentsHTTPEnv {
 	segmentHTTP := httphandler.NewSegmentHandlers(segmentSvc)
 
 	secret := "segments-test-secret"
-	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, time.Hour)
+	token, _, err := jwtutil.GenerateAccess(secret, userA, "sales@test.com", false, &tenantA, nil, time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}

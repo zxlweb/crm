@@ -31,6 +31,8 @@ type RBACRepository interface {
 	ListUserRoles(ctx context.Context, tenantID, userID uuid.UUID) ([]domain.Role, error)
 	SetUserRoles(ctx context.Context, tenantID, userID uuid.UUID, roleIDs []uuid.UUID) error
 	ListUserPermissions(ctx context.Context, tenantID, userID uuid.UUID) ([]domain.Permission, error)
+	ListRolePermissions(ctx context.Context, roleID uuid.UUID) ([]domain.Permission, error)
+	UserHasRole(ctx context.Context, tenantID, userID, roleID uuid.UUID) (bool, error)
 	PermissionsExist(ctx context.Context, ids []uuid.UUID) (bool, error)
 	RolesBelongToTenant(ctx context.Context, tenantID uuid.UUID, roleIDs []uuid.UUID) (bool, error)
 }
@@ -167,6 +169,26 @@ func (r *GormRBACRepository) ListUserPermissions(ctx context.Context, tenantID, 
 		Order("p.resource, p.action").
 		Scan(&perms).Error
 	return perms, err
+}
+
+func (r *GormRBACRepository) ListRolePermissions(ctx context.Context, roleID uuid.UUID) ([]domain.Permission, error) {
+	var perms []domain.Permission
+	err := r.db.WithContext(ctx).
+		Table("permissions p").
+		Select("DISTINCT p.*").
+		Joins("INNER JOIN role_permissions rp ON rp.permission_id = p.id").
+		Where("rp.role_id = ?", roleID).
+		Order("p.resource, p.action").
+		Scan(&perms).Error
+	return perms, err
+}
+
+func (r *GormRBACRepository) UserHasRole(ctx context.Context, tenantID, userID, roleID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&domain.UserRole{}).
+		Where("user_id = ? AND tenant_id = ? AND role_id = ?", userID, tenantID, roleID).
+		Count(&count).Error
+	return count > 0, err
 }
 
 func (r *GormRBACRepository) PermissionsExist(ctx context.Context, ids []uuid.UUID) (bool, error) {

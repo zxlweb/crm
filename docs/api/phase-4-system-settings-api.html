@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 4 API 契约：系统设置（Settings）与收尾 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="../index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="../README.html">README</a><h2>api</h2><a href="../api\00-api-design.html">00-api-design</a><a href="../api\README.html">README</a><a href="../api\phase-2-crm-ai.html">phase-2-crm-ai</a><a href="../api\phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><a href="../api\phase-4-system-settings-api.html" style="color:var(--accent);font-weight:600">phase-4-system-settings-api</a><h2>architecture</h2><a href="../architecture\00-main-architecture.html">00-main-architecture</a><a href="../architecture\01-multi-tenancy.html">01-multi-tenancy</a><a href="../architecture\02-rbac-design.html">02-rbac-design</a><a href="../architecture\03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="../architecture\04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="../architecture\05-phase-4-settings-close-architecture.html">05-phase-4-settings-close-architecture</a><a href="../architecture\README.html">README</a><h2>architecture\adr</h2><a href="../architecture\adr\0000-template.html">0000-template</a><a href="../architecture\adr\0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="../architecture\adr\0002-casbin-rbac.html">0002-casbin-rbac</a><a href="../architecture\adr\0003-goose-migrations.html">0003-goose-migrations</a><a href="../architecture\adr\0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="../architecture\adr\0005-phase4-settings-custom-fields-and-tenant-insights.html">0005-phase4-settings-custom-fields-and-tenant-insights</a><a href="../architecture\adr\README.html">README</a><h2>backend-arch</h2><a href="../backend-arch\00-database-schema.html">00-database-schema</a><a href="../backend-arch\01-layering.html">01-layering</a><a href="../backend-arch\README.html">README</a><h2>frontend-arch</h2><a href="../frontend-arch\01-directory-structure.html">01-directory-structure</a><a href="../frontend-arch\02-ui-kit-modules.html">02-ui-kit-modules</a><a href="../frontend-arch\03-design-system.html">03-design-system</a><a href="../frontend-arch\04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="../frontend-arch\05-component-scenarios.html">05-component-scenarios</a><a href="../frontend-arch\README.html">README</a><h2>meeting-notes</h2><a href="../meeting-notes\README.html">README</a><a href="../meeting-notes\phase-0-notes.html">phase-0-notes</a><a href="../meeting-notes\phase-1-notes.html">phase-1-notes</a><a href="../meeting-notes\phase-2-notes.html">phase-2-notes</a><a href="../meeting-notes\phase-3-notes.html">phase-3-notes</a><a href="../meeting-notes\phase-4-notes.html">phase-4-notes</a><h2>prd</h2><a href="../prd\00-crm-overview.html">00-crm-overview</a><a href="../prd\README.html">README</a><a href="../prd\phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="../prd\phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><a href="../prd\phase-4-system-settings-close-prd.html">phase-4-system-settings-close-prd</a><h2>qa</h2><a href="../qa\README.html">README</a><a href="../qa\phase-0-qa.html">phase-0-qa</a><a href="../qa\phase-1-qa.html">phase-1-qa</a><a href="../qa\phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="../qa\phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="../reviews\README.html">README</a><a href="../reviews\phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="../tasks\00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="../tasks\README.html">README</a><a href="../tasks\parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="../templates\code-review-template.html">code-review-template</a><a href="../templates\qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../api\phase-4-system-settings-api.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>Phase 4 API 契约：系统设置（Settings）与收尾</h1>
+<p><strong>版本</strong>：v1.0<br><strong>日期</strong>：2026-05-26<br><strong>状态</strong>：Accepted（Implementation 开工前评审基线）<br><strong>输入</strong>：<a href="../prd/phase-4-system-settings-close-prd.md">phase-4-system-settings-close-prd.md</a> · <a href="../tasks/00-mvp-task-breakdown.md">00-mvp-task-breakdown.md</a> §Phase 4<br><strong>架构</strong>：<a href="../architecture/05-phase-4-settings-close-architecture.md">05-phase-4-settings-close-architecture.md</a><br><strong>索引</strong>：<a href="./00-api-design.md">00-api-design.md</a></p>
+<blockquote>
+<p>HTML：<code>phase-4-system-settings-api.html</code>（<code>make docs-html</code> 生成）</p>
+</blockquote>
+<hr>
+<h2>1. 范围与原则</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>Phase 4 交付</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Settings (L1)</strong></td>
+<td>租户配置读取/更新、业务开关</td>
+</tr>
+<tr>
+<td><strong>Custom Fields (L1)</strong></td>
+<td>Accounts/Contacts/Leads/Deals 自定义字段（文本/枚举/日期）</td>
+</tr>
+<tr>
+<td><strong>Audit Stats (L1)</strong></td>
+<td>审计操作统计（Bar / Donut）+ 导出契约</td>
+</tr>
+<tr>
+<td><strong>Super Admin Insights (L1)</strong></td>
+<td>租户健康度 Radar、套餐分布 Donut、租户 TOP Bar</td>
+</tr>
+<tr>
+<td><strong>不在 MVP</strong></td>
+<td>字段表达式规则、跨租户智能诊断、复杂审批流</td>
+</tr>
+</tbody></table>
+<p><strong>通用约定</strong>（继承 <a href="./00-api-design.md">00-api-design.md</a>）：</p>
+<ul>
+<li>Header：<code>Authorization</code>、<code>X-Tenant-ID</code></li>
+<li>响应：<code>{ code, message, data, pagination? }</code></li>
+<li>列表默认 <code>page=1</code>、<code>page_size=20</code>（最大 100）</li>
+<li>写操作写 <code>audit_logs</code></li>
+<li><strong>禁止</strong> body 传 <code>tenant_id</code></li>
+</ul>
+<hr>
+<h2>2. 枚举与共享类型</h2>
+<h3>2.1 设置开关 <code>settings_key</code></h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>类型</th>
+<th>默认</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>default_locale</code></td>
+<td>string</td>
+<td><code>zh-CN</code></td>
+<td>默认语言，<code>zh-CN</code>/<code>en-US</code></td>
+</tr>
+<tr>
+<td><code>timezone</code></td>
+<td>string</td>
+<td><code>Asia/Shanghai</code></td>
+<td>租户时区</td>
+</tr>
+<tr>
+<td><code>ai_preview_enabled</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>Phase 2 Preview 能力总开关</td>
+</tr>
+<tr>
+<td><code>lead_import_mode</code></td>
+<td>string</td>
+<td><code>manual_review</code></td>
+<td><code>manual_review</code> / <code>auto_merge</code></td>
+</tr>
+<tr>
+<td><code>sales_quota.amount</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Dashboard 配额</td>
+</tr>
+<tr>
+<td><code>sales_quota.currency</code></td>
+<td>string</td>
+<td><code>CNY</code></td>
+<td>配额币种</td>
+</tr>
+</tbody></table>
+<h3>2.2 自定义字段 <code>field_type</code></h3>
+<table>
+<thead>
+<tr>
+<th>code</th>
+<th>中文</th>
+<th>校验</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>text</code></td>
+<td>文本</td>
+<td><code>max_length &lt;= 255</code></td>
+</tr>
+<tr>
+<td><code>select</code></td>
+<td>枚举</td>
+<td><code>options</code> 非空，value 唯一</td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>日期</td>
+<td><code>YYYY-MM-DD</code></td>
+</tr>
+</tbody></table>
+<h3>2.3 自定义字段 <code>entity_type</code></h3>
+<p><code>account</code> | <code>contact</code> | <code>lead</code> | <code>deal</code></p>
+<h3>2.4 健康度维度 <code>health_dimension</code></h3>
+<p><code>activity</code> | <code>config_completeness</code> | <code>audit_risk</code> | <code>data_freshness</code> | <code>feature_adoption</code></p>
+<hr>
+<h2>3. Settings（租户配置）</h2>
+<h3>3.1 资源字段</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tenant_id</code></td>
+<td>uuid</td>
+<td>当前租户</td>
+</tr>
+<tr>
+<td><code>tenant_name</code></td>
+<td>string</td>
+<td>租户名称</td>
+</tr>
+<tr>
+<td><code>default_locale</code></td>
+<td>string</td>
+<td>默认语言</td>
+</tr>
+<tr>
+<td><code>timezone</code></td>
+<td>string</td>
+<td>时区</td>
+</tr>
+<tr>
+<td><code>business_switches</code></td>
+<td>object</td>
+<td>业务开关集合</td>
+</tr>
+<tr>
+<td><code>sales_quota</code></td>
+<td>object</td>
+<td><code>{ amount, currency, period }</code></td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>timestamptz</td>
+<td>最近更新时间</td>
+</tr>
+<tr>
+<td><code>updated_by</code></td>
+<td>uuid</td>
+<td>最近更新人</td>
+</tr>
+</tbody></table>
+<h3>3.2 接口</h3>
+<p><strong>权限</strong>：<code>settings:view</code>、<code>settings:update</code></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>权限</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/settings/tenant</code></td>
+<td>view</td>
+<td>获取当前租户配置</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/settings/tenant</code></td>
+<td>update</td>
+<td>局部更新配置</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/settings/features</code></td>
+<td>view</td>
+<td>获取开关字典与当前值</td>
+</tr>
+</tbody></table>
+<p><strong>PATCH <code>/api/settings/tenant</code> 请求示例</strong>：</p>
+<pre><code class="language-json">{
+  &quot;tenant_name&quot;: &quot;Acme China&quot;,
+  &quot;default_locale&quot;: &quot;en-US&quot;,
+  &quot;timezone&quot;: &quot;Asia/Shanghai&quot;,
+  &quot;business_switches&quot;: {
+    &quot;ai_preview_enabled&quot;: true,
+    &quot;lead_import_mode&quot;: &quot;manual_review&quot;
+  },
+  &quot;sales_quota&quot;: {
+    &quot;amount&quot;: 5000000,
+    &quot;currency&quot;: &quot;CNY&quot;,
+    &quot;period&quot;: &quot;2026-05&quot;
+  }
+}
+</code></pre>
+<hr>
+<h2>4. Custom Fields（自定义字段）</h2>
+<h3>4.1 字段模型</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>uuid</td>
+<td>出</td>
+<td></td>
+</tr>
+<tr>
+<td><code>entity_type</code></td>
+<td>enum</td>
+<td>是</td>
+<td><code>account/contact/lead/deal</code></td>
+</tr>
+<tr>
+<td><code>field_key</code></td>
+<td>string</td>
+<td>是</td>
+<td>租户内 + 实体内唯一，snake_case</td>
+</tr>
+<tr>
+<td><code>field_label</code></td>
+<td>object</td>
+<td>是</td>
+<td><code>{ &quot;zh-CN&quot;: &quot;...&quot;, &quot;en-US&quot;: &quot;...&quot; }</code></td>
+</tr>
+<tr>
+<td><code>field_type</code></td>
+<td>enum</td>
+<td>是</td>
+<td><code>text/select/date</code></td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>默认 false</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td>object[]</td>
+<td>否</td>
+<td><code>select</code> 必填</td>
+</tr>
+<tr>
+<td><code>default_value</code></td>
+<td>any</td>
+<td>否</td>
+<td>按类型校验</td>
+</tr>
+<tr>
+<td><code>display_order</code></td>
+<td>int</td>
+<td>否</td>
+<td>默认 100</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>默认 true</td>
+</tr>
+<tr>
+<td><code>created_at/updated_at</code></td>
+<td>timestamptz</td>
+<td>出</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3>4.2 接口</h3>
+<p><strong>权限</strong>：<code>custom_fields:view</code>、<code>custom_fields:update</code></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>权限</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/settings/custom-fields</code></td>
+<td>view</td>
+<td>列表（支持 <code>entity_type</code>）</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/settings/custom-fields</code></td>
+<td>update</td>
+<td>创建</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/settings/custom-fields/:id</code></td>
+<td>update</td>
+<td>更新</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/settings/custom-fields/:id</code></td>
+<td>update</td>
+<td>逻辑删除（<code>is_active=false</code>）</td>
+</tr>
+</tbody></table>
+<p><strong>POST 请求示例</strong>：</p>
+<pre><code class="language-json">{
+  &quot;entity_type&quot;: &quot;lead&quot;,
+  &quot;field_key&quot;: &quot;industry_segment&quot;,
+  &quot;field_label&quot;: { &quot;zh-CN&quot;: &quot;行业子类&quot;, &quot;en-US&quot;: &quot;Industry Segment&quot; },
+  &quot;field_type&quot;: &quot;select&quot;,
+  &quot;required&quot;: false,
+  &quot;options&quot;: [
+    { &quot;value&quot;: &quot;saas&quot;, &quot;label&quot;: { &quot;zh-CN&quot;: &quot;SaaS&quot;, &quot;en-US&quot;: &quot;SaaS&quot; } },
+    { &quot;value&quot;: &quot;manufacturing&quot;, &quot;label&quot;: { &quot;zh-CN&quot;: &quot;制造业&quot;, &quot;en-US&quot;: &quot;Manufacturing&quot; } }
+  ],
+  &quot;display_order&quot;: 30
+}
+</code></pre>
+<hr>
+<h2>5. Audit Stats（审计统计）</h2>
+<h3>5.1 统计接口</h3>
+<p><strong>权限</strong>：<code>audit:view</code></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>图表</th>
+<th>Query</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/audit/stats/by-action</code></td>
+<td><code>ChartDonut</code></td>
+<td><code>from</code>, <code>to</code>, <code>module</code>, <code>actor_role</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/audit/stats/trend</code></td>
+<td><code>ChartBar</code></td>
+<td><code>from</code>, <code>to</code>, `granularity=day</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/audit/stats/top-actors</code></td>
+<td><code>ChartBar</code></td>
+<td><code>from</code>, <code>to</code>, <code>limit</code></td>
+</tr>
+</tbody></table>
+<p><strong><code>by-action</code> 响应示例</strong>：</p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [
+    { &quot;action&quot;: &quot;settings.update&quot;, &quot;count&quot;: 18 },
+    { &quot;action&quot;: &quot;custom_field.create&quot;, &quot;count&quot;: 7 },
+    { &quot;action&quot;: &quot;rbac.role.assign&quot;, &quot;count&quot;: 5 }
+  ],
+  &quot;total&quot;: 30
+}
+</code></pre>
+<h3>5.2 导出接口</h3>
+<p><strong>GET</strong> <code>/api/audit/export</code><br><strong>权限</strong>：<code>audit:export</code><br><strong>Query</strong>：<code>from</code>, <code>to</code>, <code>module</code>, <code>actor_id</code>, <code>format=csv</code></p>
+<p>成功返回文件流；越权或跨租户返回 <code>403/404</code>。</p>
+<hr>
+<h2>6. Super Admin（跨租户运营）</h2>
+<blockquote>
+<p>此组接口仅需 <code>Authorization</code> + <code>is_super_admin=true</code>，不要求 <code>X-Tenant-ID</code>。</p>
+</blockquote>
+<h3>6.1 租户健康度</h3>
+<p><strong>GET</strong> <code>/api/super-admin/stats/tenant-health</code></p>
+<p><strong>响应 data</strong>：</p>
+<pre><code class="language-json">{
+  &quot;dimensions&quot;: [&quot;activity&quot;, &quot;config_completeness&quot;, &quot;audit_risk&quot;, &quot;data_freshness&quot;, &quot;feature_adoption&quot;],
+  &quot;items&quot;: [
+    {
+      &quot;tenant_id&quot;: &quot;uuid&quot;,
+      &quot;tenant_name&quot;: &quot;Acme&quot;,
+      &quot;scores&quot;: {
+        &quot;activity&quot;: 78,
+        &quot;config_completeness&quot;: 85,
+        &quot;audit_risk&quot;: 42,
+        &quot;data_freshness&quot;: 80,
+        &quot;feature_adoption&quot;: 66
+      },
+      &quot;overall_score&quot;: 70
+    }
+  ]
+}
+</code></pre>
+<h3>6.2 套餐分布 / 租户 TOP</h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>图表</th>
+<th>Query</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/super-admin/stats/plan-distribution</code></td>
+<td><code>ChartDonut</code></td>
+<td><code>from</code>, <code>to</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/super-admin/stats/top-tenants</code></td>
+<td><code>ChartBar</code></td>
+<td>`metric=activity</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. RBAC 动作与路由映射</h2>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>action</th>
+<th>路由前缀</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>settings</code></td>
+<td><code>view</code>, <code>update</code></td>
+<td><code>/api/settings/tenant</code>、<code>/api/settings/features</code></td>
+</tr>
+<tr>
+<td><code>custom_fields</code></td>
+<td><code>view</code>, <code>update</code></td>
+<td><code>/api/settings/custom-fields*</code></td>
+</tr>
+<tr>
+<td><code>audit</code></td>
+<td><code>view</code>, <code>export</code></td>
+<td><code>/api/audit/stats/*</code>、<code>/api/audit/export</code></td>
+</tr>
+<tr>
+<td><code>admin_tenant_insights</code></td>
+<td><code>view</code></td>
+<td><code>/api/super-admin/stats/*</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. 审计动作（新增）</h2>
+<table>
+<thead>
+<tr>
+<th>action</th>
+<th>触发</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>settings.update</code></td>
+<td>PATCH <code>/api/settings/tenant</code></td>
+</tr>
+<tr>
+<td><code>custom_field.create</code></td>
+<td>POST <code>/api/settings/custom-fields</code></td>
+</tr>
+<tr>
+<td><code>custom_field.update</code></td>
+<td>PATCH <code>/api/settings/custom-fields/:id</code></td>
+</tr>
+<tr>
+<td><code>custom_field.delete</code></td>
+<td>DELETE <code>/api/settings/custom-fields/:id</code></td>
+</tr>
+<tr>
+<td><code>audit.export</code></td>
+<td>GET <code>/api/audit/export</code></td>
+</tr>
+<tr>
+<td><code>admin.tenant_health.view</code></td>
+<td>GET <code>/api/super-admin/stats/tenant-health</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. 错误码补充</h2>
+<table>
+<thead>
+<tr>
+<th>message</th>
+<th>HTTP</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>setting_key_invalid</code></td>
+<td>400</td>
+<td>不支持的配置键</td>
+</tr>
+<tr>
+<td><code>custom_field_key_conflict</code></td>
+<td>409</td>
+<td>字段 key 冲突</td>
+</tr>
+<tr>
+<td><code>custom_field_type_invalid</code></td>
+<td>400</td>
+<td>类型与 default/options 不匹配</td>
+</tr>
+<tr>
+<td><code>audit_export_rate_limited</code></td>
+<td>429</td>
+<td>导出限流</td>
+</tr>
+<tr>
+<td><code>admin_scope_denied</code></td>
+<td>403</td>
+<td>非 super admin 访问跨租户统计</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>10. 实现顺序（供三轨领任务）</h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>任务 ID</th>
+<th>交付</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>4.1</td>
+<td><code>settings/tenant</code> + <code>custom-fields</code> CRUD 契约</td>
+</tr>
+<tr>
+<td>2</td>
+<td>4.2</td>
+<td><code>audit/stats/*</code> + <code>audit/export</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>4.3</td>
+<td><code>super-admin/stats/tenant-health</code> + Radar 数据</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4.4</td>
+<td><code>plan-distribution</code> + <code>top-tenants</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>4.5</td>
+<td>i18n key 清单、Swagger 对齐、部署文档验收</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>11. 修订记录</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-05-26</td>
+<td>v1.0：Phase 4 架构师 2a 首版，覆盖 settings/custom-fields/audit/admin-insights 契约</td>
+</tr>
+</tbody></table>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../api\phase-4-system-settings-api.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

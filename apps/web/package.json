@@ -8,6 +8,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "smoke:phase4": "node scripts/phase4-api-smoke.mjs",
+    "smoke:phase4-role": "node scripts/phase4-role-switch-smoke.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint:layers": "vitest run tests/component-layers.test.ts",
