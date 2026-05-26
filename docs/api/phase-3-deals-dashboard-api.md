@@ -67,13 +67,17 @@ Phase 3 仅存储 code，不做汇率换算。
 
 ### 2.3 Dashboard `data_scope`
 
-与 Phase 2 一致，由 `GET /api/rbac/my-permissions` 返回（可选字段）：
+由 BE `datascope.Resolver` 解析；`GET /api/dashboard/summary` 返回 `data_scope`、`can_view_team_ranking`（详见 [phase-3-deals-dashboard-prd.md](../prd/phase-3-deals-dashboard-prd.md) §4.4.4–4.4.6）：
 
 | code | 中文 | 过滤 |
 |------|------|------|
 | `self` | 本人 | `owner_id = 当前用户` |
-| `department` | 部门 | `department_id` 匹配（种子可等同 `all`） |
-| `all` | 全部 | 租户内可见范围 |
+| `department` | 同事业部 | `owner_id IN` 同 tenant、同 `user_tenants.department` 的用户；**不含** `owner_id IS NULL` |
+| `all` | 全租户 | `rbac:manage`；团队排行 `group_by=department` |
+
+**团队排行**：`department` + 销售经理/客户经理角色 → `group_by=user`；`all` → `group_by=department`。销售代表无排行（403 或 FE 隐藏）。
+
+**配额**：`quota_scope=tenant`（`sales_quota`）或 `department`（`department_quotas[department]`）。
 
 ---
 

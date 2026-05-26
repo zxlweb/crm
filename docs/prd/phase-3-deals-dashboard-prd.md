@@ -1,9 +1,9 @@
 # Phase 3 PRD：商机 Pipeline 与成交仪表盘
 
 **产品名称**：EnterpriseFlow CRM  
-**版本**：Phase 3 v0.2  
+**版本**：Phase 3 v0.3  
 **日期**：2026-05-26  
-**状态**：已交付（含部门数据范围 v0.2 增补）  
+**状态**：已交付（含部门数据范围 v0.2、**分角色工作台 v0.3** 增补）  
 **MVP 总览**：[00-crm-overview.md](./00-crm-overview.md)  
 **前置依赖**：Phase 0 架构、Phase 1 认证/RBAC、Phase 2 客户/线索/Activity/洞察主链（可有条件关闭）  
 **关联任务**：[00-mvp-task-breakdown.md](../tasks/00-mvp-task-breakdown.md) § Phase 3  
@@ -84,6 +84,12 @@ B2B 销售在 Phase 2 已能管理线索与客户关系，但缺少：
 
 **场景 E — 销售代表**  
 王磊（销售代表）登录 → `data_scope=self` → 仅本人 Pipeline；**不展示**团队排行区块（API 403 或 FE 按 scope 隐藏）。
+
+**场景 F — 销售经理工作台（陈洋 · 神龙云计算）**  
+陈洋登录小西租户 → `data_scope=department` → 工作台展示：**精简 KPI（在途商机 / 需关注 / 本周待跟进）**、**事业部配额完成率**（`department_quotas`，非集团 2800 万）、**商机漏斗 + 本部门成员排行**；**不展示**「今日重点+日程」重复区、管道动态、**数据展望·演示样例**（Zone E）。智能信号与待办合并为横滑「关注项」。
+
+**场景 G — 租户管理员工作台**  
+潘总登录 → `data_scope=all` → 五宫格 KPI、集团配额、漏斗、**部门业绩排行**；**不展示**智能信号横滑与一线「今日重点」；**可展示** Zone E（若仍有 Preview 热力，仅管理员）。
 
 ---
 
@@ -207,9 +213,13 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 | ID | 作为 | 我要 | AC |
 |----|------|------|-----|
 | QT-01 | 销售 | 看本周期配额完成 % | Gauge 0–100%；超额可 >100 显示 |
-| QT-02 | 经理/管理员 | 看团队汇总配额 | `department` 聚合本部门；`all` 聚合全租户 |
+| QT-02 | 销售经理 | 看 **本事业部** 配额完成 % | `quota_scope=department`；目标来自 `tenants.config.department_quotas[部门名]` |
+| QT-03 | 租户管理员 | 看 **集团** 配额完成 % | `quota_scope=tenant`；目标来自 `tenants.config.sales_quota` |
+| QT-04 | 销售代表 | 看本人赢单与配额（若配置） | `self` 范围统计 `won_amount_mtd`；目标仍读租户级 `sales_quota`（MVP） |
 
-- 粒度：用户或租户（`tenants.config.sales_quota` JSONB）  
+- 集团配额：`tenants.config.sales_quota` JSONB  
+- 事业部配额：`tenants.config.department_quotas` JSONB（键 = `user_tenants.department` 字符串，须完全一致）  
+- 响应字段：`quota_scope`（`tenant` | `department`）、`department`（部门名时）  
 - `target_amount` / `won_amount_mtd` / `completion_rate` 见 phase-3-deals-dashboard-api §4.4
 
 #### 4.4.4 数据范围与团队排行（Accepted v0.2）
@@ -218,9 +228,11 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 
 | 条件 | 如何判定 | CRM 列表/统计（Leads、Accounts、Contacts、Deals、Dashboard summary/funnel/quota） |
 |------|----------|-------------------------------------------------------------------------------------|
-| `all` | 用户具备 `rbac:manage`（租户管理员） | 全租户 `owner_id` |
-| `department` | 角色名为 **销售经理** / `Sales Manager`，且 `user_tenants.department` 非空 | 仅 `owner_id` 属于 **同部门** 的成员（含 `owner_id IS NULL` 的未分配记录，与 MVP 一致） |
-| `self` | 其它角色（销售代表、只读等） | 仅 `owner_id = 当前用户` |
+| `all` | 用户具备 `rbac:manage`（租户管理员） | 全租户数据 |
+| `department` | **非**租户管理员，且 `user_tenants.department` 非空 | 仅 `owner_id` 属于 **同部门** 的用户（`owner_id IN (同 tenant、同 department 的成员)`）；**不含** `owner_id IS NULL`（防跨事业部泄漏） |
+| `self` | 无部门字段，或其它未命中上述规则 | 仅 `owner_id = 当前用户` |
+
+**团队排行可见性**（`summary.can_view_team_ranking`）：`all` → 始终可见；`department` → 仅当角色名为 **销售经理** / `Sales Manager` / **客户经理** / `Account Manager`。
 
 部门归属存 **`user_tenants.department`**（一级部门名称，可与钉钉通讯录对齐）；**设置 → 成员** 展示部门列（Phase 4 交付，见 [phase-4-system-settings-close-prd.md](./phase-4-system-settings-close-prd.md) §3.6）。
 
@@ -260,12 +272,33 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 
 **演示**：小西科技集团租户见 [xiaoxi-boss-demo.md](../demo/xiaoxi-boss-demo.md)（`ceo@xiaoxi.com` vs `linghu@xiaoxi.com`）。
 
-#### 4.4.5 Zone E 生产化策略
+#### 4.4.5 Zone E（数据展望 · 演示样例）
 
-| 区块 | Phase 2 | Phase 3 |
-|------|---------|---------|
-| 迷你商机漏斗 | fixtures + Preview 角标 | **真实** `dashboard/funnel`；移除 Preview 角标 |
-| 团队关系热力 | fixtures Mock | **Should**：规则版（成员 × 平均 engagement）；**Could** 仍 Mock + 角标至 L2 真算 |
+| 角色 | 是否展示 Zone E | 说明 |
+|------|-----------------|------|
+| 租户管理员（`data_scope=all`） | **是** | 可含迷你漏斗（真实 API）+ 团队关系热力（Mock/Preview，Should） |
+| 销售经理 / 销售代表 | **否** | FE `showZoneE` 仅当 `summary.data_scope === 'all'`；避免一线用户看到演示样例区块 |
+
+| 区块 | Phase 2 | Phase 3（管理员） |
+|------|---------|-------------------|
+| 迷你商机漏斗 | fixtures + Preview 角标 | **真实** `dashboard/funnel` |
+| 团队关系热力 | fixtures Mock | **Should**：规则版；**Could** 仍 Mock |
+
+#### 4.4.6 工作台按 `data_scope` 布局（Accepted v0.3）
+
+FE 以 `GET /api/dashboard/summary` 的 `data_scope`、`can_view_team_ranking` 驱动（`data-dashboard-layout`：`admin` | `manager` | `rep`）。
+
+| 区块 | `self`（销售代表） | `department`（销售经理） | `all`（租户管理员） |
+|------|-------------------|-------------------------|---------------------|
+| Hero 指挥条 | ✓ | ✓ | ✓ |
+| 智能信号（横滑关注项） | ✓（≤2 条优先） | ✓（合并关注，≤5 优先） | **隐藏** |
+| KPI 行 | 5 项全量 | **3 项**：在途商机、需关注、本周待跟进 | 5 项全量 |
+| 成交分析 | 配额+漏斗（无排行） | **事业部配额** + 漏斗 + **成员排行** | 集团配额 + 漏斗 + **部门排行** |
+| 今日重点 + 今日日程 | ✓ | **隐藏**（已并入智能信号） | **隐藏** |
+| 管道动态（线索/公司） | ✓ | **隐藏** | **隐藏** |
+| Zone E 数据展望 | **隐藏** | **隐藏** | ✓（可选） |
+
+**登录/租户**：销售用户须完成 `switch-tenant`，使 JWT 租户与 `crm.tenant_id` 一致，否则 Casbin 403、全站无数据（见 Phase 4 §3.7）。
 
 ### 4.5 ui-kit 组件（与业务同迭代）
 
@@ -309,9 +342,9 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 
 | 策略 | 适用 | 判定方式（MVP） |
 |------|------|-----------------|
-| `self` | 销售代表、只读等 | 默认 |
-| `department` | 销售经理 | 角色名 + `user_tenants.department` |
-| `all` | 租户管理员 | `rbac:manage` |
+| `self` | 无 `user_tenants.department` 的用户 | 默认 |
+| `department` | 非 `rbac:manage` 且 `department` 非空 | 同部门 `owner_id` 集合 |
+| `all` | 租户管理员 | `rbac:manage`（Casbin） |
 
 ### 5.3.1 部门模型（MVP）
 
@@ -452,3 +485,4 @@ Phase 2 工作台 IA（§11.5）保留；Phase 3 **生产化**以下能力：
 |------|------|
 | 2026-05-25 | PM v0.1 初稿：Deals Pipeline、Dashboard 生产化、MoSCoW；对齐 phase-3-deals-dashboard-api v1.0 Accepted |
 | 2026-05-26 | PM v0.2：部门数据范围（租户管理员 `all` + 部门排行；销售经理 `department` + 成员排行）；`user_tenants.department`；对齐实现与 xiaoxi 演示 |
+| 2026-05-26 | PM v0.3：§4.4.6 分角色工作台布局；事业部配额 `department_quotas`；Zone E 仅管理员；部门 scope 剔除 `owner_id IS NULL`；登录须 `switch-tenant`（见 Phase 4 §3.7） |

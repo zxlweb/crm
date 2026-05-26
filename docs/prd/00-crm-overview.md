@@ -1,8 +1,8 @@
 # CRM 系统 MVP PRD
 
 **产品名称**：EnterpriseFlow CRM（企业流 CRM）  
-**版本**：MVP v0.2  
-**日期**：2026-05-22（AI 战略修订）  
+**版本**：MVP v0.3  
+**日期**：2026-05-26（权限与数据范围修订）  
 **目标用户**：中小企业销售团队、客服团队  
 **Phase 2 详细 PRD**：[phase-2-relationship-crm-prd.md](./phase-2-relationship-crm-prd.md)（关系经营 + AI 演示预留）
 
@@ -68,15 +68,17 @@
 
 - 商机 (Deals) CRUD + Pipeline 看板 + 阶段推进
 - 个人/经理/管理员 Dashboard（KPI + Sparkline/Line/Funnel/Gauge/Bar 接 API）
-- **数据范围**：销售 `self`、销售经理 `department`（同部门成员数据 + 成员排行）、租户管理员 `all`（全租户 + **部门排行**）
-- 首页 Zone E 迷你漏斗 **生产化**（替换 Phase 2 Preview fixtures）
+- **数据范围**：`self`（本人）/ `department`（同 `user_tenants.department` 成员数据，**不含** `owner_id` 空记录）/ `all`（租户管理员 `rbac:manage`）
+- **分角色工作台**：销售经理精简 KPI + 事业部配额；管理员部门排行 + Zone E；销售代表全个人视图（见 Phase 3 §4.4.6）
+- **事业部配额**：`tenants.config.department_quotas`（经理）与 `sales_quota`（管理员）
+- 首页 Zone E：**仅** `data_scope=all` 展示；一线角色隐藏演示样例区
 - AI（Should）：经理「关系降温」名单（规则版，接 Phase 2 情绪与 engagement）
 
 ### Phase 4 — 系统设置与收尾
 
 **详细 PRD**：[phase-4-system-settings-close-prd.md](./phase-4-system-settings-close-prd.md)
 
-- 租户配置、自定义字段、**系统设置内角色与权限**、**成员与部门列**、i18n、Swagger、审计报表、部署文档闭环
+- 租户配置、自定义字段、**系统设置内角色与权限**、**成员列表按数据范围过滤**、**登录/切换租户与会话**（AUTH-01–04）、i18n、Swagger、审计报表、部署文档闭环
 
 ### Phase 5+ — **AI 生产能力**
 
@@ -119,10 +121,12 @@
 - 作为 **老板**，我打开演示账号，在 3 分钟内看到：情绪旅程、洞察卡片、Copilot 生成跟进话术（Mock）
 - 作为管理员，我可以关闭租户 AI 演示，仅显示已上线的规则能力
 
-**权限**
+**权限与数据范围**
 
-- 作为管理员，我可以创建角色并分配权限
-- 作为销售，我只能看到自己负责的线索和商机（`data_scope=self`）
+- 作为管理员，我可以创建角色并分配权限；查看本租户**全部**成员
+- 作为销售经理，我只能看到**本事业部** CRM 数据、成员排行与成员列表（`data_scope=department`）
+- 作为销售代表，我只能看到自己负责的线索和商机（`data_scope=self`）
+- 作为任意用户，登录后 JWT 租户与当前租户一致，避免残留 cookie 导致 403（见 Phase 4 §3.7）
 
 ---
 
@@ -179,3 +183,4 @@
 | 2026-05-25 | 链 Phase 3 详细 PRD（Deals + Dashboard） |
 | 2026-05-26 | 链 Phase 4 详细 PRD（系统设置与收尾） |
 | 2026-05-26 | Phase 4 PRD v0.2：补充系统设置内角色与权限配置 |
+| 2026-05-26 | MVP v0.3：同步 Phase 3 v0.3（分角色工作台、事业部配额、Zone E 可见性）与 Phase 4 v0.4（成员 scope、登录/租户会话） |
