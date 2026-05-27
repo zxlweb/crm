@@ -118,22 +118,26 @@ function relNavPath(fromDir, toRelHtml) {
   return (depth ? '../'.repeat(depth) : './') + toRelHtml
 }
 
+function toPosixPath(p) {
+  return p.replaceAll('\\', '/')
+}
+
 function buildSidebar(allMd, currentRel) {
-  const fromDir = path.dirname(currentRel)
+  const currentRelNorm = toPosixPath(currentRel)
   const byDir = {}
   for (const f of allMd) {
-    const rel = path.relative(docsDir, f)
-    const dir = path.dirname(rel) || '.'
-    if (!byDir[dir]) byDir[dir] = []
-    byDir[dir].push(rel)
+    const relNorm = toPosixPath(path.relative(docsDir, f))
+    const dirNorm = path.posix.dirname(relNorm) || '.'
+    if (!byDir[dirNorm]) byDir[dirNorm] = []
+    byDir[dirNorm].push(relNorm)
   }
-  let html = `<p><a href="${relNavPath(fromDir, 'index.html')}"><strong>📚 文档首页</strong></a></p>`
+  let html = `<p><a href="/index.html"><strong>📚 文档首页</strong></a></p>`
   for (const dir of Object.keys(byDir).sort()) {
     html += `<h2>${dir === '.' ? '根目录' : dir}</h2>`
     for (const rel of byDir[dir]) {
-      const href = relNavPath(fromDir, rel.replace(/\.md$/, '.html'))
-      const cur = rel === currentRel ? ' style="color:var(--accent);font-weight:600"' : ''
-      html += `<a href="${href}"${cur}>${path.basename(rel, '.md')}</a>`
+      const href = '/' + rel.replace(/\.md$/, '.html')
+      const cur = rel === currentRelNorm ? ' style="color:var(--accent);font-weight:600"' : ''
+      html += `<a href="${href}"${cur}>${path.posix.basename(rel, '.md')}</a>`
     }
   }
   return html

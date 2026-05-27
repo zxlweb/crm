@@ -163,6 +163,12 @@
                     :placeholder="$t('leadsFilterAllStatus')"
                   />
                   <UiSelect
+                    v-model="lifecycleFilter"
+                    class="w-full sm:w-36"
+                    :items="lifecycleSelectItems"
+                    :placeholder="$t('accountsFilterAllLifecycle')"
+                  />
+                  <UiSelect
                     v-model="healthFilter"
                     class="w-full sm:w-36"
                     :items="healthSelectItems"
@@ -198,10 +204,57 @@
         </Transition>
 
       <UiModal v-model:open="createOpen" :title="$t('leadsCreateTitle')">
-        <form class="space-y-4" @submit.prevent="submitCreate">
+        <form class="space-y-4" data-testid="lead-create-form" @submit.prevent="submitCreate">
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-ds-fg">{{ $t('leadsColTitle') }}</label>
-            <UiInput v-model="createTitle" required />
+            <label
+              class="mb-1.5 block text-sm font-medium text-ds-fg"
+              for="leads-create-title"
+            >
+              {{ $t('leadsColTitle') }}
+            </label>
+            <UiInput id="leads-create-title" v-model="createTitle" required data-testid="lead-create-title" />
+          </div>
+          <div>
+            <label
+              class="mb-1.5 block text-sm font-medium text-ds-fg"
+              for="leads-create-amount"
+            >
+              {{ $t('leadsFieldAmount') }}
+            </label>
+            <UiInput
+              id="leads-create-amount"
+              v-model="createAmount"
+              type="number"
+              min="0"
+              step="1000"
+              :placeholder="$t('leadsAmountUnset')"
+              data-testid="lead-create-amount"
+            />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-ds-fg">
+              {{ $t('leadsColSource') }}
+            </label>
+            <UiSelect
+              v-model="createSource"
+              :items="createSourceItems"
+              :placeholder="$t('leadSource.unknown')"
+              data-testid="lead-create-source"
+            />
+          </div>
+          <div>
+            <label
+              class="mb-1.5 block text-sm font-medium text-ds-fg"
+              for="leads-create-close-date"
+            >
+              {{ $t('leadsFieldExpectedClose') }}
+            </label>
+            <UiInput
+              id="leads-create-close-date"
+              v-model="createExpectedCloseDate"
+              type="date"
+              data-testid="lead-create-close-date"
+            />
           </div>
         </form>
         <template #footer>
@@ -306,10 +359,12 @@
 import { MOCK_USER_PROFILES } from '~/fixtures/users.mock'
 import type {
   Lead,
+  LeadCreateInput,
   LeadPool,
   LeadPoolSettings,
   LeadPoolStats,
   LeadStatus,
+  LifecycleStage,
   RelationshipHealth,
 } from '~/types/lead'
 import { isLeadPool } from '~/types/lead'
@@ -337,12 +392,18 @@ const loadError = ref('')
 const search = ref('')
 const segmentFilter = ref('')
 const statusFilter = ref('')
+const lifecycleFilter = ref<LifecycleStage | ''>('')
 const healthFilter = ref('')
 const segments = ref<SegmentTemplate[]>([])
 const filtersReady = ref(false)
 const creating = ref(false)
 const createTitle = ref('')
+const createAmount = ref('')
+const createSource = ref('')
+const createExpectedCloseDate = ref('')
 const createOpen = ref(false)
+
+const LEAD_SOURCE_CODES = ['website', 'referral', 'exhibition', 'cold_call', 'partner'] as const
 
 // ===== 客户池（公海 / 私海） =====
 const poolFilter = ref<LeadPool>('mine')
@@ -366,6 +427,7 @@ const transferTarget = ref('')
 const transferring = ref(false)
 
 const statusOptions: LeadStatus[] = ['new', 'contacted', 'qualified', 'unqualified', 'converted']
+const lifecycleOptions: LifecycleStage[] = ['acquire', 'activate', 'grow', 'retain', 'revive']
 const healthOptions: RelationshipHealth[] = ['high', 'medium', 'low']
 
 const canCreate = computed(() => permission.can('leads', 'create'))
@@ -420,16 +482,29 @@ const statusSelectItems = computed(() => [
   ...statusOptions.map((s) => ({ label: t(`leadStatus.${s}`), value: s })),
 ])
 
+const lifecycleSelectItems = computed(() => [
+  { label: t('accountsFilterAllLifecycle'), value: '' },
+  ...lifecycleOptions.map((s) => ({ label: t(`lifecycle.${s}`), value: s })),
+])
+
 const healthSelectItems = computed(() => [
   { label: t('accountsFilterAllHealth'), value: '' },
   ...healthOptions.map((h) => ({ label: t(`relationshipHealth.${h}`), value: h })),
+])
+
+const createSourceItems = computed(() => [
+  { label: t('leadSource.unknown'), value: '' },
+  ...LEAD_SOURCE_CODES.map((code) => ({
+    label: t(`leadSource.${code}`),
+    value: code,
+  })),
 ])
 
 const segmentSelectItems = computed(() => [
   { label: t('segmentAll'), value: '' },
   ...segments.value.map((segment) => ({
     label:
-      segment.count != null
+      segment.count !== null && segment.count !== undefined
         ? t('segmentOptionCount', { name: t(segment.name_key), count: segment.count })
         : t(segment.name_key),
     value: segment.code,
@@ -448,6 +523,7 @@ const hasActiveFilter = computed(
   () =>
     Boolean(segmentFilter.value) ||
     Boolean(statusFilter.value) ||
+    Boolean(lifecycleFilter.value) ||
     Boolean(healthFilter.value) ||
     Boolean(search.value),
 )
@@ -461,6 +537,7 @@ function resetFilters() {
   search.value = ''
   segmentFilter.value = ''
   statusFilter.value = ''
+  lifecycleFilter.value = ''
   healthFilter.value = ''
   page.value = 1
   reload()
@@ -480,6 +557,7 @@ async function reload() {
       page_size: LIST_PAGE_SIZE,
       search: search.value || undefined,
       status: (statusFilter.value || undefined) as LeadStatus | undefined,
+      lifecycle_stage: (lifecycleFilter.value || undefined) as LifecycleStage | undefined,
       relationship_health: (healthFilter.value || undefined) as RelationshipHealth | undefined,
       segment: segmentFilter.value || undefined,
       pool: poolFilter.value,
@@ -644,13 +722,31 @@ async function submitPoolSettings() {
   }
 }
 
+function resetCreateForm() {
+  createTitle.value = ''
+  createAmount.value = ''
+  createSource.value = ''
+  createExpectedCloseDate.value = ''
+}
+
 async function submitCreate() {
   if (!createTitle.value.trim()) return
   creating.value = true
   try {
-    await leadsApi.create({ title: createTitle.value.trim() })
+    const payload: LeadCreateInput = { title: createTitle.value.trim() }
+    const parsedAmount = Number(createAmount.value)
+    if (Number.isFinite(parsedAmount) && parsedAmount > 0) {
+      payload.amount = parsedAmount
+    }
+    if (createSource.value) {
+      payload.source = createSource.value
+    }
+    if (createExpectedCloseDate.value) {
+      payload.expected_close_date = createExpectedCloseDate.value
+    }
+    await leadsApi.create(payload)
     createOpen.value = false
-    createTitle.value = ''
+    resetCreateForm()
     await reload()
   } catch (e) {
     loadError.value = e instanceof Error ? e.message : t('loadFailed')
@@ -659,7 +755,11 @@ async function submitCreate() {
   }
 }
 
-watch([statusFilter, healthFilter], () => {
+watch(createOpen, (open) => {
+  if (!open) resetCreateForm()
+})
+
+watch([statusFilter, healthFilter, lifecycleFilter], () => {
   if (!filtersReady.value) return
   page.value = 1
   reload()
@@ -722,6 +822,10 @@ function applyRouteQuery() {
   const health = route.query.health
   if (typeof health === 'string' && healthOptions.includes(health as RelationshipHealth)) {
     healthFilter.value = health
+  }
+  const lifecycle = route.query.lifecycle
+  if (typeof lifecycle === 'string' && lifecycleOptions.includes(lifecycle as LifecycleStage)) {
+    lifecycleFilter.value = lifecycle
   }
   const seg = route.query.segment
   if (typeof seg === 'string' && isSegmentCode(seg)) {

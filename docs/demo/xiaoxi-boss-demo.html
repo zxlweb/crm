@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>小西科技集团 · 老板演示数据 · CRM Docs</title>
+  <style>
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b;
+  --card: #fff; --border: #e2e8f0; --accent: #2563eb;
+  --code-bg: #f1f5f9;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+  --card: #1e293b; --border: #334155; --accent: #60a5fa;
+  --code-bg: #1e293b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.65;
+}
+.layout { display: flex; min-height: 100vh; }
+nav {
+  width: 260px; flex-shrink: 0; padding: 1.25rem; border-right: 1px solid var(--border);
+  background: var(--card); position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .5rem; }
+nav a { display: block; font-size: 0.875rem; color: var(--fg); text-decoration: none; padding: .25rem 0; }
+nav a:hover { color: var(--accent); }
+main { flex: 1; max-width: 900px; padding: 2rem 2.5rem 4rem; }
+.toolbar { display: flex; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+.toolbar button, .toolbar a {
+  font-size: 0.8125rem; padding: .4rem .75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+article h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+article h2 { font-size: 1.35rem; margin-top: 2rem; }
+article h3 { font-size: 1.1rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+article th, article td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+article th { background: var(--code-bg); }
+article code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: 0.88em; }
+article pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article blockquote { border-left: 4px solid var(--accent); margin: 1rem 0; padding-left: 1rem; color: var(--muted); }
+article a { color: var(--accent); }
+.footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <nav><p><a href="/index.html"><strong>📚 文档首页</strong></a></p><h2>根目录</h2><a href="/README.html">README</a><h2>api</h2><a href="/api/00-api-design.html">00-api-design</a><a href="/api/README.html">README</a><a href="/api/phase-2-crm-ai.html">phase-2-crm-ai</a><a href="/api/phase-3-deals-dashboard-api.html">phase-3-deals-dashboard-api</a><a href="/api/phase-4-system-settings-api.html">phase-4-system-settings-api</a><h2>architecture</h2><a href="/architecture/00-main-architecture.html">00-main-architecture</a><a href="/architecture/01-multi-tenancy.html">01-multi-tenancy</a><a href="/architecture/02-rbac-design.html">02-rbac-design</a><a href="/architecture/03-phase-2-crm-schema.html">03-phase-2-crm-schema</a><a href="/architecture/04-phase-3-deals-dashboard-schema.html">04-phase-3-deals-dashboard-schema</a><a href="/architecture/05-phase-4-settings-close-architecture.html">05-phase-4-settings-close-architecture</a><a href="/architecture/README.html">README</a><h2>architecture/adr</h2><a href="/architecture/adr/0000-template.html">0000-template</a><a href="/architecture/adr/0001-shared-db-multi-tenancy.html">0001-shared-db-multi-tenancy</a><a href="/architecture/adr/0002-casbin-rbac.html">0002-casbin-rbac</a><a href="/architecture/adr/0003-goose-migrations.html">0003-goose-migrations</a><a href="/architecture/adr/0004-rule-insights-and-ai-preview.html">0004-rule-insights-and-ai-preview</a><a href="/architecture/adr/0005-phase4-settings-custom-fields-and-tenant-insights.html">0005-phase4-settings-custom-fields-and-tenant-insights</a><a href="/architecture/adr/README.html">README</a><h2>backend-arch</h2><a href="/backend-arch/00-database-schema.html">00-database-schema</a><a href="/backend-arch/01-layering.html">01-layering</a><a href="/backend-arch/README.html">README</a><h2>demo</h2><a href="/demo/xiaoxi-boss-demo.html" style="color:var(--accent);font-weight:600">xiaoxi-boss-demo</a><h2>frontend-arch</h2><a href="/frontend-arch/01-directory-structure.html">01-directory-structure</a><a href="/frontend-arch/02-ui-kit-modules.html">02-ui-kit-modules</a><a href="/frontend-arch/03-design-system.html">03-design-system</a><a href="/frontend-arch/04-ux-design-guidelines.html">04-ux-design-guidelines</a><a href="/frontend-arch/05-component-scenarios.html">05-component-scenarios</a><a href="/frontend-arch/README.html">README</a><h2>meeting-notes</h2><a href="/meeting-notes/README.html">README</a><a href="/meeting-notes/phase-0-notes.html">phase-0-notes</a><a href="/meeting-notes/phase-1-notes.html">phase-1-notes</a><a href="/meeting-notes/phase-2-notes.html">phase-2-notes</a><a href="/meeting-notes/phase-3-notes.html">phase-3-notes</a><a href="/meeting-notes/phase-4-notes.html">phase-4-notes</a><h2>prd</h2><a href="/prd/00-crm-overview.html">00-crm-overview</a><a href="/prd/README.html">README</a><a href="/prd/phase-2-relationship-crm-prd.html">phase-2-relationship-crm-prd</a><a href="/prd/phase-3-deals-dashboard-prd.html">phase-3-deals-dashboard-prd</a><a href="/prd/phase-4-system-settings-close-prd.html">phase-4-system-settings-close-prd</a><h2>qa</h2><a href="/qa/README.html">README</a><a href="/qa/phase-0-qa.html">phase-0-qa</a><a href="/qa/phase-1-qa.html">phase-1-qa</a><a href="/qa/phase-2-2.3-leads-qa-plan.html">phase-2-2.3-leads-qa-plan</a><a href="/qa/phase-3-deals-qa-plan.html">phase-3-deals-qa-plan</a><h2>reviews</h2><a href="/reviews/README.html">README</a><a href="/reviews/phase-0-review.html">phase-0-review</a><h2>tasks</h2><a href="/tasks/00-mvp-task-breakdown.html">00-mvp-task-breakdown</a><a href="/tasks/README.html">README</a><a href="/tasks/parallel-implementation.html">parallel-implementation</a><h2>templates</h2><a href="/templates/code-review-template.html">code-review-template</a><a href="/templates/qa-test-template.html">qa-test-template</a></nav>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="theme-toggle">🌓 切换主题</button>
+        <a href="../demo\xiaoxi-boss-demo.md" target="_blank">查看 Markdown 源码</a>
+      </div>
+      <article class="markdown-body"><h1>小西科技集团 · 老板演示数据</h1>
+<p>按钉钉通讯录一级部门准备的演示租户，用于向管理层展示 CRM 仪表盘、商机管道与线索跟进。</p>
+<h2>一键导入</h2>
+<pre><code class="language-bash">
+cd backend
+
+make migrate-up
+</code></pre>
+<p>迁移文件：<code>00018_seed_xiaoxi_org_demo.sql</code>、<code>00019_seed_xiaoxi_roles_expand.sql</code>、<code>00020_user_tenant_department.sql</code></p>
+<h2>登录（给老板看）</h2>
+<p>| 项目 | 值 |</p>
+<p>|------|-----|</p>
+<p>| 邮箱 | <code>ceo@xiaoxi.com</code> |</p>
+<p>| 密码 | <code>password123</code> |</p>
+<p>| 租户 | <strong>小西科技集团</strong>（登录后选择 / 切换租户） |</p>
+<p>潘卫国账号为 <strong>租户管理员</strong>，可查看全集团商机、成员与设置。</p>
+<h2>数据范围（按角色）</h2>
+<p>| 角色 | 线索/客户/商机 | 仪表盘团队排行 |</p>
+<p>|------|----------------|----------------|</p>
+<p>| <strong>租户管理员</strong> | 全租户 | <strong>按部门</strong>汇总本月赢单 |</p>
+<p>| <strong>销售经理 / 客户经理</strong> | 仅本事业部成员负责的数据 | <strong>按成员</strong>（本部门内） |</p>
+<p>| <strong>销售代表 / 只读</strong> | 仅本事业部数据 | 不展示排行区块 |</p>
+<p>部门归属写在 <strong>设置 → 成员</strong> 的「部门」列（来自 <code>user_tenants.department</code>）。<strong>非租户管理员</strong>只要配置了部门，线索/客户/商机/仪表盘 KPI 均 <strong>仅本事业部</strong>，无法看到其它事业部数据。</p>
+<h2>角色体系（4 个系统角色）</h2>
+<p>| 角色 | 说明 | 典型账号 |</p>
+<p>|------|------|----------|</p>
+<p>| <strong>租户管理员</strong> | 全功能 + 成员/角色管理 | <code>ceo@xiaoxi.com</code> 潘卫国 |</p>
+<p>| <strong>销售经理</strong> | 本部门 CRM + 部门内团队排行 | <code>linghu@xiaoxi.com</code> 李婷、<code>shenlong@xiaoxi.com</code> 陈洋、<code>kylin@xiaoxi.com</code> 刘洋 |</p>
+<p>| <strong>销售代表</strong> | 一线跟进线索/客户/商机 | <code>moye@xiaoxi.com</code> 王磊、<code>dc@xiaoxi.com</code> 周强 等 |</p>
+<p>| <strong>只读用户</strong> | 仅查看报表与 CRM，不可改数据 | <code>tech@xiaoxi.com</code> 张伟、<code>delivery@xiaoxi.com</code> 孙丽 |</p>
+<p>在 <strong>设置 → 角色与权限</strong> 可查看各角色权限树；<strong>设置 → 成员</strong> 可看到每人当前角色与部门。</p>
+<h2>组织架构 ↔ 演示数据</h2>
+<p>| 钉钉部门 | 演示负责人 | 邮箱 | CRM 角色 | 标签（线索/商机上） |</p>
+<p>|----------|------------|------|----------|---------------------|</p>
+<p>| 总裁办 | 潘卫国 | <a href="mailto:ceo@xiaoxi.com">ceo@xiaoxi.com</a> | 租户管理员 | — |</p>
+<p>| 技术中心 | 张伟 | <a href="mailto:tech@xiaoxi.com">tech@xiaoxi.com</a> | 只读用户 | 技术中心 |</p>
+<p>| 灵狐数据 | 李婷 | <a href="mailto:linghu@xiaoxi.com">linghu@xiaoxi.com</a> | 销售经理 | 灵狐数据 |</p>
+<p>| 莫邪互娱 | 王磊 | <a href="mailto:moye@xiaoxi.com">moye@xiaoxi.com</a> | 销售代表 | 莫邪互娱 |</p>
+<p>| 神龙云计算 | 陈洋 | <a href="mailto:shenlong@xiaoxi.com">shenlong@xiaoxi.com</a> | 销售经理 | 神龙云计算 |
+| 神龙云计算 | 赵云 | <a href="mailto:zhaoyun@xiaoxi.com">zhaoyun@xiaoxi.com</a> | 销售代表 | 神龙云计算 |
+| 神龙云计算 | 孙丽 | <a href="mailto:sunli@xiaoxi.com">sunli@xiaoxi.com</a> | 销售代表 | 神龙云计算 |</p>
+<p>| 南京小东 | 赵敏 | <a href="mailto:nanjing@xiaoxi.com">nanjing@xiaoxi.com</a> | 销售代表 | 南京小东 |</p>
+<p>| 麒麟事业群 | 刘洋 | <a href="mailto:kylin@xiaoxi.com">kylin@xiaoxi.com</a> | 销售经理 | 麒麟事业群 |</p>
+<p>| 马来西亚 | 林薇 | <a href="mailto:my@xiaoxi.com">my@xiaoxi.com</a> | 销售代表 | 马来西亚 |</p>
+<p>| 数据中心实施部 | 周强 | <a href="mailto:dc@xiaoxi.com">dc@xiaoxi.com</a> | 销售代表 | 数据中心实施部 |</p>
+<p>| 产品交付部 | 孙丽 | <a href="mailto:delivery@xiaoxi.com">delivery@xiaoxi.com</a> | 只读用户 | 产品交付部 |</p>
+<h2>建议演示路径（约 8 分钟）</h2>
+<ol>
+<li><p><strong>系统设置 → 成员</strong> — 查看潘总、各部门负责人及「部门」列</p>
+</li>
+<li><p><strong>仪表盘（<a href="mailto:ceo@xiaoxi.com">ceo@xiaoxi.com</a>）</strong> — 配额 ¥2,800 万；<strong>部门业绩排行</strong>（灵狐、神龙、麒麟等）</p>
+</li>
+<li><p><strong>商机 / Deals</strong> — 管道：灵狐中台谈判、政务云二期、信创云战略单</p>
+</li>
+<li><p><strong>线索</strong> — 打开「⭐ 华东数智 · 数据中台年度」→ 情绪旅程 / 跟进时间线</p>
+</li>
+<li><p><strong>客户 / 联系人</strong> — 按标签筛选「神龙云计算」「马来西亚」</p>
+</li>
+<li><p><strong><code>linghu@xiaoxi.com</code>（李婷 · 销售经理）</strong> — 仅见灵狐数据范围数据；团队排行为本部门成员</p>
+</li>
+<li><p><strong><code>moye@xiaoxi.com</code>（王磊 · 销售代表）</strong> — 仅本人线索/商机，无团队排行</p>
+</li>
+</ol>
+<h2>数据概览</h2>
+<ul>
+<li><p>客户 9 家 · 线索 10 条 · 商机 12 笔（含 4 笔已赢单）</p>
+</li>
+<li><p>旗舰线索：华东数智数据中台（灵狐数据，¥128 万谈判中）</p>
+</li>
+<li><p>最大在谈：神龙云计算 · 某省信创云（¥350 万，资质阶段）</p>
+</li>
+<li><p>神龙本月赢单：光谷政务云一期（¥168 万，<code>shenlong@xiaoxi.com</code> 工作台配额约 21% / 800 万）</p>
+</li>
+</ul>
+<h2>回滚</h2>
+<pre><code class="language-bash">
+cd backend
+
+make migrate-down   # 按迁移版本依次回滚
+</code></pre>
+</article>
+      <p class="footer">由 scripts/build-docs-html.mjs 生成 · 源文件 ../demo\xiaoxi-boss-demo.md</p>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default' });
+    document.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e) {} });
+    const key = 'crm-docs-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+    document.getElementById('theme-toggle').onclick = () => {
+      const d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+      document.documentElement.dataset.theme = d;
+      localStorage.setItem(key, d || 'light');
+      document.getElementById('hljs-dark').disabled = d !== 'dark';
+      document.getElementById('hljs-light').disabled = d === 'dark';
+    };
+    if (document.documentElement.dataset.theme === 'dark') {
+      document.getElementById('hljs-dark').disabled = false;
+      document.getElementById('hljs-light').disabled = true;
+    }
+  </script>
+</body>
+</html>

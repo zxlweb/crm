@@ -59,6 +59,21 @@
 | `medium` | 一般 | 需关注，未达风险阈值 |
 | `low` | 风险 | 沉默或负面信号偏多 |
 
+#### 2.2.1 计算规则（记录阈值，便于前后端一致）
+
+`relationship_health` 由服务端根据 `engagement_score`（0–100）映射得出：
+
+- `high`：`engagement_score >= 70`
+- `medium`：`40 <= engagement_score < 70`
+- `low`：`engagement_score < 40`
+
+**刷新时机（服务端负责）：**
+
+- Activity 新建/更新/删除后，应刷新主体 `last_activity_at`、`engagement_score`，并据此更新 `relationship_health`
+- 线索 `status` / `lifecycle_stage` 发生变化时（例如 PATCH 状态、转化、生命周期调整），也会影响 `engagement_score` 的计算权重，因此同样需要刷新
+
+> 注：`engagement_score` 为 Phase 2 的规则分（非模型分），服务端实现参考 `backend/internal/pkg/crm/engagement.go`。
+
 ### 2.3 Lead 状态 `status`
 
 | code | 中文 | 说明 |
@@ -69,7 +84,27 @@
 | `unqualified` | 不合格 | 归档 / 培育池 |
 | `converted` | 已转化 | 须关联 `converted_account_id`（及可选 Contact） |
 
-合法迁移：`new` → `contacted` → `qualified` → `unqualified` \| `converted`（非法返回 `invalid_status_transition`）。
+#### 2.3.1 状态迁移规则（必须严格遵守）
+
+本项目将 `converted` 视为「转化动作」的结果，而不是普通的 PATCH 状态跳转。
+
+**PATCH（`PUT/PATCH /api/leads/:id`）允许的迁移：**
+
+- `new` → `contacted`
+- `contacted` → `qualified` 或 `unqualified`
+- `qualified` → `unqualified`
+- 任意状态 → 自身（不变更视为允许）
+
+**禁止的迁移（非法返回 `invalid_status_transition`）：**
+
+- 任何状态 → `converted`（必须走转化接口）
+- `unqualified` / `converted` → 其他任意状态（终态，禁止回退）
+- 任意未在上方列表中的跳转（例如 `new` → `qualified`）
+
+**转化规则：**
+
+- 仅允许 `qualified` 线索转化：`POST /api/leads/:id/convert`
+- 转化成功后，服务端会把 `status` 置为 `converted`，并写入 `converted_account_id`（可选 `converted_contact_id`）
 
 ### 2.4 Activity
 
@@ -111,15 +146,19 @@
 | `contact` | 联系人 |
 | `account` | 公司 |
 
-#### 2.4.1 情绪 `sentiment`
+#### 2.4.1 情绪 `sentiment`（人工标注标准 5 档）
 
-| code | 中文 | `sentiment_score`（情绪旅程聚合） |
-|------|------|----------------------------------|
-| `positive` | 积极 | 2 |
-| `neutral` | 中性 | 0 |
-| `hesitant` | 犹豫 | -1 |
-| `negative` | 消极 | -2 |
-| `unknown` | 未知 | `null` |
+Phase 2 **禁止销售自由填写情绪**；前端「新增跟进」仅提供下列 5 个枚举值（`sentiment_source=manual`），每档附带示例说明引导选择。
+
+| code | 中文 | `sentiment_score` | 选用说明（含示例） |
+|------|------|-------------------|-------------------|
+| `positive` | 积极 | 2 | 明确表达兴趣、推进意愿、认可方案。例：愿意约演示、索要报价、确认采购流程。 |
+| `neutral` | 中性 | 0 | 正常沟通，没有明显正负信号。例：例行同步进展、确认收件、礼貌回复暂无结论。 |
+| `hesitant` | 犹豫 | -1 | 价格、周期、内部审批、竞品比较、暂缓。例：觉得贵、要再比价、等领导批复、先观望。 |
+| `negative` | 消极 | -2 | 投诉、不满、拒绝、失联风险。例：强烈抱怨、明确拒绝、长期不回复、要求终止合作。 |
+| `unknown` | 未知 | `null` | 信息不足，不强制判断。例：仅系统通知、内容过短、第三方转述且无法判断态度。 |
+
+**前端默认**：新建跟进时默认选中 `unknown`；提交时始终写入 `sentiment` + `sentiment_source=manual`（不再提供「不标注」空选项）。
 
 #### 2.4.2 情绪来源 `sentiment_source`
 

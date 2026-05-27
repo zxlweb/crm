@@ -11,7 +11,18 @@ export type ActivityEventType =
 
 export type ActivityDirection = 'inbound' | 'outbound'
 
-export type ActivitySentiment = 'positive' | 'neutral' | 'hesitant' | 'negative' | 'unknown'
+/** 人工情绪标注标准 5 档（与 API §2.4.1、后端 ValidActivitySentiments 一致） */
+export const ACTIVITY_SENTIMENTS = [
+  'positive',
+  'neutral',
+  'hesitant',
+  'negative',
+  'unknown',
+] as const
+
+export type ActivitySentiment = (typeof ACTIVITY_SENTIMENTS)[number]
+
+export const DEFAULT_ACTIVITY_SENTIMENT: ActivitySentiment = 'unknown'
 
 export type Activity = {
   id: string

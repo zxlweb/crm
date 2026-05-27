@@ -17,15 +17,7 @@
         data-testid="activity-form-body"
       />
     </div>
-    <div>
-      <label class="mb-1.5 block text-sm font-medium text-ds-fg">{{ $t('activityFormSentiment') }}</label>
-      <UiSelect
-        v-model="sentiment"
-        :items="sentimentItems"
-        :placeholder="$t('activityFormSentimentPlaceholder')"
-        data-testid="activity-form-sentiment"
-      />
-    </div>
+    <CrmActivitySentimentPicker v-model="sentiment" />
     <div class="flex justify-end gap-2 border-t border-ds-border pt-4">
       <UiButton type="button" variant="secondary" data-testid="activity-form-cancel" @click="emit('cancel')">
         {{ $t('cancel') }}
@@ -38,7 +30,12 @@
 </template>
 
 <script setup lang="ts">
-import type { ActivityCreateInput, ActivityEventType, ActivitySentiment } from '~/types/activity'
+import {
+  DEFAULT_ACTIVITY_SENTIMENT,
+  type ActivityCreateInput,
+  type ActivityEventType,
+  type ActivitySentiment,
+} from '~/types/activity'
 
 const props = defineProps<{
   subjectType: ActivityCreateInput['subject_type']
@@ -56,10 +53,9 @@ const { t } = useI18n()
 const eventType = ref<ActivityEventType>('call')
 const direction = ref('outbound')
 const body = ref('')
-const sentiment = ref('')
+const sentiment = ref<ActivitySentiment>(DEFAULT_ACTIVITY_SENTIMENT)
 
 const eventTypes: ActivityEventType[] = ['call', 'email', 'meeting', 'wechat', 'note', 'visit']
-const sentiments: ActivitySentiment[] = ['positive', 'neutral', 'hesitant', 'negative']
 
 const eventTypeItems = computed(() =>
   eventTypes.map((e) => ({ label: t(`activityType.${e}`), value: e })),
@@ -68,16 +64,12 @@ const directionItems = computed(() => [
   { label: t('activityDirection.outbound'), value: 'outbound' },
   { label: t('activityDirection.inbound'), value: 'inbound' },
 ])
-const sentimentItems = computed(() => [
-  { label: t('activityFormSentimentNone'), value: '' },
-  ...sentiments.map((s) => ({ label: t(`sentiment.${s}`), value: s })),
-])
 
 function resetForm() {
   eventType.value = 'call'
   direction.value = 'outbound'
   body.value = ''
-  sentiment.value = ''
+  sentiment.value = DEFAULT_ACTIVITY_SENTIMENT
 }
 
 function onSubmit() {
@@ -88,10 +80,8 @@ function onSubmit() {
     direction: direction.value as ActivityCreateInput['direction'],
     body: body.value.trim() || undefined,
   }
-  if (sentiment.value) {
-    payload.sentiment = sentiment.value as ActivitySentiment
-    payload.sentiment_source = 'manual'
-  }
+  payload.sentiment = sentiment.value
+  payload.sentiment_source = 'manual'
   emit('submit', payload)
   resetForm()
 }

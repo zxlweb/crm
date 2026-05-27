@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @crm/web dev",
+    "dev:lan": "pnpm --filter @crm/web dev:lan",
     "build": "pnpm -r --filter @crm/ui-kit --filter @crm/web run build",
     "build:ui-kit": "pnpm --filter @crm/ui-kit build",
     "test": "pnpm -r --filter @crm/ui-kit --filter @crm/web run test",

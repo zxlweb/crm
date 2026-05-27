@@ -22,14 +22,29 @@ function applyAuthHeaders(headers: Headers, options: ApiOptions) {
   }
 }
 
+function resolveApiBase(configured: string): string {
+  const base = configured.replace(/\/$/, '')
+  if (!import.meta.client) return base
+  const host = window.location.hostname
+  if (!host || host === 'localhost' || host === '127.0.0.1') return base
+  if (!base.includes('localhost') && !base.includes('127.0.0.1')) return base
+  try {
+    const url = new URL(base)
+    return `http://${host}:${url.port || '8080'}`
+  } catch {
+    return `http://${host}:8080`
+  }
+}
+
 export function useApi() {
   const config = useRuntimeConfig()
+  const apiBase = computed(() => resolveApiBase(String(config.public.apiBase || '')))
 
   async function request<T>(path: string, options: ApiOptions = {}): Promise<T> {
     const headers = new Headers(options.headers)
     applyAuthHeaders(headers, options)
 
-    const res = await fetch(`${config.public.apiBase}${path}`, {
+    const res = await fetch(`${apiBase.value}${path}`, {
       ...options,
       headers,
     })
@@ -45,7 +60,7 @@ export function useApi() {
     const headers = new Headers(options.headers)
     applyAuthHeaders(headers, options)
 
-    const res = await fetch(`${config.public.apiBase}${path}`, {
+    const res = await fetch(`${apiBase.value}${path}`, {
       ...options,
       headers,
     })

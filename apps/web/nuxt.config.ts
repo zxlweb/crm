@@ -1,8 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { resolvePublicApiBase } from './utils/resolve-public-api-base'
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-05-21',
   typescript: { strict: true },
+
+  /** 局域网可通过本机 IP 访问（如 http://10.x.x.x:3000） */
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000,
+  },
 
   /** HTML5 History — 禁止 hash 路由（#） */
   router: {
@@ -81,7 +89,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080',
+      apiBase: resolvePublicApiBase(),
       /** 仅显式 true 时用 mock；默认走真实 /api/leads */
       useLeadsMock: process.env.NUXT_PUBLIC_USE_LEADS_MOCK === 'true',
       /** 仅显式 true 时用 mock；默认走真实 API */

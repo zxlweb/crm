@@ -41,6 +41,72 @@
         />
       </header>
       <div class="relative p-3 sm:p-4">
+        <div
+          class="mb-4 rounded-xl border border-ds-border-muted bg-ds-bg-muted/45 p-3 sm:p-4"
+          data-testid="emotion-confidence-demo-v2"
+        >
+          <div class="grid gap-3 lg:grid-cols-[240px_minmax(0,1fr)]">
+            <div class="rounded-lg border border-ds-border-muted bg-ds-bg-elevated p-3 shadow-ds-sm">
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-ds-info-subtle text-ds-info ring-1 ring-inset ring-ds-info/25"
+                  aria-label="情绪可信分 78%"
+                >
+                  <div class="text-center leading-none">
+                    <p class="text-xl font-bold">78</p>
+                    <p class="mt-0.5 text-[10px] font-medium">可信分</p>
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <h4 class="text-sm font-semibold text-ds-fg-heading">情绪可信度</h4>
+                    <span class="rounded-full bg-ds-success-subtle px-2 py-0.5 text-[11px] font-medium text-ds-success">
+                      中高可信
+                    </span>
+                  </div>
+                  <p class="mt-1 text-xs leading-5 text-ds-fg-muted">
+                    四类信号加权校准，不只看人工标注。
+                  </p>
+                </div>
+              </div>
+              <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-ds-bg-muted">
+                <div class="h-full w-[78%] rounded-full bg-ds-info" />
+              </div>
+            </div>
+
+            <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+              <div
+                v-for="item in confidenceWeights"
+                :key="item.label"
+                class="rounded-lg border border-ds-border-muted bg-ds-bg-elevated p-3"
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex min-w-0 items-center gap-1.5">
+                    <UIcon :name="item.icon" class="h-3.5 w-3.5 shrink-0 text-ds-info" />
+                    <span class="truncate text-xs font-semibold text-ds-fg-heading">{{ item.label }}</span>
+                  </div>
+                  <span class="shrink-0 text-xs font-bold text-ds-info">{{ item.weight }}</span>
+                </div>
+                <p class="mt-1.5 min-h-[34px] text-xs leading-[17px] text-ds-fg-muted">{{ item.desc }}</p>
+                <div class="mt-2 h-1 overflow-hidden rounded-full bg-ds-bg-muted">
+                  <div class="h-full rounded-full bg-ds-info" :style="{ width: item.weight }" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+            <span class="font-medium text-ds-fg-muted">本次证据</span>
+            <span
+              v-for="signal in confidenceSignalsClean"
+              :key="signal"
+              class="inline-flex items-center rounded-full bg-ds-bg-elevated px-2.5 py-1 text-ds-fg-muted ring-1 ring-inset ring-ds-border-muted"
+            >
+              {{ signal }}
+            </span>
+          </div>
+        </div>
+
         <CrmEmotionJourneyMap
           ref="mapRef"
           subject-type="lead"
@@ -74,6 +140,40 @@ const mapRef = useTemplateRef<{ reload: () => Promise<void> }>('mapRef')
 
 const emotionRange = ref<NonNullable<EmotionJourneyQuery['range']>>('90d')
 const journeyRefreshKey = ref(0)
+
+const confidenceWeights = [
+  {
+    label: '人工标注',
+    weight: '30%',
+    desc: '销售选择的基础情绪。',
+    icon: 'i-heroicons-pencil-square',
+  },
+  {
+    label: '文本识别',
+    weight: '30%',
+    desc: '会议、邮件、微信内容识别。',
+    icon: 'i-heroicons-chat-bubble-left-right',
+  },
+  {
+    label: '行为数据',
+    weight: '25%',
+    desc: '回复、参会、沉默等行为校准。',
+    icon: 'i-heroicons-chart-bar',
+  },
+  {
+    label: '业务阶段',
+    weight: '15%',
+    desc: '阶段推进验证关系真实度。',
+    icon: 'i-heroicons-arrow-trending-up',
+  },
+]
+
+const confidenceSignalsClean = [
+  '人工标注：犹豫',
+  '会议纪要命中预算顾虑',
+  '近 7 天有触达但未推进',
+  '生命周期停留在激活阶段',
+]
 
 watch(
   () => props.emotionRefreshKey,
